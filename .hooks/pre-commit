@@ -12,6 +12,7 @@ staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^assets
 
 # If no images are staged, exit successfully
 if [ -z "$staged_images" ]; then
+    echo "No staged images"
     exit 0
 fi
 
