@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Check if exiftool is installed
+if ! command -v exiftool &> /dev/null; then
+    echo "Error: exiftool is not installed"
+    echo "Please install it using: brew install exiftool"
+    exit 1
+fi
+
+# Get list of staged image files in assets/images/photos
+staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^assets/images/photos/.*\.(jpg|jpeg|heic|png)$" || true)
+
+# If no images are staged, exit successfully
+if [ -z "$staged_images" ]; then
+    exit 0
+fi
+
+echo "Removing EXIF location data from staged images..."
+
+# Process each staged image
+for file in $staged_images; do
+    if [ -f "$file" ]; then
+        # Remove GPS data and create backup with _original suffix
+        if ! exiftool -overwrite_original -gps:all= "$file"; then
+            echo "Error: Failed to remove EXIF data from $file"
+            exit 1
+        fi
+        # Re-stage the modified file
+        git add "$file"
+    fi
+done
+
+echo "Successfully removed EXIF location data from staged images"
+exit 0

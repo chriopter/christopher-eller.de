@@ -5,7 +5,6 @@
 bundle install
 ```
 
-
 ## Updating
 To keep Jekyll and all dependencies up to date, run:
 ```bash
@@ -27,11 +26,13 @@ jekyll build
 
 
 ### EXIF Location Data Removal
+brew install exiftool  # for removing EXIF location data from photos
 This repository includes a pre-commit hook that automatically removes EXIF location data from photos in the `assets/images/photos` directory. To set this up:
 
 1. Install exiftool (required for EXIF data removal):
 ```bash
 brew install exiftool
+cp .hooks/pre-commit .git/hooks/ && chmod +x .git/hooks/
 ```
 
 The pre-commit hook will automatically:
