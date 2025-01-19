@@ -15,7 +15,7 @@ This will update all gems, including Jekyll, to their latest versions. If you sp
 ```bash
 bundle update jekyll
 ```
- 
+
 ## Development
 ```bash
 bundle exec jekyll serve
