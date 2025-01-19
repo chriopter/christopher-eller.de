@@ -21,7 +21,7 @@ bundle update jekyll
 bundle exec jekyll serve
 ```
 or
-```bash
+```bash 
 jekyll build
 
 
