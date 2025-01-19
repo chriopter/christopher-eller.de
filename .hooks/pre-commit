@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "=== Pre-commit hook started ==="
+
 # Check if exiftool is installed
 if ! command -v exiftool &> /dev/null; then
     echo "Error: exiftool is not installed"
@@ -7,8 +9,15 @@ if ! command -v exiftool &> /dev/null; then
     exit 1
 fi
 
+# Debug: Print all staged files
+echo "Debug: All staged files:"
+git diff --cached --name-only --diff-filter=d
+
 # Get list of staged image files in assets/images/photos
 staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^assets/images/photos/.*\.(jpg|jpeg|heic|png)$" || true)
+
+# Debug: Print the filtered staged images
+echo "Debug: Staged images found: $staged_images"
 
 # If no images are staged, exit successfully
 if [ -z "$staged_images" ]; then
