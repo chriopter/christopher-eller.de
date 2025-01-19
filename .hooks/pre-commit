@@ -66,12 +66,9 @@ generate_thumbnail() {
         return
     fi
 
-    # Convert HEIC to JPEG first if needed
+    # For HEIC files, create JPEG thumbnail directly
     if [ "$(echo "$ext" | tr '[:upper:]' '[:lower:]')" = "heic" ]; then
-        magick "$img" "${base_dir}/${name}.jpeg"
-        img="${base_dir}/${name}.jpeg"
         thumbnail="${base_dir}/${name}_thumbnail.jpeg"
-        git add "$img"  # Stage the converted JPEG
     fi
 
     # Generate thumbnail if it doesn't exist
