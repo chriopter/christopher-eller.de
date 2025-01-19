@@ -1,0 +1,7 @@
+---
+layout: post
+title:  "Garden 3"
+date:   2024-05-24 12:00:00 +0100
+---
+
+![Garden 3]({{ site.baseurl }}/assets/images/photos/2024-05-24-garden-3.jpeg)

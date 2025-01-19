@@ -1,8 +1,0 @@
----
-layout: post
-title:  "Prague"
-date:   2022-11-30 12:00:00 +0100
-categories: photo
----
-
-![Prague]({{ site.baseurl }}/assets/images/2022-11-30-prague.heic)
