@@ -2,10 +2,16 @@
 
 echo "=== Pre-commit hook started ==="
 
-# Check if exiftool is installed
+# Check if required tools are installed
 if ! command -v exiftool &> /dev/null; then
     echo "Error: exiftool is not installed"
     echo "Please install it using: brew install exiftool"
+    exit 1
+fi
+
+if ! command -v convert &> /dev/null; then
+    echo "Error: ImageMagick is not installed"
+    echo "Please install it using: brew install imagemagick"
     exit 1
 fi
 
@@ -41,4 +47,44 @@ for file in $staged_images; do
 done
 
 echo "Successfully removed EXIF location data from staged images"
+
+# Function to generate thumbnail if it doesn't exist
+generate_thumbnail() {
+    local img="$1"
+    local base_dir=$(dirname "$img")
+    local filename=$(basename "$img")
+    local name="${filename%.*}"
+    local ext="${filename##*.}"
+    local thumbnail="${base_dir}/${name}_thumbnail.${ext}"
+
+    # Skip if file already ends with _thumbnail
+    if [[ "$name" == *"_thumbnail"* ]]; then
+        return
+    fi
+
+    # Convert HEIC to JPEG first if needed
+    if [ "${ext,,}" == "heic" ]; then
+        convert "$img" "${base_dir}/${name}.jpeg"
+        img="${base_dir}/${name}.jpeg"
+        thumbnail="${base_dir}/${name}_thumbnail.jpeg"
+        git add "$img"  # Stage the converted JPEG
+    fi
+
+    # Generate thumbnail if it doesn't exist
+    if [ ! -f "$thumbnail" ]; then
+        convert "$img" -resize 1024x "$thumbnail"
+        echo "Generated thumbnail: $thumbnail"
+        git add "$thumbnail"  # Stage the generated thumbnail
+    fi
+}
+
+echo "Generating thumbnails for staged images..."
+
+# Process each staged image for thumbnails
+for file in $staged_images; do
+    if [ -f "$file" ]; then
+        generate_thumbnail "$file"
+    fi
+done
+
 exit 0

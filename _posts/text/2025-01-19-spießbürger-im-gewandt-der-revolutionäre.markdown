@@ -4,7 +4,8 @@ title: "Spießbürger im Gewandt der Revolutionäre"
 date: 2025-01-19 12:39:26 +0100
 ---
 
-<p>Es ist auffällig bis amüsierend, dass die Fraktion der (städtischen) Theater- und Kulturgänger, die sich oft als moralisch Bessergestellte versteht, so schneeweiß-biodeutsch-monoton auftritt. Dieselbe Gruppe, die für Weltoffenheit wirbt und über jeden herfällt, der sich auch nur minimal kritisch zu Migrationsfragen äußert, pflegt eine Freizeitbeschäftigung, die „zufällig“ überhaupt nicht für Menschen mit geringem Einkommen, also auch vielen Geflüchteten, zugänglich ist.</p>
+<p>Es ist auffällig bis amüsierend, dass die Fraktion der (städtischen) Theater- und Kulturgänger, die sich oft als moralisch Bessergestellte versteht, so 
+schneeweiß-biodeutsch-monoton auftritt. Dieselbe Gruppe, die für Weltoffenheit wirbt und über jeden herfällt, der sich auch nur minimal kritisch zu Migrationsfragen äußert, pflegt eine Freizeitbeschäftigung, die „zufällig“ überhaupt nicht für Menschen mit geringem Einkommen, also auch vielen Geflüchteten, zugänglich ist.</p>
 <p>Man könnte das auch als „Gated Community by accident“ bezeichnen. In Wirklichkeit ist es aber kein Zufall. Die moralische Überlegenheit fällt einfach leichter, wenn man in einer Blase lebt, die mit dem Alltag normaler Durchschnittsbürger kaum in Berührung kommt.</p>
 <p>Schon mindestens verdächtig fand ich die Verwandlung der eigentlich rein auf akademische Kreise begrenzten Diskussion der Gendersprache in einen moralischen Zeigefinger, der genutzt wurde, diejenigen zu diskreditieren, die dieser „Sprachregelung" nicht folgten.</p>
 <p>Es verletzt mein linkes Gerechtigkeitsgefühl, wenn eine hochprivilegierte Gruppe eine Sprachregelung erfindet und diese nutzt, um sich vom „Pöbel“ abzugrenzen, indem sie jedem, der sie nicht verwendet, unterstellt, er sei moralisch nicht auf der Höhe. Die schlichte Delegitimation <a href="https://de.wikipedia.org/wiki/Normalit%C3%A4t">normaler</a> Sprache, normaler Bürger.</p>

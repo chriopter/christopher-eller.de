@@ -21,24 +21,44 @@ or
 jekyll build
 ```
 
-## EXIF Location Data Removal
-This repository includes a pre-commit hook that automatically removes EXIF location data from photos in the `assets/images/photos` directory.
+## Git Hooks
 
-Setup:
-1. After cloning the repository, run this command to configure Git to use the hooks:
+### Setup
+After cloning the repository, run this command to configure Git to use the hooks:
 ```bash
 git config --local include.path ../.gitconfig
 ```
 
-Requirements:
-1. Install exiftool (required for EXIF data removal):
-```bash
+### EXIF Location Data Removal
+The pre-commit hook automatically removes EXIF location data from photos in the `assets/images/photos` directory.
 
+Requirements:
+1. Install exiftool:
+```bash
 # macOS
 brew install exiftool
 ```
 
-The pre-commit hook will automatically:
+When committing, the hook will:
 - Check if exiftool is installed
 - Remove GPS/location data from any staged photos in `assets/images/photos`
+- Re-stage the modified photos
 - Fail the commit if exiftool is not installed or if the removal process fails
+
+### Thumbnail Generation
+The pre-commit hook also handles automatic thumbnail generation for photos in the `assets/images/photos` directory.
+
+Requirements:
+1. Install ImageMagick:
+```bash
+# macOS
+brew install imagemagick
+```
+
+When committing, the hook will:
+- Check if ImageMagick is installed
+- Process any staged photos that don't have thumbnails
+- Generate 1024px wide thumbnail versions
+- Handle JPG, JPEG, and HEIC formats (converts HEIC to JPEG)
+- Name thumbnails with _thumbnail suffix (e.g. photo.jpg -> photo_thumbnail.jpg)
+- Stage any generated thumbnails and converted images

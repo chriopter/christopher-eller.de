@@ -1,34 +1,15 @@
 ---
 layout: default
 ---
-<div class="home">
-    {{ content }}
 
-    {% if site.posts.size > 0 %}
-    <h2>Posts</h2>
-    <ul class="post-list">
-        {% for post in site.posts %}
-        <li>
-            {% assign images = post.content | split: "![" %}
-            {% if images.size > 1 %}
-                {% assign first_image = images[1] | split: ")" | first %}
-                {% assign image_parts = first_image | split: "](" %}
-                {% assign image_url = image_parts[1] %}
-                <div class="post-image">
-                    <img src="{{ image_url }}" alt="{{ image_parts[0] }}">
-                </div>
-            {% endif %}
-            <div class="post-text">
-                <h3>
-                    <a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
-                </h3>
-                <span class="post-meta">{{ post.date | date: "%B %-d, %Y" }}</span>
-                <div class="post-excerpt">
-                    {{ post.excerpt | strip_html | truncatewords: 30 }}
-                </div>
-            </div>
-        </li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+<div class="posts-list">
+    {% for post in site.posts %}
+    <article class="post">
+        <h2 class="post-title">{{ post.title }}</h2>
+        <div class="post-date">{{ post.date | date: "%b %-d, %Y" }} ✨</div>
+        <div class="post-content">
+            {{ post.content }}
+        </div>
+    </article>
+    {% endfor %}
 </div>

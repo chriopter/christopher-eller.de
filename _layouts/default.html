@@ -1,93 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page.title }} - {{ site.title }}</title>
-    <link rel="stylesheet" href="{{ '/assets/main.css' | relative_url }}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page.title }}</title>
     <style>
-        :root {
-            --bg-color: #ffffff;
-            --text-color: #333333;
-            --meta-color: #666666;
-        }
-        
-        [data-theme="dark"] {
-            --bg-color: #1a1a1a;
-            --text-color: #ffffff;
-            --meta-color: #999999;
-        }
-
+        /* Base styles */
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: #111;
+            -webkit-font-smoothing: antialiased;
         }
 
-        a {
-            color: var(--text-color);
+        /* Header styles */
+        header {
+            padding: 1.5rem 2rem 1rem;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 1rem;
+        }
+
+        .header-content {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .site-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: #000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #000;
+        }
+
+        /* Main content */
+        main {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+        }
+
+        /* Post styles */
+        .post-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #000;
             text-decoration: none;
         }
 
-        a:hover {
-            text-decoration: underline;
+        .post-date {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
         }
 
-        .post-meta {
-            color: var(--meta-color);
+        .post-content {
+            font-size: 1.1rem;
+            line-height: 1.7;
         }
 
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-            font-size: 24px;
-            color: var(--text-color);
-            transition: transform 0.3s;
+        /* Posts list */
+        .posts-list {
+            padding: 0;
         }
 
-        .theme-toggle:hover {
-            transform: scale(1.1);
+        .posts-list article {
+            margin-bottom: 4rem;
+            padding-bottom: 4rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .posts-list article:last-child {
+            border-bottom: none;
+        }
+
+        .posts-list .post-title {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .posts-list .post-date {
+            margin: 0.75rem 0 2rem;
+            color: #757575;
+            font-size: 0.95rem;
+        }
+
+        .posts-list .post-content {
+            font-size: 1.05rem;
+            line-height: 1.75;
+            color: #222;
         }
     </style>
 </head>
 <body>
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙</button>
-    
-    {{ content }}
+    <header>
+        <div class="header-content">
+            <a href="/" class="site-title">
+                Christopher Eller
+                <span>🌕</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/about">About</a>
+                <a href="/subscribe">Subscribe</a>
+            </nav>
+        </div>
+    </header>
 
-    <script>
-        const themeToggle = document.getElementById('themeToggle');
-        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-        
-        // Check for saved theme preference or use system preference
-        const currentTheme = localStorage.getItem('theme') || 
-            (prefersDarkScheme.matches ? 'dark' : 'light');
-        
-        // Apply initial theme
-        if (currentTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            themeToggle.textContent = '☀️';
-        }
-
-        // Toggle theme
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-        });
-    </script>
+    <main>
+        {{ content }}
+    </main>
 </body>
 </html>

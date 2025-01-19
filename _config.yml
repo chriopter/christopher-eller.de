@@ -30,8 +30,13 @@ url: "https://chriopter.github.io" # the base hostname & protocol for your site,
 #github_username:  jekyll
 
 # Build settings
+theme: minima
 plugins:
   - jekyll-feed
+
+# Content settings
+excerpt_separator: ""
+show_excerpts: false
 
 # Exclude from processing.
 # The following items will not be processed, by default.
