@@ -39,7 +39,7 @@ Requirements:
 ```bash
 # macOS
 brew install exiftool
-``` 
+```
 
 The pre-commit hook will automatically:
 - Check if exiftool is installed
