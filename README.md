@@ -8,4 +8,5 @@ bundle install
 ## Development
 ```bash
 bundle exec jekyll serve
+jekyll build
 ```
