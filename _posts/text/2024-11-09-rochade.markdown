@@ -17,13 +17,13 @@ Staatsrechtler haben über Jahre <strong>indringlich</strong> vor dem Kippen Roe
 Die Einsicht in diese Realität wird wohl noch etwas auf sich warten lassen.</p>
 <p><strong>Rochade</strong></p>
 <p>Viel interessanter ist aber die Rochade der wählenden Mitte. Es ist schlicht unglaublich was hier passiert:</p>
-<a href="https://christopher-eller.de/uploads/2024/12d85b74e8.png" target="_blank">
-<img src="https://christopher-eller.de/uploads/2024/12d85b74e8.png" width="600" alt="">
+<a href="{{ site.baseurl }}/assets/images/posts/2024-11-09-rochade/12d85b74e8.png" target="_blank">
+<img src="{{ site.baseurl }}/assets/images/posts/2024-11-09-rochade/12d85b74e8.png" width="600" alt="">
 </a>
 <p><a href="https://x.com/patrickjfl/status/1854645395856482568/photo/1">Quelle</a></p>
 <p>Das Bild der GOP als Partei der Reichen Oberschicht und des DNC als Anwalt der einfachen Amerikaner ist Geschichte. Selbst die Wahlkampfspendenden Milliardäre sind <a href="https://www.independent.co.uk/news/world/americas/us-politics/trump-harris-campaign-donations-billionaires-b2641096.html">mehrheitlich beim DNC</a>. Ob es uns gefällt oder nicht - das ist schlicht eine völlig neue Zeit:</p>
-<a href="https://christopher-eller.de/uploads/2024/b11baf92cf.png.png" target="_blank">
-<img src="https://christopher-eller.de/uploads/2024/b11baf92cf.png" width="500" alt="">
+<a href="{{ site.baseurl }}/assets/images/posts/2024-11-09-rochade/b11baf92cf.png" target="_blank">
+<img src="{{ site.baseurl }}/assets/images/posts/2024-11-09-rochade/b11baf92cf.png" width="500" alt="">
 </a>
 <p><a href="https://x.com/Pinboard/status/1854164597600657506">Link</a></p>
 <p>Und so ist für mich schlicht unglaublich welche Themen das Trump-Team derzeit bearbeitet und in kurzen Videos zusammenfasst. Es sind Themen die in den 2000ern und 2010ern originär von progressiven Schichten vorgetragen wurden und die selbst damals selbst in einer demokratischen Partei am Establishment vorbei nicht mehrheitsfähig waren:
