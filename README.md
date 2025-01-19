@@ -25,7 +25,7 @@ or
 jekyll build
 ```
 
-### EXIF Location Data Removal
+## EXIF Location Data Removal
 This repository includes a pre-commit hook that automatically removes EXIF location data from photos in the `assets/images/photos` directory.
 
 Setup:
