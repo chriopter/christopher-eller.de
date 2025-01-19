@@ -9,7 +9,7 @@ if ! command -v exiftool &> /dev/null; then
     exit 1
 fi
 
-if ! command -v convert &> /dev/null; then
+if ! command -v magick &> /dev/null; then
     echo "Error: ImageMagick is not installed"
     echo "Please install it using: brew install imagemagick"
     exit 1
@@ -19,18 +19,22 @@ fi
 echo "Debug: All staged files:"
 git diff --cached --name-only --diff-filter=d
 
+# Get list of all image files in assets/images/photos
+all_images=$(find assets/images/photos -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.heic" -o -name "*.png" \) | grep -v "_thumbnail" || true)
+
 # Get list of staged image files in assets/images/photos
 staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^assets/images/photos/.*\.(jpg|jpeg|heic|png)$" || true)
 
-# Debug: Print the filtered staged images
+# Debug: Print the filtered images
+echo "Debug: All images found: $all_images"
 echo "Debug: Staged images found: $staged_images"
 
-# If no images are staged, exit successfully
-if [ -z "$staged_images" ]; then
-    echo "No staged images"
+# If no images exist at all, exit successfully
+if [ -z "$all_images" ] && [ -z "$staged_images" ]; then
+    echo "No images found"
     exit 0
 fi
-
+ 
 echo "Removing EXIF location data from staged images..."
 
 # Process each staged image
@@ -46,7 +50,7 @@ for file in $staged_images; do
     fi
 done
 
-echo "Successfully removed EXIF location data from staged images"
+echo "Successfully removed EXIF location data from images"
 
 # Function to generate thumbnail if it doesn't exist
 generate_thumbnail() {
@@ -63,8 +67,8 @@ generate_thumbnail() {
     fi
 
     # Convert HEIC to JPEG first if needed
-    if [ "${ext,,}" == "heic" ]; then
-        convert "$img" "${base_dir}/${name}.jpeg"
+    if [ "$(echo "$ext" | tr '[:upper:]' '[:lower:]')" = "heic" ]; then
+        magick "$img" "${base_dir}/${name}.jpeg"
         img="${base_dir}/${name}.jpeg"
         thumbnail="${base_dir}/${name}_thumbnail.jpeg"
         git add "$img"  # Stage the converted JPEG
@@ -72,15 +76,22 @@ generate_thumbnail() {
 
     # Generate thumbnail if it doesn't exist
     if [ ! -f "$thumbnail" ]; then
-        convert "$img" -resize 1024x "$thumbnail"
+        magick "$img" -resize 1024x "$thumbnail"
         echo "Generated thumbnail: $thumbnail"
         git add "$thumbnail"  # Stage the generated thumbnail
     fi
 }
 
-echo "Generating thumbnails for staged images..."
+echo "Generating thumbnails for all images..."
 
-# Process each staged image for thumbnails
+# Process all images for thumbnails first
+for file in $all_images; do
+    if [ -f "$file" ]; then
+        generate_thumbnail "$file"
+    fi
+done
+
+# Then process any staged images that might not be in all_images yet
 for file in $staged_images; do
     if [ -f "$file" ]; then
         generate_thumbnail "$file"
