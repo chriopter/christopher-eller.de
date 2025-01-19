@@ -23,7 +23,7 @@ bundle exec jekyll serve
 or
 ```bash
 jekyll build
-
+```
 
 ### EXIF Location Data Removal
 This repository includes a pre-commit hook that automatically removes EXIF location data from photos in the `assets/images/photos` directory.
@@ -37,6 +37,7 @@ git config --local include.path ../.gitconfig
 Requirements:
 1. Install exiftool (required for EXIF data removal):
 ```bash
+
 # macOS
 brew install exiftool
 ```
