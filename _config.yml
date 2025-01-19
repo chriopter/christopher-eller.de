@@ -30,7 +30,6 @@ url: "https://chriopter.github.io" # the base hostname & protocol for your site,
 #github_username:  jekyll
 
 # Build settings
-theme: jekyll-bear-theme
 plugins:
   - jekyll-feed
 
