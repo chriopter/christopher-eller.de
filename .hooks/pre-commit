@@ -34,7 +34,7 @@ if [ -z "$all_images" ] && [ -z "$staged_images" ]; then
     echo "No images found"
     exit 0
 fi
- 
+
 echo "Removing EXIF location data from staged images..."
 
 # Process each staged image
