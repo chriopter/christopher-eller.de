@@ -5,12 +5,12 @@ layout: default
 <div class="posts-list">
     {% for post in paginator.posts %}
     <article class="post">
-        <h2 class="post-title"><a href="{{ site.url }}{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h2>
+        <h2 class="post-title"><a href="{{ site.url }}{{ post.url }}">{{ post.title }}</a></h2>
         <div class="post-meta">{{ post.date | date: "%b %-d, %Y" }} {% assign category = post.path | split: "_posts/" | last | split: "/" | first %}• {{ category }} ✨</div>
         <div class="post-content">
             {% if post.path contains '_posts/text/' %}
                 {{ post.content | truncatewords: 12 }}
-                <p><a href="{{ site.url }}{{ site.baseurl }}{{ post.url }}">Read more →</a></p>
+                <p><a href="{{ site.url }}{{ post.url }}">Read more →</a></p>
             {% else %}
                 {% assign content = post.content %}
                 {% if content contains '<img src="' %}
@@ -23,7 +23,7 @@ layout: default
                             {% assign dirs = path_parts | pop | join: '/' | append: '/' %}
                             {% assign thumbnail_path = dirs | append: 'thumbnails/' | append: filename | replace: '.heic', '.jpeg' %}
                             <a href="{{ site.url }}{{ img_path }}">
-                                <img src="{{ site.url }}{{ site.baseurl }}/assets/images/blank.png" data-echo="{{ site.url }}{{ thumbnail_path }}" style="width: 100%; height: auto;" />
+                                <img src="{{ site.url }}/assets/images/blank.png" data-echo="{{ site.url }}{{ thumbnail_path }}" style="width: 100%; height: auto;" />
                             </a>
                         </div>
                     </div>
@@ -39,13 +39,13 @@ layout: default
 <!-- Pagination links -->
 <div class="pagination">
     {% if paginator.previous_page %}
-        <a href="{{ site.url }}{{ site.baseurl }}{{ paginator.previous_page_path }}" class="previous">← Previous</a>
+        <a href="{{ site.url }}{{ paginator.previous_page_path }}" class="previous">← Previous</a>
     {% endif %}
     
     <span class="page_number">Page {{ paginator.page }} of {{ paginator.total_pages }}</span>
     
     {% if paginator.next_page %}
-        <a href="{{ site.url }}{{ site.baseurl }}{{ paginator.next_page_path }}" class="next">Next →</a>
+        <a href="{{ site.url }}{{ paginator.next_page_path }}" class="next">Next →</a>
     {% endif %}
 </div>
 
