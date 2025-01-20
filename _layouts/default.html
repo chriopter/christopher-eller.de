@@ -92,6 +92,19 @@
             .nav-links {
                 width: 100%;
                 justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 300px) {
+            .nav-links {
+                justify-content: flex-start;
+            }
+
+            .nav-links a {
+                width: calc(50% - 1rem);
+                text-align: left;
             }
         }
 
