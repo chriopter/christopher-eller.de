@@ -33,6 +33,11 @@ url: "https://chriopter.github.io" # the base hostname & protocol for your site,
 theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-paginate
+
+# Pagination settings
+paginate: 10
+paginate_path: "/page:num/"
 
 # Content settings
 excerpt_separator: ""
