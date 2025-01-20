@@ -6,7 +6,11 @@ layout: default
     {% for post in paginator.posts %}
     <article class="post">
         <h2 class="post-title"><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h2>
-        <div class="post-date">{{ post.date | date: "%b %-d, %Y" }} ✨</div>
+        <div class="post-date">
+            {{ post.date | date: "%b %-d, %Y" }}
+            {% assign category = post.path | split: "_posts/" | last | split: "/" | first %}
+            • {{ category }} ✨
+        </div>
         <div class="post-content">
             {% if post.path contains '_posts/text/' %}
                 {{ post.content | truncatewords: 50 }}
@@ -50,6 +54,12 @@ layout: default
 </div>
 
 <style>
+.post-date {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
 .pagination {
     text-align: center;
     padding: 20px 0;

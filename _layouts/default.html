@@ -189,7 +189,7 @@
     <script>
         const moonToggle = document.getElementById('moonToggle');
         const body = document.body;
-        const toDarkPhases = ['🌕', '🌔', '🌓', '🌒', '🌑'];
+        const toDarkPhases = ['🌔', '🌓', '🌒'];
         const toLightPhases = ['🌘', '🌗', '🌖'];
         let currentIndex = 0;
         let isTransitioning = false;
@@ -199,7 +199,7 @@
         const darkMode = localStorage.getItem('darkMode') === 'true';
         if (darkMode) {
             body.classList.add('dark-mode');
-            moonToggle.textContent = '🌙';
+            moonToggle.textContent = '🌑';
         }
 
         function animatePhases(phases, isDarkMode) {
@@ -224,7 +224,7 @@
                     clearInterval(transitionInterval);
                     isTransitioning = false;
                     moonToggle.classList.remove('transitioning');
-                    moonToggle.textContent = isDarkMode ? '🌙' : '🌕';
+                    moonToggle.textContent = isDarkMode ? '🌑' : '🌕';
                 }
             }
 
