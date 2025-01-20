@@ -81,11 +81,11 @@ main {
     {% for post in site.posts %}
         {% if post.path contains '_posts/photos/' %}
             {% assign content = post.content %}
-            {% assign thumbnail_content = content | replace: '.jpeg', '_thumbnail.jpeg' | replace: '.jpg', '_thumbnail.jpg' | replace: '.heic', '_thumbnail.jpeg' %}
-            {% assign img_tag = thumbnail_content | split: '<img src="' | last | split: '" />' | first %}
-            {% assign full_img = img_tag | replace: '_thumbnail.jpeg', '.jpeg' | replace: '_thumbnail.jpg', '.jpg' %}
+            {% assign img_tag = content | split: '<img src="' | last | split: '" />' | first %}
+            {% assign thumbnail_path = img_tag | split: '/' | reverse | drop: 1 | reverse | join: '/' | append: '/thumbnails/' | append: img_tag | split: '/' | last %}
+            {% assign full_img = img_tag %}
             <a href="{{ full_img }}" class="photo-item">
-                <img src="{{ site.baseurl }}/assets/images/blank.png" data-echo="{{ img_tag }}" />
+                <img src="{{ site.baseurl }}/assets/images/blank.png" data-echo="{{ thumbnail_path }}" />
                 <div class="photo-info">
                     <div class="title">{{ post.title }}</div>
                     <div class="date">{{ post.date | date: "%B %d, %Y" }}</div>

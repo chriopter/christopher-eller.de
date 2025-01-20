@@ -59,7 +59,8 @@ generate_thumbnail() {
     local filename=$(basename "$img")
     local name="${filename%.*}"
     local ext="${filename##*.}"
-    local thumbnail="${base_dir}/${name}_thumbnail.${ext}"
+    local thumbnail_dir="${base_dir}/thumbnails"
+    local thumbnail="${thumbnail_dir}/${name}.${ext}"
 
     # Skip if file already ends with _thumbnail
     if [[ "$name" == *"_thumbnail"* ]]; then
@@ -68,12 +69,15 @@ generate_thumbnail() {
 
     # For HEIC files, create JPEG thumbnail directly
     if [ "$(echo "$ext" | tr '[:upper:]' '[:lower:]')" = "heic" ]; then
-        thumbnail="${base_dir}/${name}_thumbnail.jpeg"
+        thumbnail="${thumbnail_dir}/${name}.jpeg"
     fi
+
+    # Create thumbnails directory if it doesn't exist
+    mkdir -p "$thumbnail_dir"
 
     # Generate thumbnail if it doesn't exist
     if [ ! -f "$thumbnail" ]; then
-        magick "$img" -resize 1024x "$thumbnail"
+        magick "$img" -resize 1024x -quality 80 "$thumbnail"
         echo "Generated thumbnail: $thumbnail"
         git add "$thumbnail"  # Stage the generated thumbnail
     fi

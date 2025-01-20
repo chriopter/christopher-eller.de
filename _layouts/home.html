@@ -13,13 +13,13 @@ layout: default
                 <p><a href="{{ site.baseurl }}{{ post.url }}">Read more →</a></p>
             {% elsif post.path contains '_posts/photos/' %}
                 {% assign content = post.content %}
-                {% assign thumbnail_content = content | replace: '.jpeg', '_thumbnail.jpeg' | replace: '.jpg', '_thumbnail.jpg' | replace: '.heic', '_thumbnail.jpeg' %}
                 <div style="display: flex; justify-content: center;">
                     <div style="max-width: 450px; width: 100%;">
-                        {% assign img_tag = thumbnail_content | split: '<img src="' | last | split: '" />' | first %}
-                        {% assign full_img = img_tag | replace: '_thumbnail.jpeg', '.jpeg' | replace: '_thumbnail.jpg', '.jpg' %}
+                        {% assign img_tag = content | split: '<img src="' | last | split: '" />' | first %}
+                        {% assign thumbnail_path = img_tag | split: '/' | reverse | drop: 1 | reverse | join: '/' | append: '/thumbnails/' | append: img_tag | split: '/' | last %}
+                        {% assign full_img = img_tag %}
                         <a href="{{ full_img }}">
-                            <img src="{{ site.baseurl }}/assets/images/blank.png" data-echo="{{ img_tag }}" style="width: 100%; height: auto;" />
+                            <img src="{{ site.baseurl }}/assets/images/blank.png" data-echo="{{ thumbnail_path }}" style="width: 100%; height: auto;" />
                         </a>
                     </div>
                 </div>
