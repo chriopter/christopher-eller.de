@@ -6,28 +6,24 @@ layout: default
     {% for post in paginator.posts %}
     <article class="post">
         <h2 class="post-title"><a href="{{ site.url }}{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h2>
-        <div class="post-date">
-            {{ post.date | date: "%b %-d, %Y" }}
-            {% assign category = post.path | split: "_posts/" | last | split: "/" | first %}
-            • {{ category }} ✨
-        </div>
+        <div class="post-meta">{{ post.date | date: "%b %-d, %Y" }} {% assign category = post.path | split: "_posts/" | last | split: "/" | first %}• {{ category }} ✨</div>
         <div class="post-content">
             {% if post.path contains '_posts/text/' %}
-                {{ post.content | truncatewords: 50 }}
+                {{ post.content | truncatewords: 12 }}
                 <p><a href="{{ site.url }}{{ site.baseurl }}{{ post.url }}">Read more →</a></p>
             {% else %}
                 {% assign content = post.content %}
                 {% if content contains '<img src="' %}
                     <div style="display: flex; justify-content: center;">
-                        <div style="max-width: 450px; width: 100%;">
+                        <div style="max-width: 380px; width: 100%;">
                             {% assign img_path = content | split: '<img src="' | last | split: '" />' | first %}
                             {% assign clean_path = img_path | remove: '{{ site.baseurl }}' %}
                             {% assign path_parts = clean_path | split: '/' %}
                             {% assign filename = path_parts | last %}
                             {% assign dirs = path_parts | pop | join: '/' | append: '/' %}
                             {% assign thumbnail_path = dirs | append: 'thumbnails/' | append: filename | replace: '.heic', '.jpeg' %}
-                            <a href="{{ img_path }}">
-                                <img src="{{ site.baseurl }}/assets/images/blank.png" data-echo="{{ thumbnail_path }}" style="width: 100%; height: auto;" />
+                            <a href="{{ site.url }}{{ img_path }}">
+                                <img src="{{ site.url }}{{ site.baseurl }}/assets/images/blank.png" data-echo="{{ site.url }}{{ thumbnail_path }}" style="width: 100%; height: auto;" />
                             </a>
                         </div>
                     </div>
@@ -54,24 +50,73 @@ layout: default
 </div>
 
 <style>
-.post-date {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+.posts-list {
+    margin: 0 auto;
+}
+
+.post {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #eee;
+}
+
+.post:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.post-title {
+    margin: 0;
+    font-size: 1.4em;
+    line-height: 1.2;
+}
+
+.post-title a {
+    text-decoration: none;
+    color: #333;
+}
+
+.post-meta {
+    font-size: 0.75em;
+    color: #777;
+    margin: 0.25rem 0 0.6rem;
+}
+
+.post-content {
+    line-height: 1.4;
+    font-size: 0.9em;
+    color: #444;
+}
+
+.post-content p {
+    margin: 0;
+}
+
+.post-content a {
+    font-size: 0.85em;
+    text-decoration: none;
+    color: #666;
 }
 
 .pagination {
     text-align: center;
-    padding: 20px 0;
+    padding: 1rem 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 20px;
+    gap: 1rem;
+    font-size: 0.85em;
+    border-top: 1px solid #eee;
+    margin-top: 1rem;
 }
+
 .pagination a {
     text-decoration: none;
-}
-.pagination .page_number {
     color: #666;
+}
+
+.pagination .page_number {
+    color: #999;
 }
 </style>

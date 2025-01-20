@@ -58,7 +58,7 @@ layout: default
                 {% if post.path contains '_posts/text/' %}
                     <li class="post-item">
                         <span class="post-date">{{ post.date | date: "%Y-%m-%d" }}</span>
-                        <a href="{{ site.baseurl }}{{ post.url }}" class="post-link">{{ post.title }}</a>
+                        <a href="{{ site.url }}{{ site.baseurl }}{{ post.url }}" class="post-link">{{ post.title }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
@@ -72,7 +72,7 @@ layout: default
                 {% if post.path contains '_posts/projects/' %}
                     <li class="post-item">
                         <span class="post-date">{{ post.date | date: "%Y-%m-%d" }}</span>
-                        <a href="{{ site.baseurl }}{{ post.url }}" class="post-link">{{ post.title }}</a>
+                        <a href="{{ site.url }}{{ site.baseurl }}{{ post.url }}" class="post-link">{{ post.title }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
@@ -86,7 +86,7 @@ layout: default
                 {% if post.path contains '_posts/links/' %}
                     <li class="post-item">
                         <span class="post-date">{{ post.date | date: "%Y-%m-%d" }}</span>
-                        <a href="{{ site.baseurl }}{{ post.url }}" class="post-link">{{ post.title }}</a>
+                        <a href="{{ site.url }}{{ site.baseurl }}{{ post.url }}" class="post-link">{{ post.title }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
