@@ -5,7 +5,7 @@ layout: default
 <div class="posts-list">
     {% for post in paginator.posts %}
     <article class="post">
-        <h2 class="post-title"><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h2>
+        <h2 class="post-title"><a href="{{ site.url }}{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h2>
         <div class="post-date">
             {{ post.date | date: "%b %-d, %Y" }}
             {% assign category = post.path | split: "_posts/" | last | split: "/" | first %}
@@ -14,7 +14,7 @@ layout: default
         <div class="post-content">
             {% if post.path contains '_posts/text/' %}
                 {{ post.content | truncatewords: 50 }}
-                <p><a href="{{ site.baseurl }}{{ post.url }}">Read more →</a></p>
+                <p><a href="{{ site.url }}{{ site.baseurl }}{{ post.url }}">Read more →</a></p>
             {% else %}
                 {% assign content = post.content %}
                 {% if content contains '<img src="' %}
@@ -43,13 +43,13 @@ layout: default
 <!-- Pagination links -->
 <div class="pagination">
     {% if paginator.previous_page %}
-        <a href="{{ site.baseurl }}{{ paginator.previous_page_path }}" class="previous">← Previous</a>
+        <a href="{{ site.url }}{{ site.baseurl }}{{ paginator.previous_page_path }}" class="previous">← Previous</a>
     {% endif %}
     
     <span class="page_number">Page {{ paginator.page }} of {{ paginator.total_pages }}</span>
     
     {% if paginator.next_page %}
-        <a href="{{ site.baseurl }}{{ paginator.next_page_path }}" class="next">Next →</a>
+        <a href="{{ site.url }}{{ site.baseurl }}{{ paginator.next_page_path }}" class="next">Next →</a>
     {% endif %}
 </div>
 
