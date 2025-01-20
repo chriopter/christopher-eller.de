@@ -19,11 +19,11 @@ fi
 echo "Debug: All staged files:"
 git diff --cached --name-only --diff-filter=d
 
-# Get list of all image files in assets/images/photos
-all_images=$(find assets/images/photos -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.heic" -o -name "*.png" \) | grep -v "/thumbnails/" | grep -v "_thumbnail" || true)
+# Get list of all image files in assets/images/photos and assets/images/posts
+all_images=$(find assets/images/photos assets/images/posts -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.heic" -o -name "*.png" \) | grep -v "/thumbnails/" | grep -v "_thumbnail" || true)
 
-# Get list of staged image files in assets/images/photos
-staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^assets/images/photos/.*\.(jpg|jpeg|heic|png)$" | grep -v "/thumbnails/" || true)
+# Get list of staged image files in assets/images/photos and assets/images/posts
+staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^assets/images/(photos|posts)/.*\.(jpg|jpeg|heic|png)$" | grep -v "/thumbnails/" || true)
 
 # Debug: Print the filtered images
 echo "Debug: All images found: $all_images"
@@ -59,7 +59,12 @@ generate_thumbnail() {
     local filename=$(basename "$img")
     local name="${filename%.*}"
     local ext="${filename##*.}"
-    local thumbnail_dir="${base_dir}/thumbnails"
+    # For posts directory, create thumbnails directory in the specific post folder
+    if [[ "$base_dir" == *"/posts/"* ]]; then
+        local thumbnail_dir="${base_dir}/thumbnails"
+    else
+        local thumbnail_dir="${base_dir}/thumbnails"
+    fi
     local thumbnail="${thumbnail_dir}/${name}.${ext}"
 
     # Skip if file already ends with _thumbnail

@@ -6,17 +6,20 @@ layout: default
     <h1 class="post-title">{{ page.title }}</h1>
     <div class="post-date">{{ page.date | date: "%b %-d, %Y" }} ✨</div>
     <div class="post-content">
-        {% if page.path contains '_posts/photos/' %}
+        {% assign img_tag = content | split: '<img src="' | last | split: '" />' | first %}
+        {% if img_tag != content %}
+            {% assign path_parts = img_tag | split: '/' %}
+            {% assign filename = path_parts | last | replace: '.heic', '.jpeg' %}
+            {% assign post_type = page.path | split: '_posts/' | last | split: '/' | first %}
+            {% assign thumbnail_path = '/assets/images/' | append: post_type | append: '/' | append: page.path | split: '_posts/' | last | split: '.markdown' | first | append: '/thumbnails/' | append: filename %}
             <div style="display: flex; justify-content: center;">
                 <div style="max-width: 450px; width: 100%;">
-                    {% assign img_tag = content | split: '<img src="' | last | split: '" />' | first %}
                     <a href="{{ img_tag }}">
-                        <img src="{{ img_tag }}" style="width: 100%; height: auto;" />
+                        <img src="{{ site.baseurl }}{{ thumbnail_path }}" style="width: 100%; height: auto;" />
                     </a>
                 </div>
             </div>
-        {% else %}
-            {{ content }}
         {% endif %}
+        {{ content }}
     </div>
 </article>
