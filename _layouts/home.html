@@ -19,7 +19,7 @@ layout: default
                         {% assign img_tag = thumbnail_content | split: '<img src="' | last | split: '" />' | first %}
                         {% assign full_img = img_tag | replace: '_thumbnail.jpeg', '.jpeg' | replace: '_thumbnail.jpg', '.jpg' %}
                         <a href="{{ full_img }}">
-                            <img src="{{ img_tag }}" style="width: 100%; height: auto;" />
+                            <img src="{{ site.baseurl }}/assets/images/blank.png" data-echo="{{ img_tag }}" style="width: 100%; height: auto;" />
                         </a>
                     </div>
                 </div>
