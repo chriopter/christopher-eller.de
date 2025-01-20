@@ -62,9 +62,3 @@ When committing, the hook will:
 - Handle JPG, JPEG, and HEIC formats (converts HEIC to JPEG)
 - Name thumbnails with _thumbnail suffix (e.g. photo.jpg -> photo_thumbnail.jpg)
 - Stage any generated thumbnails and converted images
-
-# Todo
-
-https://jekyllcodex.org/without-plugin/lazy-loading/
-
-Masonry Image heigth
