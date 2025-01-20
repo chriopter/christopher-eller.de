@@ -26,18 +26,11 @@ jekyll build
 ### Setup
 After cloning the repository, run this command to configure Git to use the hooks:
 ```bash
-git config --local include.path ../.gitconfig
+git config --local include.path ../.gitconfig && brew install imagemagick && brew install exiftool
 ```
 
 ### EXIF Location Data Removal
 The pre-commit hook automatically removes EXIF location data from photos in the `assets/images/photos` directory.
-
-Requirements:
-1. Install exiftool:
-```bash
-# macOS
-brew install exiftool
-```
 
 When committing, the hook will:
 - Check if exiftool is installed
@@ -47,13 +40,6 @@ When committing, the hook will:
 
 ### Thumbnail Generation
 The pre-commit hook also handles automatic thumbnail generation for photos in the `assets/images/photos` directory.
-
-Requirements:
-1. Install ImageMagick:
-```bash
-# macOS
-brew install imagemagick
-```
 
 When committing, the hook will:
 - Check if ImageMagick is installed
