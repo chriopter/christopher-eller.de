@@ -29,6 +29,14 @@
             color: #eee;
         }
 
+        body.dark-mode footer {
+            border-top-color: #333;
+        }
+
+        body.dark-mode footer a {
+            color: #999;
+        }
+
         /* Moon toggle styles */
         .moon-toggle {
             cursor: pointer;
@@ -173,8 +181,6 @@
             </div>
             <nav class="nav-links">
                 <a href="{{ site.baseurl }}/photos">Photos</a>
-                <a href="{{ site.baseurl }}/links">Links</a>
-                <a href="{{ site.baseurl }}/projects">Projects</a>
                 <a href="{{ site.baseurl }}/text">Text</a>
                 <a href="{{ site.baseurl }}/about">About</a>
                 <a href="{{ site.baseurl }}/subscribe">Subscribe</a>
@@ -237,5 +243,16 @@
         });
     </script>
     {% include lazyload.html %}
+    
+    <footer style="padding: 2rem; border-top: 1px solid #eee; margin-top: 2rem;">
+        <div style="max-width: 800px; margin: 0 auto; display: flex; justify-content: flex-start; align-items: center; font-size: 0.9rem; color: #666; gap: 1rem;">
+            <div>
+                <a href="{{ site.baseurl }}/imprint" style="text-decoration: none; color: inherit;">Imprint</a>
+            </div>
+            <div style="margin: 0 0.5rem;">
+                <a href="{{ site.baseurl }}/feed.xml" style="text-decoration: none; color: inherit;">RSS</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
