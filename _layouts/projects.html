@@ -2,92 +2,33 @@
 layout: default
 ---
 
-<style>
-.projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    padding: 20px;
-}
-
-.project-card {
-    background: #f5f5f5;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: transform 0.2s;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.project-card:hover {
-    transform: translateY(-5px);
-}
-
-.project-image {
-    width: 100%;
-    height: 200px;
-    overflow: hidden;
-}
-
-.project-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.project-info {
-    padding: 15px;
-}
-
-.project-title {
-    font-size: 1.2em;
-    margin-bottom: 8px;
-}
-
-.project-date {
-    font-size: 0.9em;
-    color: #666;
-}
-
-.project-title a {
-    color: inherit;
-    text-decoration: none;
-}
-
-.project-title a:hover {
-    text-decoration: underline;
-}
-</style>
-
-<div class="projects-grid">
+<div class="posts-list">
     {% for post in site.posts %}
-        {% if post.path contains '_posts/projects/' %}
+    {% if post.path contains '_posts/projects/' %}
+    <article class="post">
+        <h2 class="post-title"><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h2>
+        <div class="post-date">{{ post.date | date: "%b %-d, %Y" }} ✨</div>
+        <div class="post-content">
             {% assign content = post.content %}
-            {% assign img_tag = content | split: '<img src="' | last | split: '" />' | first %}
-            {% if img_tag != content %}
-                {% assign path_parts = img_tag | split: '/' %}
-                {% assign filename = path_parts | last | replace: '.heic', '.jpeg' %}
-                {% assign thumbnail_path = '/assets/images/posts/' | append: post.path | split: '_posts/' | last | split: '.markdown' | first | append: '/thumbnails/' | append: filename %}
-                <div class="project-card">
-                    <div class="project-image">
-                        <img src="{{ site.baseurl }}/assets/images/blank.png" data-echo="{{ site.baseurl }}{{ thumbnail_path }}" alt="{{ post.title }}" />
-                    </div>
-                    <div class="project-info">
-                        <div class="project-title">
-                            <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
-                        </div>
-                        <div class="project-date">{{ post.date | date: "%B %d, %Y" }}</div>
+            {% if content contains '<img src="' %}
+                <div style="display: flex; justify-content: center;">
+                    <div style="max-width: 450px; width: 100%;">
+                        {% assign img_path = content | split: '<img src="' | last | split: '" />' | first %}
+                        {% assign clean_path = img_path | remove: '{{ site.baseurl }}' %}
+                        {% assign path_parts = clean_path | split: '/' %}
+                        {% assign filename = path_parts | last %}
+                        {% assign dirs = path_parts | pop | join: '/' | append: '/' %}
+                        {% assign thumbnail_path = dirs | append: 'thumbnails/' | append: filename | replace: '.heic', '.jpeg' %}
+                        <a href="{{ img_path }}">
+                            <img src="{{ site.baseurl }}/assets/images/blank.png" data-echo="{{ thumbnail_path }}" style="width: 100%; height: auto;" />
+                        </a>
                     </div>
                 </div>
             {% else %}
-                <div class="project-card">
-                    <div class="project-info">
-                        <div class="project-title">
-                            <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
-                        </div>
-                        <div class="project-date">{{ post.date | date: "%B %d, %Y" }}</div>
-                    </div>
-                </div>
+                {{ content }}
             {% endif %}
-        {% endif %}
+        </div>
+    </article>
+    {% endif %}
     {% endfor %}
 </div>
