@@ -20,10 +20,10 @@ echo "Debug: All staged files:"
 git diff --cached --name-only --diff-filter=d
 
 # Get list of all image files in assets/images/photos
-all_images=$(find assets/images/photos -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.heic" -o -name "*.png" \) | grep -v "_thumbnail" || true)
+all_images=$(find assets/images/photos -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.heic" -o -name "*.png" \) | grep -v "/thumbnails/" | grep -v "_thumbnail" || true)
 
 # Get list of staged image files in assets/images/photos
-staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^assets/images/photos/.*\.(jpg|jpeg|heic|png)$" || true)
+staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^assets/images/photos/.*\.(jpg|jpeg|heic|png)$" | grep -v "/thumbnails/" || true)
 
 # Debug: Print the filtered images
 echo "Debug: All images found: $all_images"
