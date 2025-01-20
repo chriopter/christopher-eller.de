@@ -5,6 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ page.title }}</title>
     <style>
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #111;
+            color: #eee;
+        }
+
+        body.dark-mode .header-content {
+            border-bottom-color: #333;
+        }
+
+        body.dark-mode .site-title,
+        body.dark-mode .nav-links a {
+            color: #eee;
+        }
+
+        body.dark-mode .posts-list article {
+            border-bottom-color: #333;
+        }
+
+        body.dark-mode .post-title,
+        body.dark-mode .post-content {
+            color: #eee;
+        }
+
+        /* Moon toggle styles */
+        .moon-toggle {
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .moon-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .moon-toggle.transitioning {
+            opacity: 0.8;
+        }
+
         /* Base styles */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -13,17 +56,18 @@
             padding: 0;
             color: #111;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
 
         /* Header styles */
         header {
-            padding: 1.5rem 2rem 1rem;
+            padding: 2rem;
             border-bottom: 1px solid #eee;
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
         }
 
         .header-content {
-            max-width: 700px;
+            max-width: 800px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -31,23 +75,31 @@
         }
 
         .site-title {
-            font-size: 1.25rem;
+            font-size: 1.4rem;
             font-weight: 600;
             text-decoration: none;
             color: #000;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
 
         .nav-links {
             display: flex;
-            gap: 1.5rem;
+            gap: 2rem;
+            align-items: center;
         }
 
         .nav-links a {
             text-decoration: none;
             color: #000;
+            font-size: 1rem;
+            padding: 0.25rem 0;
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: #666;
         }
 
         /* Main content */
@@ -115,13 +167,17 @@
 <body>
     <header>
         <div class="header-content">
-            <a href="/" class="site-title">
-                Christopher Eller
-                <span>🌕</span>
-            </a>
+            <div class="site-title">
+                <a href="{{ site.baseurl }}/" style="text-decoration: none; color: inherit;">Christopher Eller</a>
+                <span class="moon-toggle" id="moonToggle" style="pointer-events: auto;">🌕</span>
+            </div>
             <nav class="nav-links">
-                <a href="/about">About</a>
-                <a href="/subscribe">Subscribe</a>
+                <a href="{{ site.baseurl }}/photos">Photos</a>
+                <a href="{{ site.baseurl }}/links">Links</a>
+                <a href="{{ site.baseurl }}/projects">Projects</a>
+                <a href="{{ site.baseurl }}/text">Text</a>
+                <a href="{{ site.baseurl }}/about">About</a>
+                <a href="{{ site.baseurl }}/subscribe">Subscribe</a>
             </nav>
         </div>
     </header>
@@ -129,5 +185,56 @@
     <main>
         {{ content }}
     </main>
+
+    <script>
+        const moonToggle = document.getElementById('moonToggle');
+        const body = document.body;
+        const toDarkPhases = ['🌕', '🌔', '🌓', '🌒', '🌑'];
+        const toLightPhases = ['🌘', '🌗', '🌖'];
+        let currentIndex = 0;
+        let isTransitioning = false;
+        let transitionInterval;
+
+        // Check for saved preference
+        const darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) {
+            body.classList.add('dark-mode');
+            moonToggle.textContent = '🌙';
+        }
+
+        function animatePhases(phases, isDarkMode) {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            currentIndex = 0;
+
+            // Apply mode change immediately
+            if (isDarkMode) {
+                body.classList.add('dark-mode');
+            } else {
+                body.classList.remove('dark-mode');
+            }
+            localStorage.setItem('darkMode', isDarkMode);
+
+            function transition() {
+                moonToggle.textContent = phases[currentIndex];
+                moonToggle.classList.add('transitioning');
+                currentIndex++;
+
+                if (currentIndex >= phases.length) {
+                    clearInterval(transitionInterval);
+                    isTransitioning = false;
+                    moonToggle.classList.remove('transitioning');
+                    moonToggle.textContent = isDarkMode ? '🌙' : '🌕';
+                }
+            }
+
+            transitionInterval = setInterval(transition, 150);
+        }
+
+        moonToggle.addEventListener('click', () => {
+            const toDarkMode = !body.classList.contains('dark-mode');
+            animatePhases(toDarkMode ? toDarkPhases : toLightPhases, toDarkMode);
+        });
+    </script>
 </body>
 </html>

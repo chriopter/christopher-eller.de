@@ -1,0 +1,54 @@
+---
+layout: default
+---
+
+<style>
+/* Override default layout constraints */
+main {
+    max-width: none !important;
+    padding: 0 !important;
+}
+
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-flow: dense;
+    gap: 8px;
+    padding: 8px;
+    width: 100%;
+    margin: 0;
+    background-color: #000000;
+}
+
+.photo-item {
+    line-height: 0;
+    background-color: #1a1a1a;
+    break-inside: avoid;
+    margin-bottom: 8px;
+}
+
+.photo-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    vertical-align: bottom;
+}
+</style>
+
+<div class="photo-grid">
+    {% for post in site.posts %}
+        {% if post.path contains '_posts/photos/' %}
+            {% assign content = post.content %}
+            {% assign thumbnail_content = content | replace: '.jpeg', '_thumbnail.jpeg' | replace: '.jpg', '_thumbnail.jpg' | replace: '.heic', '_thumbnail.jpeg' %}
+            {% assign img_tag = thumbnail_content | split: '<img src="' | last | split: '" />' | first %}
+            {% assign full_img = img_tag | replace: '_thumbnail.jpeg', '.jpeg' | replace: '_thumbnail.jpg', '.jpg' %}
+            <a href="{{ full_img }}" class="photo-item">
+                <img src="{{ img_tag }}" />
+            </a>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<script>
+// No JavaScript needed - pure CSS masonry grid
+</script>

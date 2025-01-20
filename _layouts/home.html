@@ -5,10 +5,27 @@ layout: default
 <div class="posts-list">
     {% for post in site.posts %}
     <article class="post">
-        <h2 class="post-title">{{ post.title }}</h2>
+        <h2 class="post-title"><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h2>
         <div class="post-date">{{ post.date | date: "%b %-d, %Y" }} ✨</div>
         <div class="post-content">
-            {{ post.content }}
+            {% if post.path contains '_posts/text/' %}
+                {{ post.content | truncatewords: 50 }}
+                <p><a href="{{ site.baseurl }}{{ post.url }}">Read more →</a></p>
+            {% elsif post.path contains '_posts/photos/' %}
+                {% assign content = post.content %}
+                {% assign thumbnail_content = content | replace: '.jpeg', '_thumbnail.jpeg' | replace: '.jpg', '_thumbnail.jpg' | replace: '.heic', '_thumbnail.jpeg' %}
+                <div style="display: flex; justify-content: center;">
+                    <div style="max-width: 450px; width: 100%;">
+                        {% assign img_tag = thumbnail_content | split: '<img src="' | last | split: '" />' | first %}
+                        {% assign full_img = img_tag | replace: '_thumbnail.jpeg', '.jpeg' | replace: '_thumbnail.jpg', '.jpg' %}
+                        <a href="{{ full_img }}">
+                            <img src="{{ img_tag }}" style="width: 100%; height: auto;" />
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                {{ post.content }}
+            {% endif %}
         </div>
     </article>
     {% endfor %}
