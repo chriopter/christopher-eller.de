@@ -10,6 +10,7 @@ layout: default
     }
 </style>
 
+
 <article>
     <h1 class="post-title">{{ page.title }}</h1>
     <div class="post-date">{{ page.date | date: "%b %-d, %Y" }} ✨</div>
@@ -19,11 +20,14 @@ layout: default
 </article>
 
 <script>
-document.querySelectorAll('.post-content img').forEach(img => {
-    const link = document.createElement('a');
-    link.href = img.src;
-    link.target = '_blank';
-    img.parentNode.insertBefore(link, img);
-    link.appendChild(img);
-});
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.post-content img');
+        images.forEach(function(img) {
+            const link = document.createElement('a');
+            link.href = img.src;
+            link.target = '_blank';
+            img.parentNode.insertBefore(link, img);
+            link.appendChild(img);
+        });
+    });
 </script>
