@@ -33,4 +33,3 @@ git config --local include.path ../.gitconfig && brew install imagemagick && bre
 The pre-commit hook performs three main functions:
 - Removes GPS/location data from photos for privacy
 - Generates 1024px wide thumbnails for the photo grid view
-- Creates markdown files with extracted EXIF metadata (camera, lens settings, etc.)
