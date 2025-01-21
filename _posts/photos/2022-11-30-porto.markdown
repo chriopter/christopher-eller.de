@@ -1,9 +1,2 @@
 ---title: Porto
-exif:
-  lens: iPhone 13 Pro back triple camera 5.7mm f/1.5
-  focal_length: 5.7
-  exposure: 0.0006079027356
-  f_number: 1.5
-  iso: 50
-  date_taken: 2022:04:08 15:36:22
 ---![Porto]({{ site.baseurl }}/assets/images/photos/2022-11-30-porto.jpeg)

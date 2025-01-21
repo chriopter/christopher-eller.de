@@ -18,6 +18,12 @@ if ! command -v magick &> /dev/null; then
     exit 1
 fi
 
+if ! command -v jq &> /dev/null; then
+    echo "Error: jq is not installed"
+    echo "Please install it using: brew install jq"
+    exit 1
+fi
+
 ###########################################
 # Get image files
 ###########################################
@@ -70,11 +76,135 @@ echo "Successfully removed EXIF location data from images"
 
 echo "=== Extracting non-GPS EXIF data for photo posts ==="
 
-# Run the EXIF extraction script after GPS data has been removed
-if ! ruby _import/exif_to_frontmatter.rb; then
-    echo "Error: Failed to extract EXIF data"
-    exit 1
-fi
+# Function to process EXIF data for a photo post
+process_photo_post() {
+    local image_path="$1"
+    local post_path="$2"
+    
+    # Extract EXIF data using exiftool
+    local exif_json=$(exiftool -json -n \
+        -Make \
+        -Model \
+        -LensModel \
+        -LensMake \
+        -FocalLength \
+        -FocalLengthIn35mmFormat \
+        -ExposureTime \
+        -FNumber \
+        -ISO \
+        -DateTimeOriginal \
+        -CameraSerialNumber \
+        -LensSerialNumber \
+        -Software \
+        -ImageSize \
+        -Megapixels \
+        -ShutterSpeed \
+        -Aperture \
+        -ExposureProgram \
+        -ExposureCompensation \
+        -MeteringMode \
+        -LightValue \
+        -Flash \
+        -FlashType \
+        -WhiteBalance \
+        -ColorSpace \
+        "$image_path")
+
+    # Process EXIF data using jq
+    local make=$(echo "$exif_json" | jq -r '.[0].Make // empty')
+    local model=$(echo "$exif_json" | jq -r '.[0].Model // empty')
+    local lens_make=$(echo "$exif_json" | jq -r '.[0].LensMake // empty')
+    local lens_model=$(echo "$exif_json" | jq -r '.[0].LensModel // empty')
+    local focal_length=$(echo "$exif_json" | jq -r '.[0].FocalLength // empty')
+    local focal_length_35=$(echo "$exif_json" | jq -r '.[0].FocalLengthIn35mmFormat // empty')
+    local exposure_time=$(echo "$exif_json" | jq -r '.[0].ExposureTime // empty')
+    local f_number=$(echo "$exif_json" | jq -r '.[0].FNumber // empty')
+    local iso=$(echo "$exif_json" | jq -r '.[0].ISO // empty')
+    local date_taken=$(echo "$exif_json" | jq -r '.[0].DateTimeOriginal // empty')
+
+    # Format camera name
+    local camera=""
+    if [ ! -z "$make" ] && [ ! -z "$model" ]; then
+        # Remove redundant make from model if present
+        local clean_model=$(echo "$model" | sed "s/^$make[[:space:]]*//i")
+        camera="$make $clean_model"
+    elif [ ! -z "$model" ]; then
+        camera="$model"
+    fi
+
+    # Format focal length
+    local focal_length_formatted=""
+    if [ ! -z "$focal_length" ]; then
+        if [ ! -z "$focal_length_35" ]; then
+            focal_length_formatted="${focal_length%.*}mm (${focal_length_35%.*}mm)"
+        else
+            focal_length_formatted="${focal_length%.*}mm"
+        fi
+    fi
+
+    # Format exposure time as fraction
+    local exposure_formatted=""
+    if [ ! -z "$exposure_time" ]; then
+        local fraction=$(awk "BEGIN {print int(1/$exposure_time)}")
+        exposure_formatted="1/$fraction"
+    fi
+
+    # Clean up lens model (remove focal length/aperture info)
+    local lens_formatted=""
+    if [ ! -z "$lens_model" ]; then
+        lens_formatted=$(echo "$lens_model" | sed 's/\s\+[0-9].*$//')
+    fi
+
+    # Create YAML front matter
+    local exif_yaml="exif:\n"
+    [ ! -z "$make" ] && exif_yaml+="  manufacturer: $make\n"
+    [ ! -z "$camera" ] && exif_yaml+="  camera: $camera\n"
+    [ ! -z "$lens_make" ] && exif_yaml+="  lens_make: $lens_make\n"
+    [ ! -z "$lens_formatted" ] && exif_yaml+="  lens: $lens_formatted\n"
+    [ ! -z "$focal_length_formatted" ] && exif_yaml+="  focal_length: $focal_length_formatted\n"
+    [ ! -z "$exposure_formatted" ] && exif_yaml+="  exposure: $exposure_formatted\n"
+    [ ! -z "$f_number" ] && exif_yaml+="  f_number: $f_number\n"
+    [ ! -z "$iso" ] && exif_yaml+="  iso: $iso\n"
+    [ ! -z "$date_taken" ] && exif_yaml+="  date_taken: $date_taken\n"
+
+    # Update the markdown file's front matter
+    if [ -f "$post_path" ]; then
+        # Create a temporary file
+        local temp_file=$(mktemp)
+        
+        # Extract title from existing front matter
+        local title=$(sed -n '/^title:/p' "$post_path")
+        
+        # Create new content with updated front matter
+        echo "---" > "$temp_file"
+        echo "$title" >> "$temp_file"
+        echo -e "$exif_yaml" >> "$temp_file"
+        echo "---" >> "$temp_file"
+        
+        # Append the rest of the file (after the second ---)
+        sed -n '/^---/,/^---/!p' "$post_path" >> "$temp_file"
+        
+        # Replace original file with new content
+        mv "$temp_file" "$post_path"
+        
+        echo "Updated EXIF data in: $post_path"
+    fi
+}
+
+# Process all photo posts
+for post_path in _posts/photos/*.markdown; do
+    # Extract image filename from post filename
+    filename=$(basename "$post_path" .markdown)
+    
+    # Look for corresponding image
+    for ext in jpeg jpg heic; do
+        image_path="assets/images/photos/$filename.$ext"
+        if [ -f "$image_path" ]; then
+            process_photo_post "$image_path" "$post_path"
+            break
+        fi
+    done
+done
 
 echo "Successfully extracted non-GPS EXIF data for photo posts"
 

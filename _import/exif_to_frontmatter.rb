@@ -13,12 +13,28 @@ def extract_exif(image_path)
     -Make \
     -Model \
     -LensModel \
+    -LensMake \
     -FocalLength \
     -FocalLengthIn35mmFormat \
     -ExposureTime \
     -FNumber \
     -ISO \
     -DateTimeOriginal \
+    -CameraSerialNumber \
+    -LensSerialNumber \
+    -Software \
+    -ImageSize \
+    -Megapixels \
+    -ShutterSpeed \
+    -Aperture \
+    -ExposureProgram \
+    -ExposureCompensation \
+    -MeteringMode \
+    -LightValue \
+    -Flash \
+    -FlashType \
+    -WhiteBalance \
+    -ColorSpace \
     "#{image_path}"`
   
   begin
@@ -55,13 +71,30 @@ def extract_exif(image_path)
     end
 
     return {
+      'manufacturer' => data['Make'],
       'camera' => camera,
+      'lens_make' => data['LensMake'],
       'lens' => lens,
       'focal_length' => focal_length,
       'exposure' => exposure,
       'f_number' => data['FNumber'],
       'iso' => data['ISO'],
-      'date_taken' => data['DateTimeOriginal']
+      'date_taken' => data['DateTimeOriginal'],
+      'camera_serial' => data['CameraSerialNumber'],
+      'lens_serial' => data['LensSerialNumber'],
+      'software' => data['Software'],
+      'image_size' => data['ImageSize'],
+      'megapixels' => data['Megapixels'],
+      'shutter_speed' => data['ShutterSpeed'],
+      'aperture' => data['Aperture'],
+      'exposure_program' => data['ExposureProgram'],
+      'exposure_compensation' => data['ExposureCompensation'],
+      'metering_mode' => data['MeteringMode'],
+      'light_value' => data['LightValue'],
+      'flash' => data['Flash'],
+      'flash_type' => data['FlashType'],
+      'white_balance' => data['WhiteBalance'],
+      'color_space' => data['ColorSpace']
     }.compact
   rescue
     puts "Warning: Could not extract EXIF data from #{image_path}"
@@ -81,10 +114,10 @@ def process_photo_post(post_path, image_path)
     
     # Extract EXIF data
     exif_data = extract_exif(image_path)
-    return if exif_data.empty?
     
-    # Update front matter with EXIF data
-    front_matter['exif'] = exif_data
+    # Always replace existing EXIF data with new data
+    front_matter.delete('exif')  # Remove existing EXIF data
+    front_matter['exif'] = exif_data unless exif_data.empty?  # Add new EXIF data if any was extracted
     
     # Write updated content back
     File.write(post_path, [
