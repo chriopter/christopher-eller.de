@@ -12,6 +12,22 @@ layout: default
     padding: 20px;
 }
 
+@media screen and (max-width: 900px) {
+    .archive-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        padding: 15px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .archive-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 10px;
+    }
+}
+
 .archive-column {
     min-width: 0;
 }
@@ -19,7 +35,7 @@ layout: default
 .archive-column h2 {
     margin-bottom: 20px;
     font-size: 1em;
-    font-weight: normal;
+    font-weight: bold;
 }
 
 .post-list {
