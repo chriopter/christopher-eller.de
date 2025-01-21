@@ -2,13 +2,13 @@
 layout: photo
 title: "2022 12 01 beach"
 date: 2025-01-21 12:00:00 +0100
-image: /assets/images/photos/2022-12-01-beach.jpg
-camera_make: "SONY"
-camera_model: "ILCE-6400"
-focal_length: "50 mm"
-aperture: "f/11.0"
-shutter_speed: "1/200"
-iso: "100"
+image: /assets/images/photos/2022-12-01-beach.jpeg
+camera_make: "Apple"
+camera_model: "iPhone 13 Pro"
+focal_length: "9 mm"
+aperture: "f/2.8"
+shutter_speed: "1/1575"
+iso: "32"
 ---
 
-<img src="/assets/images/photos/2022-12-01-beach.jpg" />
+<img src="/assets/images/photos/2022-12-01-beach.jpeg" />

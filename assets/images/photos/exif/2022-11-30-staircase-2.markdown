@@ -2,13 +2,13 @@
 layout: photo
 title: "2022 11 30 staircase 2"
 date: 2025-01-21 12:00:00 +0100
-image: /assets/images/photos/2022-11-30-staircase-2.jpeg
+image: /assets/images/photos/2022-11-30-staircase-2.jpg
 camera_make: "SONY"
 camera_model: "ILCE-6400"
-focal_length: "16 mm"
-aperture: "f/3.5"
-shutter_speed: "1/160"
-iso: "6400"
+focal_length: "49 mm"
+aperture: "f/5.6"
+shutter_speed: "1/320"
+iso: "125"
 ---
 
-<img src="/assets/images/photos/2022-11-30-staircase-2.jpeg" />
+<img src="/assets/images/photos/2022-11-30-staircase-2.jpg" />

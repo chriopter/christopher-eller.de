@@ -26,11 +26,11 @@ fi
 echo "Debug: All staged files:"
 git diff --cached --name-only --diff-filter=d
 
-# Get list of all image files in assets/images/photos and assets/images/posts
-all_images=$(find assets/images/photos assets/images/posts -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.heic" -o -name "*.png" \) | grep -v "/thumbnails/" | grep -v "_thumbnail" || true)
+# Get list of all image files in assets/images/photos
+all_images=$(find assets/images/photos -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.heic" -o -name "*.png" \) | grep -v "/thumbnails/" | grep -v "_thumbnail" | grep -v "/exif/" || true)
 
-# Get list of staged image files in assets/images/photos and assets/images/posts
-staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^assets/images/(photos|posts)/.*\.(jpg|jpeg|heic|png)$" | grep -v "/thumbnails/" || true)
+# Get list of staged image files in assets/images/photos
+staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^assets/images/photos/.*\.(jpg|jpeg|heic|png)$" | grep -v "/thumbnails/" | grep -v "/exif/" || true)
 
 # Debug: Print the filtered images
 echo "Debug: All images found: $all_images"
@@ -48,18 +48,16 @@ fi
 
 echo "=== Removing EXIF location data from staged images ==="
 
-# Process all images
-for file in $all_images; do
+# Process each staged image
+for file in $staged_images; do
     if [ -f "$file" ]; then
         # Remove GPS data and create backup with _original suffix
         if ! exiftool -overwrite_original -gps:all= "$file"; then
             echo "Error: Failed to remove EXIF data from $file"
             exit 1
         fi
-        # Re-stage the modified file if it was staged
-        if echo "$staged_images" | grep -q "^$file$"; then
-            git add "$file"
-        fi
+        # Re-stage the modified file
+        git add "$file"
         echo "Removed GPS data from: $file"
     fi
 done
@@ -170,10 +168,18 @@ EOL
     git add "$markdown_file"
 }
 
-# Process all images for EXIF extraction and markdown creation
+# Process images for EXIF extraction and markdown creation where it doesn't exist yet
 for file in $all_images; do
     if [ -f "$file" ]; then
-        create_markdown_file "$file"
+        # Get the markdown filename that would be created
+        filename=$(basename "$file")
+        name="${filename%.*}"
+        markdown_file="assets/images/photos/exif/${name}.markdown"
+        
+        # Only create if it doesn't exist
+        if [ ! -f "$markdown_file" ]; then
+            create_markdown_file "$file"
+        fi
     fi
 done
 

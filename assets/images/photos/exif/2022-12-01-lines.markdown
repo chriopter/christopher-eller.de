@@ -2,13 +2,13 @@
 layout: photo
 title: "2022 12 01 lines"
 date: 2025-01-21 12:00:00 +0100
-image: /assets/images/photos/2022-12-01-lines.jpeg
-camera_make: "DJI"
-camera_model: "FC7303"
-focal_length: "4 mm"
-aperture: "f/2.8"
-shutter_speed: "1/400"
-iso: "100"
+image: /assets/images/photos/2022-12-01-lines.jpg
+camera_make: "SONY"
+camera_model: "ILCE-6400"
+focal_length: "35 mm"
+aperture: "f/5.0"
+shutter_speed: "1/160"
+iso: "250"
 ---
 
-<img src="/assets/images/photos/2022-12-01-lines.jpeg" />
+<img src="/assets/images/photos/2022-12-01-lines.jpg" />
