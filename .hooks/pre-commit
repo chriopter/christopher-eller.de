@@ -24,12 +24,6 @@ if ! command -v jq &> /dev/null; then
     exit 1
 fi
 
-if ! command -v parallel &> /dev/null; then
-    echo "Error: GNU parallel is not installed"
-    echo "Please install it using: brew install parallel"
-    exit 1
-fi
-
 ###########################################
 # Get image files
 ###########################################
@@ -60,30 +54,19 @@ fi
 
 echo "=== Removing EXIF location data from staged images ==="
 
-# Function to remove GPS data from an image
-remove_gps_data() {
-    local file="$1"
+# Process each staged image
+for file in $staged_images; do
     if [ -f "$file" ]; then
         # Remove GPS data and create backup with _original suffix
         if ! exiftool -overwrite_original -gps:all= "$file"; then
             echo "Error: Failed to remove EXIF data from $file"
-            return 1
+            exit 1
         fi
         # Re-stage the modified file
         git add "$file"
         echo "Removed GPS data from: $file"
     fi
-}
-
-# Export functions and tools for parallel execution
-export -f remove_gps_data
-export exiftool
-export git
-
-# Process staged images in parallel
-if [ ! -z "$staged_images" ]; then
-    echo "$staged_images" | parallel --will-cite -j+0 remove_gps_data
-fi
+done
 
 echo "Successfully removed EXIF location data from images"
 
@@ -208,36 +191,20 @@ process_photo_post() {
     fi
 }
 
-# Export functions and tools for parallel execution
-export -f process_photo_post
-export exiftool
-export jq
-export sed
-export awk
-
-# Create a temporary file to store image-post pairs
-temp_pairs=$(mktemp)
-
-# Find all photo posts and their corresponding images
+# Process all photo posts
 for post_path in _posts/photos/*.markdown; do
+    # Extract image filename from post filename
     filename=$(basename "$post_path" .markdown)
+    
+    # Look for corresponding image
     for ext in jpeg jpg heic; do
         image_path="assets/images/photos/$filename.$ext"
         if [ -f "$image_path" ]; then
-            echo "$image_path|$post_path" >> "$temp_pairs"
+            process_photo_post "$image_path" "$post_path"
             break
         fi
     done
 done
-
-# Process photo posts in parallel
-if [ -s "$temp_pairs" ]; then
-    echo "Processing photos in parallel..."
-    parallel --will-cite -j+0 --colsep '|' process_photo_post {1} {2} < "$temp_pairs"
-fi
-
-# Clean up
-rm "$temp_pairs"
 
 echo "Successfully extracted non-GPS EXIF data for photo posts"
 
@@ -284,19 +251,19 @@ generate_thumbnail() {
     fi
 }
 
-# Export functions and tools for parallel execution
-export -f generate_thumbnail
-export magick
-export git
+# Process all images for thumbnails first
+for file in $all_images; do
+    if [ -f "$file" ]; then
+        generate_thumbnail "$file"
+    fi
+done
 
-# Process thumbnails in parallel
-if [ ! -z "$all_images" ]; then
-    echo "$all_images" | parallel --will-cite -j+0 generate_thumbnail
-fi
-
-if [ ! -z "$staged_images" ]; then
-    echo "$staged_images" | parallel --will-cite -j+0 generate_thumbnail
-fi
+# Then process any staged images that might not be in all_images yet
+for file in $staged_images; do
+    if [ -f "$file" ]; then
+        generate_thumbnail "$file"
+    fi
+done
 
 echo "=== Pre-commit hook completed successfully ==="
 exit 0

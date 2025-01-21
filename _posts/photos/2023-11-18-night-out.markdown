@@ -1,12 +1,8 @@
----
-
+---title: Night Out
 exif:
-  manufacturer: RICOH IMAGING COMPANY, LTD.
-  camera: RICOH IMAGING COMPANY, LTD. RICOH GR IIIx
-  focal_length: 26mm (40mm)
-  exposure: 1/4
+  focal_length: 26
+  exposure: 0.25
   f_number: 2.8
   iso: 125
   date_taken: 2023:07:29 22:20:46
-
----
+---![Night Out]({{ site.baseurl }}/assets/images/photos/2023-11-18-night-out.jpeg)
