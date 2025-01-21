@@ -1,8 +1,12 @@
----title: Bar 1
+---
+
 exif:
-  focal_length: 26
-  exposure: 0.07692307692
+  manufacturer: RICOH IMAGING COMPANY, LTD.
+  camera: RICOH IMAGING COMPANY, LTD. RICOH GR IIIx
+  focal_length: 26mm (40mm)
+  exposure: 1/13
   f_number: 2.8
   iso: 2500
   date_taken: 2023:04:30 02:39:40
----![Bar 1]({{ site.baseurl }}/assets/images/photos/2023-06-25-bar-1.jpeg)
+
+---

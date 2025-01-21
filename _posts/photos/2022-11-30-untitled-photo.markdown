@@ -1,9 +1,13 @@
----title: Untitled Photo
+---
+
 exif:
+  manufacturer: SONY
+  camera: SONY ILCE-6400
   lens: E PZ 16-50mm F3.5-5.6 OSS
-  focal_length: 50
-  exposure: 0.005
+  focal_length: 50mm (75mm)
+  exposure: 1/200
   f_number: 11
   iso: 100
   date_taken: 2022:08:01 12:57:57
----![Untitled Photo]({{ site.baseurl }}/assets/images/photos/2022-11-30-untitled-photo.jpeg)
+
+---
