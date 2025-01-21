@@ -1,7 +1,6 @@
 ---
 layout: post
 title: "Rochade"
-date: 2024-11-09 14:04:54 +0100
 ---
 
 <p>Die Demokraten haben mit Ansage verloren und es scheint als hätte man kein Interesse daran, daraus zu lernen.</p>

@@ -1,7 +1,6 @@
 ---
 layout: post
 title: "Spießbürger im Gewandt der Revolutionäre"
-date: 2025-01-19 12:39:26 +0100
 ---
 
 <p>Es ist auffällig bis amüsierend, dass die Fraktion der (städtischen) Theater- und Kulturgänger, die sich oft als moralisch Bessergestellte versteht, so 

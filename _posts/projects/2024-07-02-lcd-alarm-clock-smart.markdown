@@ -1,7 +1,6 @@
 ---
 layout: post
 title:  "lcd-alarm-clock-smart"
-date:   2024-07-02 10:10:13 +0100
 ---
 A little project to connect a normal LCD alarm so you can use HA to control blinds, lights, and radio upon alarm activation. Uses ESP32 deep sleep mode to allow battery operation.
 

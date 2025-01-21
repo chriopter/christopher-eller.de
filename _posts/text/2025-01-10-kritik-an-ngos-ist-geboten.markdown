@@ -1,7 +1,6 @@
 ---
 layout: post
 title: "Kritik an NGOs ist geboten"
-date: 2025-01-10 13:36:28 +0100
 ---
 
 <p>“Die 19-jährige Schwedin Ia Aanstoot hat zusammen mit Verbündeten den Umweltkonzern Greenpeace verklagt. „Greenpeace steckt in der Vergangenheit fest“, sagt Aanstoot. „Es kämpft gegen saubere, CO₂-freie Kernenergie“, die im Kampf gegen die globale Erwärmung dringend benötigt werde.” (Aus <a href="https://www.welt.de/debatte/article255056538/Neue-Klimabewegung-will-Wohlstand-und-Klimaschutz-verbinden.html">“Liebe Jugendliche, ihr könnt die Anti-Wohlstand-Industrie besiegen”</a>)</p>

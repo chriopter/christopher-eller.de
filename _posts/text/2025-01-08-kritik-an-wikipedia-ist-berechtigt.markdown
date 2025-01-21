@@ -1,7 +1,6 @@
 ---
 layout: post
 title: "Kritik an Wikipedia ist berechtigt"
-date: 2025-01-08 10:58:13 +0100
 ---
 
 <p>Es ist Trend, seinen guten Willen gegenüber Wikipedia mit öffentlich zur Schau gestellten Spenden (<a href="https://x.com/georgrestle/status/1876548614086136048">Georg Restle (ARD)</a>) zu zeigen.</p>

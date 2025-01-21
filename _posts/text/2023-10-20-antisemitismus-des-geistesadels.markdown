@@ -1,7 +1,6 @@
 ---
 layout: post
 title: "Antisemitismus des Geistesadels"
-date: 2023-10-20 21:24:02 +0100
 ---
 
 <p>Kein Antisemit sein zu <em>können</em>, das wird in Deutschland über die Abgrenzung zu Nationalsozialismus demonstriert.</p>

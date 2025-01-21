@@ -1,7 +1,6 @@
 ---
 layout: post
 title:  "Shadows"
-date:   2023-07-14 12:00:00 +0100
 ---
 
 ![Shadows]({{ site.baseurl }}/assets/images/photos/2023-07-14-shadows.jpeg)

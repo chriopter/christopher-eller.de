@@ -1,7 +1,6 @@
 ---
 layout: post
 title:  "Rabelo"
-date:   2022-11-30 12:00:00 +0100
 ---
 
 ![Rabelo]({{ site.baseurl }}/assets/images/photos/2022-11-30-rabelo.jpg)
