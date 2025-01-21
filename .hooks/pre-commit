@@ -133,7 +133,10 @@ create_markdown_file() {
     local filename=$(basename "$img")
     local name="${filename%.*}"
     local date_prefix=$(date +%Y-%m-%d)
-    local markdown_file="_posts/photos/${date_prefix}-${name}.markdown"
+    local markdown_file="assets/images/photos/exif/${name}.markdown"
+    
+    # Create exif directory if it doesn't exist
+    mkdir -p "assets/images/photos/exif"
     
     # Extract metadata using exiftool
     local camera_make=$(exiftool -s -s -s -Make "$img")
