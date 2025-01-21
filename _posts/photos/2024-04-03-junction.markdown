@@ -1,5 +1,9 @@
----
-title:  "Junction"
----
-
-![Junction]({{ site.baseurl }}/assets/images/photos/2024-04-03-junction.jpeg)
+---title: Junction
+exif:
+  lens: iPhone 15 Pro back camera 6.765mm f/1.78
+  focal_length: 6.764999866
+  exposure: 0.01
+  f_number: 1.779999971
+  iso: 200
+  date_taken: 2024:03:31 22:25:58
+---![Junction]({{ site.baseurl }}/assets/images/photos/2024-04-03-junction.jpeg)

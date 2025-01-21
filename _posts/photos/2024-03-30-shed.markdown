@@ -1,5 +1,8 @@
----
-title:  "Shed"
----
-
-![Shed]({{ site.baseurl }}/assets/images/photos/2024-03-30-shed.jpeg)
+---title: Shed
+exif:
+  focal_length: 26
+  exposure: 0.008
+  f_number: 2.8
+  iso: 400
+  date_taken: 2024:03:30 15:18:17
+---![Shed]({{ site.baseurl }}/assets/images/photos/2024-03-30-shed.jpeg)

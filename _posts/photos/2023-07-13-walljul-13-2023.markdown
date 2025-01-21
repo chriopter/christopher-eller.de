@@ -1,5 +1,9 @@
----
-title:  "Walljul 13 2023"
----
-
-![Walljul 13 2023]({{ site.baseurl }}/assets/images/photos/2023-07-13-walljul-13-2023.jpeg)
+---title: Walljul 13 2023
+exif:
+  lens: iPhone 14 Pro back triple camera 6.86mm f/1.78
+  focal_length: 6.860000134
+  exposure: 0.0008453085376
+  f_number: 1.779999971
+  iso: 100
+  date_taken: 2023:07:02 20:04:14
+---![Walljul 13 2023]({{ site.baseurl }}/assets/images/photos/2023-07-13-walljul-13-2023.jpeg)

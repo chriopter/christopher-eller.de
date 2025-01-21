@@ -11,18 +11,8 @@ layout: default
     
     .photo-metadata {
         margin-top: 20px;
-        padding: 15px;
-        background: #f8f8f8;
-        border-radius: 5px;
         font-size: 14px;
         color: #666;
-    }
-
-    .photo-metadata h3 {
-        margin-top: 0;
-        margin-bottom: 10px;
-        color: #333;
-        font-size: 16px;
     }
 
     .photo-metadata p {
@@ -31,12 +21,7 @@ layout: default
 
     @media (prefers-color-scheme: dark) {
         .photo-metadata {
-            background: #222;
             color: #999;
-        }
-        
-        .photo-metadata h3 {
-            color: #ccc;
         }
     }
 </style>
@@ -48,6 +33,20 @@ layout: default
     <div class="post-content">
         {{ content }}
     </div>
+
+    {% if page.exif %}
+    <div class="photo-metadata">
+        {% if page.exif.camera %}
+        <p>📷 {{ page.exif.camera }}</p>
+        {% endif %}
+        {% if page.exif.lens %}
+        <p>🔭 {{ page.exif.lens }}</p>
+        {% endif %}
+        {% if page.exif.focal_length or page.exif.f_number or page.exif.exposure or page.exif.iso %}
+        <p>⚙️ {% if page.exif.focal_length %}{{ page.exif.focal_length }}{% endif %}{% if page.exif.f_number %}, ƒ/{{ page.exif.f_number }}{% endif %}{% if page.exif.exposure %}, {{ page.exif.exposure }}{% endif %}{% if page.exif.iso %}, ISO {{ page.exif.iso }}{% endif %}</p>
+        {% endif %}
+    </div>
+    {% endif %}
 </article>
 
 <script>

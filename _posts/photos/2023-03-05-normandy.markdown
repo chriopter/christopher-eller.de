@@ -1,5 +1,9 @@
----
-title:  "Normandy"
----
-
-![Normandy]({{ site.baseurl }}/assets/images/photos/2023-03-05-normandy.jpeg)
+---title: Normandy
+exif:
+  lens: E PZ 16-50mm F3.5-5.6 OSS
+  focal_length: 35
+  exposure: 0.00625
+  f_number: 5
+  iso: 250
+  date_taken: 2023:01:23 17:19:11
+---![Normandy]({{ site.baseurl }}/assets/images/photos/2023-03-05-normandy.jpeg)

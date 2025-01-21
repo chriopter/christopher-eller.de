@@ -1,5 +1,8 @@
----
-title:  "Bar 2"
----
-
-![Bar 2]({{ site.baseurl }}/assets/images/photos/2023-06-25-bar-2.jpeg)
+---title: Bar 2
+exif:
+  focal_length: 26
+  exposure: 0.25
+  f_number: 2.8
+  iso: 250
+  date_taken: 2023:04:30 02:17:42
+---![Bar 2]({{ site.baseurl }}/assets/images/photos/2023-06-25-bar-2.jpeg)

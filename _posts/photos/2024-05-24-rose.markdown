@@ -1,5 +1,8 @@
----
-title:  "Rose"
----
-
-![Rose]({{ site.baseurl }}/assets/images/photos/2024-05-24-rose.jpeg)
+---title: Rose
+exif:
+  focal_length: 26
+  exposure: 0.01666666667
+  f_number: 11
+  iso: 800
+  date_taken: 2024:03:30 14:45:34
+---![Rose]({{ site.baseurl }}/assets/images/photos/2024-05-24-rose.jpeg)

@@ -1,5 +1,8 @@
----
-title:  "Garden 4"
----
-
-![Garden 4]({{ site.baseurl }}/assets/images/photos/2024-05-24-garden-4.jpeg)
+---title: Garden 4
+exif:
+  focal_length: 26
+  exposure: 0.003125
+  f_number: 7.1
+  iso: 800
+  date_taken: 2024:03:30 14:34:19
+---![Garden 4]({{ site.baseurl }}/assets/images/photos/2024-05-24-garden-4.jpeg)
