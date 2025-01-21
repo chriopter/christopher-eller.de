@@ -35,6 +35,12 @@ plugins:
   - jekyll-feed
   - jekyll-paginate
 
+# Sass settings
+sass:
+  style: compressed
+  implementation: sass-embedded # Use modern Sass implementation
+  sass_dir: _sass
+
 # Pagination settings
 paginate: 10
 paginate_path: "/page:num/"
