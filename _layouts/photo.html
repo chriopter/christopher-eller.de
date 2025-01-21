@@ -1,65 +1,9 @@
----
-layout: default
----
-
-<style>
-    .post-content img {
-        max-width: 100%;
-        height: auto;
-        cursor: pointer;
-    }
-    
-    .photo-metadata {
-        margin-top: 20px;
-        font-size: 14px;
-        color: #666;
-    }
-
-    .photo-metadata p {
-        margin: 5px 0;
-    }
-
-    @media (prefers-color-scheme: dark) {
-        .photo-metadata {
-            color: #999;
-        }
-    }
-</style>
-
-
-<article>
-    <h1 class="post-title">{{ page.title }}</h1>
-    <div class="post-date">{{ page.date | date: "%b %-d, %Y" }} ✨</div>
-    <div class="post-content">
-        {{ content }}
-    </div>
-
-    {% assign image_name = page.path | split: "/" | last | replace: ".markdown", "" %}
-    {% assign exif = site.data.photos[image_name] %}
-    {% if exif %}
-    <div class="photo-metadata">
-        {% if exif.camera %}
-        <p>📷 {{ exif.camera }}</p>
-        {% endif %}
-        {% if exif.lens %}
-        <p>🔭 {{ exif.lens }}</p>
-        {% endif %}
-        {% if exif.focal_length or exif.f_number or exif.exposure or exif.iso %}
-        <p>⚙️ {% if exif.focal_length %}{{ exif.focal_length }}{% endif %}{% if exif.f_number %}, ƒ/{{ exif.f_number }}{% endif %}{% if exif.exposure %}, {{ exif.exposure }}{% endif %}{% if exif.iso %}, ISO {{ exif.iso }}{% endif %}</p>
-        {% endif %}
-    </div>
-    {% endif %}
-</article>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.post-content img');
-        images.forEach(function(img) {
-            const link = document.createElement('a');
-            link.href = img.src;
-            link.target = '_blank';
-            img.parentNode.insertBefore(link, img);
-            link.appendChild(img);
-        });
-    });
-</script>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="refresh" content="0; url=/photos?photo={{ page.path | split: '/' | last | replace: '.markdown', '' }}">
+</head>
+<body>
+    Redirecting to gallery...
+</body>
+</html>

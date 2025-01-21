@@ -63,7 +63,7 @@ defaults:
       path: "_posts/photos"
       type: "posts"
     values:
-      layout: "photo"
+      layout: "photos"
   - scope:
       path: "_posts/text"
       type: "posts"
