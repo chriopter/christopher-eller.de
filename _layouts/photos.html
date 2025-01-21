@@ -122,10 +122,9 @@ body, html, main {
     {% for post in site.posts %}
         {% if post.path contains '_posts/photos/' %}
             {% assign filename = post.path | split: '/' | last | replace: '.markdown', '' | append: '.jpeg' %}
-            {% assign thumbnail_path = '/assets/images/photos/thumbnails/' | append: filename | replace: '.heic', '.jpeg' | replace: '.jpg', '.jpeg' %}
             {% assign img_path = '/assets/images/photos/' | append: filename %}
             <a href="{{ post.url }}#photo-main" class="photo-item">
-                <img src="/assets/images/blank.png" data-echo="{{ thumbnail_path }}" alt="{{ post.title }}" />
+                <img src="/assets/images/blank.png" data-echo="{% thumbnail_img img_path 1000 %}" alt="{{ post.title }}" />
                 <div class="photo-info">
                     <div class="title">{{ post.title }}</div>
                 </div>

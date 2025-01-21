@@ -17,13 +17,8 @@ layout: default
                     <div style="display: flex; justify-content: center;">
                         <div style="max-width: 380px; width: 100%;">
                             {% assign img_path = content | split: '<img src="' | last | split: '" />' | first %}
-                            {% assign clean_path = img_path | remove: '{{ site.baseurl }}' %}
-                            {% assign path_parts = clean_path | split: '/' %}
-                            {% assign filename = path_parts | last %}
-                            {% assign dirs = path_parts | pop | join: '/' | append: '/' %}
-                            {% assign thumbnail_path = dirs | append: 'thumbnails/' | append: filename | replace: '.heic', '.jpeg' %}
                             <a href="{{ post.url }}#photo-main">
-                                <img src="/assets/images/blank.png" data-echo="{{ site.url }}{{ thumbnail_path }}" style="width: 100%; height: auto;" />
+                                <img src="/assets/images/blank.png" data-echo="{% thumbnail_img img_path 1000 %}" style="width: 100%; height: auto;" />
                             </a>
                         </div>
                     </div>
