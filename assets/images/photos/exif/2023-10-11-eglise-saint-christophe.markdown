@@ -1,0 +1,14 @@
+---
+layout: photo
+title: "2023 10 11 eglise saint christophe"
+date: 2025-01-21 12:00:00 +0100
+image: /assets/images/photos/2023-10-11-eglise-saint-christophe.jpeg
+camera_make: "Apple"
+camera_model: "iPhone 14 Pro"
+focal_length: "6 mm"
+aperture: "f/1.8"
+shutter_speed: "1/280"
+iso: "64"
+---
+
+<img src="/assets/images/photos/2023-10-11-eglise-saint-christophe.jpeg" />

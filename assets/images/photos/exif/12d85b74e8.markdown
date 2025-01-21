@@ -1,0 +1,14 @@
+---
+layout: photo
+title: "12d85b74e8"
+date: 2025-01-21 12:00:00 +0100
+image: /assets/images/photos/12d85b74e8.png
+camera_make: ""
+camera_model: ""
+focal_length: ""
+aperture: ""
+shutter_speed: ""
+iso: ""
+---
+
+<img src="/assets/images/photos/12d85b74e8.png" />

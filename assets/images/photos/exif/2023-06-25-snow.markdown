@@ -1,0 +1,14 @@
+---
+layout: photo
+title: "2023 06 25 snow"
+date: 2025-01-21 12:00:00 +0100
+image: /assets/images/photos/2023-06-25-snow.jpeg
+camera_make: "SONY"
+camera_model: "ILCE-6400"
+focal_length: "79 mm"
+aperture: "f/5.6"
+shutter_speed: "1/1250"
+iso: "100"
+---
+
+<img src="/assets/images/photos/2023-06-25-snow.jpeg" />

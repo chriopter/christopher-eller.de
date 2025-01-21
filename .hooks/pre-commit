@@ -48,16 +48,18 @@ fi
 
 echo "=== Removing EXIF location data from staged images ==="
 
-# Process each staged image
-for file in $staged_images; do
+# Process all images
+for file in $all_images; do
     if [ -f "$file" ]; then
         # Remove GPS data and create backup with _original suffix
         if ! exiftool -overwrite_original -gps:all= "$file"; then
             echo "Error: Failed to remove EXIF data from $file"
             exit 1
         fi
-        # Re-stage the modified file
-        git add "$file"
+        # Re-stage the modified file if it was staged
+        if echo "$staged_images" | grep -q "^$file$"; then
+            git add "$file"
+        fi
         echo "Removed GPS data from: $file"
     fi
 done
@@ -168,8 +170,8 @@ EOL
     git add "$markdown_file"
 }
 
-# Process staged images for EXIF extraction and markdown creation
-for file in $staged_images; do
+# Process all images for EXIF extraction and markdown creation
+for file in $all_images; do
     if [ -f "$file" ]; then
         create_markdown_file "$file"
     fi

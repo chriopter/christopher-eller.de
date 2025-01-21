@@ -1,0 +1,14 @@
+---
+layout: photo
+title: "2022 11 30 rabelo"
+date: 2025-01-21 12:00:00 +0100
+image: /assets/images/photos/2022-11-30-rabelo.jpg
+camera_make: "DJI"
+camera_model: "FC7303"
+focal_length: "4 mm"
+aperture: "f/2.8"
+shutter_speed: "1/400"
+iso: "100"
+---
+
+<img src="/assets/images/photos/2022-11-30-rabelo.jpg" />
