@@ -1,9 +1,145 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="refresh" content="0; url=/photos?photo={{ page.path | split: '/' | last | replace: '.markdown', '' }}">
-</head>
-<body>
-    Redirecting to gallery...
-</body>
-</html>
+---
+layout: default
+---
+
+<style>
+/* Force dark mode styles regardless of theme */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background-color: #000 !important;
+    color: #eee !important;
+}
+
+header {
+    border-bottom-color: #333 !important;
+}
+
+.site-title,
+.nav-links a {
+    color: #eee !important;
+}
+
+footer {
+    border-top-color: #333 !important;
+}
+
+footer a {
+    color: #999 !important;
+}
+
+.photo-container {
+    max-width: 100vw;
+    margin: 0 auto;
+    padding: 0 20px 20px 20px;
+    box-sizing: border-box;
+}
+
+.photo-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.photo-main img {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+}
+
+.photo-info {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.photo-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.photo-date {
+    color: #999;
+    margin-bottom: 20px;
+}
+
+.photo-metadata {
+    font-size: 14px;
+    color: #999;
+}
+
+.photo-metadata p {
+    margin: 5px 0;
+}
+
+.back-to-gallery {
+    display: inline-block;
+    margin-top: 30px;
+    color: #999;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.back-to-gallery:hover {
+    color: #fff;
+}
+
+.full-size-link {
+    display: inline-block;
+    margin-top: 15px;
+    color: #999;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.full-size-link:hover {
+    color: #fff;
+}
+</style>
+
+<div class="photo-container">
+    <div class="photo-main">
+        {% assign filename = page.path | split: '/' | last | replace: '.markdown', '' | append: '.jpeg' %}
+        {% assign img_path = '/assets/images/photos/' | append: filename %}
+        {% assign image_name = page.path | split: "/" | last | replace: ".markdown", "" %}
+        {% assign exif = site.data.photos[image_name] %}
+
+        <a href="{{ img_path }}" target="_blank" style="cursor: pointer;">
+            <img src="{{ img_path }}" alt="{{ page.title }}" style="cursor: zoom-in;" />
+        </a>
+        
+        <div class="photo-info">
+            <h1 class="photo-title">{{ page.title }}</h1>
+            <div class="photo-date">{% if exif.date %}{{ exif.date | date: '%B %d, %Y' }}{% else %}{{ page.date | date: '%B %d, %Y' }}{% endif %}</div>
+            
+            <div class="photo-metadata">
+                {% if exif.camera %}
+                <p>📷 {{ exif.camera }}</p>
+                {% endif %}
+                
+                {% if exif.lens %}
+                <p>🔭 {{ exif.lens }}</p>
+                {% endif %}
+                
+                {% if exif.focal_length or exif.f_number or exif.exposure or exif.iso %}
+                <p>⚙️ 
+                    {% if exif.focal_length %}{{ exif.focal_length }}{% endif %}
+                    {% if exif.f_number %}, ƒ/{{ exif.f_number | round: 1 }}{% endif %}
+                    {% if exif.exposure %}, {{ exif.exposure }}{% endif %}
+                    {% if exif.iso %}, ISO {{ exif.iso }}{% endif %}
+                </p>
+                {% endif %}
+                
+                <p style="margin-top: 15px; font-size: 12px; opacity: 0.7;">Uploaded on {{ page.date | date: '%B %d, %Y' }}</p>
+            </div>
+            
+            <a href="{{ img_path }}" class="full-size-link" target="_blank">View Full Size ↗</a>
+            <br>
+            <br>
+            <a href="/photos" class="back-to-gallery">← Back to Gallery</a>
+        </div>
+    </div>
+</div>
