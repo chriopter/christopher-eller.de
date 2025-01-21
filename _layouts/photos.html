@@ -4,9 +4,17 @@ layout: default
 
 <style>
 /* Force dark mode styles regardless of theme */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
 body {
     background-color: #111 !important;
     color: #eee !important;
+    position: relative;
 }
 
 header {
@@ -34,13 +42,22 @@ main {
 
 .photo-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-    gap: 16px;
-    padding: 16px;
-    width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+    padding: 24px;
+    width: 100vw;
     margin: 0;
     background-color: #000000;
     align-items: start;
+    box-sizing: border-box;
+}
+
+/* Ensure the grid container takes full width */
+body, html, main {
+    width: 100vw;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
 }
 
 .photo-item {
@@ -164,57 +181,97 @@ main {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.95);
+    background: rgba(0, 0, 0, 0.85);
     z-index: 1000;
+    overflow: hidden;
 }
 
 .modal.active {
     display: flex;
 }
 
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+}
+
 .modal-close {
     position: absolute;
     top: 20px;
     right: 20px;
-    background: none;
-    border: none;
+    transform: none;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
     color: white;
-    font-size: 32px;
+    font-size: 24px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     z-index: 1010;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
 }
 
 .nav-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: none;
-    border: none;
+    margin: 0 120px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
     color: white;
     font-size: 24px;
-    padding: 20px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     z-index: 1010;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
 }
 
 .nav-arrow:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-50%) scale(1.1);
 }
 
 .prev-arrow {
-    left: 0;
+    left: 20px;
 }
 
 .next-arrow {
-    right: 0;
+    right: 20px;
 }
 
 .modal-content {
     display: flex;
     width: 100%;
     height: 100%;
-    padding: 40px;
+    padding: 40px 60px;
+    box-sizing: border-box;
+    max-width: 100%;
+    margin: 0;
+    overflow: hidden;
 }
 
 .modal-photo {
@@ -222,19 +279,24 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
+    min-width: 0; /* Allows flex item to shrink below content size */
 }
 
 .modal-photo img {
     max-width: 100%;
     max-height: 85vh;
     object-fit: contain;
-    cursor: zoom-in;
+    cursor: default;
 }
 
 .modal-sidebar {
-    width: 300px;
-    padding: 40px;
+    width: 280px;
+    padding: 30px;
     color: white;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-title {
@@ -294,10 +356,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Create full-size button once
+    const fullSizeBtn = document.createElement('button');
+    fullSizeBtn.className = 'modal-close';
+    fullSizeBtn.innerHTML = '&#x2922;';
+    fullSizeBtn.style.right = 'auto';
+    fullSizeBtn.style.left = '20px';
+    modal.appendChild(fullSizeBtn);
+
     function showPhoto(index) {
         const photo = photos[index];
         modalImage.src = photo.dataset.fullImg;
-        modalImage.onclick = (e) => {
+        fullSizeBtn.onclick = (e) => {
             e.stopPropagation();
             window.open(photo.dataset.fullImg, '_blank');
         };
@@ -331,12 +401,14 @@ document.addEventListener('DOMContentLoaded', function() {
         photo.addEventListener('click', (e) => {
             e.preventDefault();
             modal.classList.add('active');
+            document.body.classList.add('modal-open');
             showPhoto(index);
         });
     });
 
     closeBtn.addEventListener('click', () => {
         modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
         // Reset URL to photos page when closing modal
         window.history.replaceState({}, '', '/photos');
     });
@@ -358,6 +430,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (e.key === 'Escape') {
             modal.classList.remove('active');
+            document.body.classList.remove('modal-open');
         } else if (e.key === 'ArrowLeft' && currentPhotoIndex > 0) {
             showPhoto(currentPhotoIndex - 1);
         } else if (e.key === 'ArrowRight' && currentPhotoIndex < photos.length - 1) {
