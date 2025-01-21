@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Untitled Photo"
+title:  "RSS Photo"
 ---
 
 Test for RSS
