@@ -287,8 +287,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Open the modal with the specified photo
             modal.classList.add('active');
             showPhoto(photoIndex);
-            // Update URL without the parameter
-            window.history.replaceState({}, '', '/photos');
+            // Keep the URL updated with the current photo in Jekyll post format
+            const [year, month, day, ...titleParts] = photoParam.split('-');
+            const path = `/${year}/${month}/${day}/${titleParts.join('-')}.html`;
+            window.history.replaceState({}, '', path);
         }
     }
 
@@ -301,6 +303,12 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         modalTitle.textContent = photo.dataset.title;
         modalDate.textContent = photo.dataset.date;
+
+        // Update URL with current photo in Jekyll post format
+        const filename = photo.dataset.fullImg.split('/').pop().replace('.jpeg', '');
+        const [year, month, day, ...titleParts] = filename.split('-');
+        const path = `/${year}/${month}/${day}/${titleParts.join('-')}.html`;
+        window.history.replaceState({}, '', path);
         
         let metadataHtml = '';
         if (photo.dataset.camera) {
@@ -329,6 +337,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     closeBtn.addEventListener('click', () => {
         modal.classList.remove('active');
+        // Reset URL to photos page when closing modal
+        window.history.replaceState({}, '', '/photos');
     });
 
     prevBtn.addEventListener('click', () => {
