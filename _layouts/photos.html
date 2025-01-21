@@ -120,27 +120,18 @@ main {
 <div class="photo-grid">
     {% for post in site.posts %}
         {% if post.path contains '_posts/photos/' %}
-            {% assign content = post.content %}
-            {% assign img_tag = content | split: '<img src="' | last | split: '"' | first %}
-            {% assign path_parts = img_tag | split: '/' %}
-            {% assign filename = path_parts | last %}
-            {% assign thumbnail_path = '/assets/images/photos/thumbnails/' | append: filename | replace: '.heic', '.jpeg' %}
-            {% assign full_img = img_tag %}
+            {% assign filename = post.path | split: '/' | last | replace: '.markdown', '' | append: '.jpeg' %}
+            {% assign thumbnail_path = '/assets/images/photos/thumbnails/' | append: filename | replace: '.heic', '.jpeg' | replace: '.jpg', '.jpeg' %}
             {% assign img_path = '/assets/images/photos/' | append: filename %}
-            {% assign system_path = img_path | prepend: site.source %}
-            <a href="{{ site.url }}{{ full_img }}" class="photo-item">
-                <img src="{{ site.url }}{{ site.baseurl }}/assets/images/blank.png" data-echo="{{ site.url }}{{ site.baseurl }}{{ thumbnail_path }}" />
+            <a href="{{ img_path }}" class="photo-item">
+                <img src="/assets/images/blank.png" data-echo="{{ thumbnail_path }}" />
                 <div class="photo-info">
                     <div class="title">{{ post.title }}</div>
                     <div class="date">{{ post.date | date: "%B %d, %Y" }}</div>
-                    </div>
-                    {% endif %}
                 </div>
             </a>
         {% endif %}
     {% endfor %}
 </div>
 
-<script>
-// No JavaScript needed - pure CSS masonry grid
-</script>
+{% include lazyload.html %}
