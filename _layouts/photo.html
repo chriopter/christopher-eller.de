@@ -41,6 +41,7 @@ footer a {
     flex-direction: column;
     align-items: center;
     margin-bottom: 30px;
+    scroll-margin-top: 25px;
 }
 
 .photo-main img {
@@ -101,7 +102,7 @@ footer a {
 </style>
 
 <div class="photo-container">
-    <div class="photo-main">
+    <div class="photo-main" id="photo-main">
         {% assign filename = page.path | split: '/' | last | replace: '.markdown', '' | append: '.jpeg' %}
         {% assign img_path = '/assets/images/photos/' | append: filename %}
         {% assign image_name = page.path | split: "/" | last | replace: ".markdown", "" %}
