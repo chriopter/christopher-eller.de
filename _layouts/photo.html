@@ -47,26 +47,6 @@ layout: default
     <div class="post-date">{{ page.date | date: "%b %-d, %Y" }} ✨</div>
     <div class="post-content">
         {{ content }}
-        {% if page.camera_make or page.camera_model or page.focal_length or page.aperture or page.shutter_speed or page.iso %}
-        <div class="photo-metadata">
-            <h3>Photo Details</h3>
-            {% if page.camera_make or page.camera_model %}
-            <p><strong>Camera:</strong> {{ page.camera_make }} {{ page.camera_model }}</p>
-            {% endif %}
-            {% if page.focal_length %}
-            <p><strong>Focal Length:</strong> {{ page.focal_length }}</p>
-            {% endif %}
-            {% if page.aperture %}
-            <p><strong>Aperture:</strong> {{ page.aperture }}</p>
-            {% endif %}
-            {% if page.shutter_speed %}
-            <p><strong>Shutter Speed:</strong> {{ page.shutter_speed }}</p>
-            {% endif %}
-            {% if page.iso %}
-            <p><strong>ISO:</strong> {{ page.iso }}</p>
-            {% endif %}
-        </div>
-        {% endif %}
     </div>
 </article>
 
