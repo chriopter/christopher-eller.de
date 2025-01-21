@@ -26,7 +26,7 @@ jekyll build
 ### Setup
 After cloning the repository, run this command to configure Git to use the hooks:
 ```bash
-git config --local include.path ../.gitconfig && brew install imagemagick && brew install exiftool
+git config --local include.path ../.gitconfig && brew imagemagick exiftool parallel jq
 ```
 
 ### Pre-commit Hook Functions

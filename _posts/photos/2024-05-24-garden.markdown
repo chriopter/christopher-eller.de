@@ -1,8 +1,12 @@
----title: Garden
+---
+
 exif:
-  focal_length: 26
-  exposure: 0.003125
+  manufacturer: RICOH IMAGING COMPANY, LTD.
+  camera: RICOH IMAGING COMPANY, LTD. RICOH GR IIIx
+  focal_length: 26mm (40mm)
+  exposure: 1/320
   f_number: 4.5
   iso: 400
   date_taken: 2024:03:30 15:05:20
----![Garden]({{ site.baseurl }}/assets/images/photos/2024-05-24-garden.jpeg)
+
+---

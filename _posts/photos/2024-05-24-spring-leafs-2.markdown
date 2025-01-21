@@ -1,8 +1,12 @@
----title: Spring Leafs 2
+---
+
 exif:
-  focal_length: 26
-  exposure: 0.005
+  manufacturer: RICOH IMAGING COMPANY, LTD.
+  camera: RICOH IMAGING COMPANY, LTD. RICOH GR IIIx
+  focal_length: 26mm (40mm)
+  exposure: 1/200
   f_number: 3.5
   iso: 400
   date_taken: 2024:03:30 15:12:52
----![Spring Leafs 2]({{ site.baseurl }}/assets/images/photos/2024-05-24-spring-leafs-2.jpeg)
+
+---

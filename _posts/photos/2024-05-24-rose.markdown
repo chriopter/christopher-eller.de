@@ -1,8 +1,12 @@
----title: Rose
+---
+
 exif:
-  focal_length: 26
-  exposure: 0.01666666667
+  manufacturer: RICOH IMAGING COMPANY, LTD.
+  camera: RICOH IMAGING COMPANY, LTD. RICOH GR IIIx
+  focal_length: 26mm (40mm)
+  exposure: 1/59
   f_number: 11
   iso: 800
   date_taken: 2024:03:30 14:45:34
----![Rose]({{ site.baseurl }}/assets/images/photos/2024-05-24-rose.jpeg)
+
+---
