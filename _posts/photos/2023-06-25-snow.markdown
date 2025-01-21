@@ -1,12 +1,8 @@
----
-
+---title: Snow
 exif:
-  manufacturer: SONY
-  camera: SONY ILCE-6400
-  focal_length: 79mm (118mm)
-  exposure: 1/1250
+  focal_length: 79
+  exposure: 0.0007999999798
   f_number: 5.6
   iso: 100
   date_taken: 2023:04:21 15:59:08
-
----
+---![Snow]({{ site.baseurl }}/assets/images/photos/2023-06-25-snow.jpeg)

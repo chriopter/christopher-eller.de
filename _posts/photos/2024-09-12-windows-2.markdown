@@ -1,14 +1,9 @@
----
-
+---title: Windows 2
 exif:
-  manufacturer: Apple
-  camera: Apple iPhone 15 Pro
-  lens_make: Apple
   lens: iPhone 15 Pro back camera 6.765mm f/1.78
-  focal_length: 6mm (24mm)
-  exposure: 1/1560
+  focal_length: 6.764999866
+  exposure: 0.000641025641
   f_number: 1.779999971
   iso: 80
   date_taken: 2024:09:09 17:54:09
-
----
+---![Windows 2]({{ site.baseurl }}/assets/images/photos/2024-09-12-windows-2.jpeg)

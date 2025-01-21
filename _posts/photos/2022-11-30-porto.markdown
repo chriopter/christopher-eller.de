@@ -1,14 +1,2 @@
----
-
-exif:
-  manufacturer: Apple
-  camera: Apple iPhone 13 Pro
-  lens_make: Apple
-  lens: iPhone 13 Pro back triple camera 5.7mm f/1.5
-  focal_length: 5mm (26mm)
-  exposure: 1/1644
-  f_number: 1.5
-  iso: 50
-  date_taken: 2022:04:08 15:36:22
-
----
+---title: Porto
+---![Porto]({{ site.baseurl }}/assets/images/photos/2022-11-30-porto.jpeg)

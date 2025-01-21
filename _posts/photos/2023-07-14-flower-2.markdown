@@ -1,14 +1,9 @@
----
-
+---title: Flower 2
 exif:
-  manufacturer: Apple
-  camera: Apple iPhone 14 Pro
-  lens_make: Apple
   lens: iPhone 14 Pro back dual wide camera 6.86mm f/1.78
-  focal_length: 6mm (48mm)
-  exposure: 1/980
+  focal_length: 6.86
+  exposure: 0.001020408163
   f_number: 1.78
   iso: 80
   date_taken: 2023:06:12 11:03:16
-
----
+---![Flower 2]({{ site.baseurl }}/assets/images/photos/2023-07-14-flower-2.jpeg)
