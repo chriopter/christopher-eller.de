@@ -1,8 +1,5 @@
----title: Lines
-exif:
-  focal_length: 4.49
-  exposure: 0.0025
-  f_number: 2.8
-  iso: 100
-  date_taken: 2022:06:14 19:01:59
----![Lines]({{ site.baseurl }}/assets/images/photos/2022-12-01-lines.jpeg)
+---
+title:  "Lines"
+---
+
+![Lines]({{ site.baseurl }}/assets/images/photos/2022-12-01-lines.jpeg)

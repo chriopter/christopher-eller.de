@@ -1,9 +1,5 @@
----title: Shadows
-exif:
-  lens: iPhone 14 Pro back triple camera 6.86mm f/1.78
-  focal_length: 6.860000134
-  exposure: 0.0004249893753
-  f_number: 1.779999971
-  iso: 100
-  date_taken: 2023:06:07 18:27:49
----![Shadows]({{ site.baseurl }}/assets/images/photos/2023-07-14-shadows.jpeg)
+---
+title:  "Shadows"
+---
+
+![Shadows]({{ site.baseurl }}/assets/images/photos/2023-07-14-shadows.jpeg)

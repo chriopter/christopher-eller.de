@@ -1,9 +1,5 @@
----title: Rain
-exif:
-  lens: iPhone 14 Pro back triple camera 6.86mm f/1.78
-  focal_length: 6.86
-  exposure: 0.0003859513701
-  f_number: 1.78
-  iso: 80
-  date_taken: 2023:07:23 17:35:47
----![Rain]({{ site.baseurl }}/assets/images/photos/2023-08-15-rain.jpeg)
+---
+title:  "Rain"
+---
+
+![Rain]({{ site.baseurl }}/assets/images/photos/2023-08-15-rain.jpeg)

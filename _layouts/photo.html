@@ -34,16 +34,18 @@ layout: default
         {{ content }}
     </div>
 
-    {% if page.exif %}
+    {% assign image_name = page.path | split: "/" | last | replace: ".markdown", "" %}
+    {% assign exif = site.data.photos[image_name] %}
+    {% if exif %}
     <div class="photo-metadata">
-        {% if page.exif.camera %}
-        <p>📷 {{ page.exif.camera }}</p>
+        {% if exif.camera %}
+        <p>📷 {{ exif.camera }}</p>
         {% endif %}
-        {% if page.exif.lens %}
-        <p>🔭 {{ page.exif.lens }}</p>
+        {% if exif.lens %}
+        <p>🔭 {{ exif.lens }}</p>
         {% endif %}
-        {% if page.exif.focal_length or page.exif.f_number or page.exif.exposure or page.exif.iso %}
-        <p>⚙️ {% if page.exif.focal_length %}{{ page.exif.focal_length }}{% endif %}{% if page.exif.f_number %}, ƒ/{{ page.exif.f_number }}{% endif %}{% if page.exif.exposure %}, {{ page.exif.exposure }}{% endif %}{% if page.exif.iso %}, ISO {{ page.exif.iso }}{% endif %}</p>
+        {% if exif.focal_length or exif.f_number or exif.exposure or exif.iso %}
+        <p>⚙️ {% if exif.focal_length %}{{ exif.focal_length }}{% endif %}{% if exif.f_number %}, ƒ/{{ exif.f_number }}{% endif %}{% if exif.exposure %}, {{ exif.exposure }}{% endif %}{% if exif.iso %}, ISO {{ exif.iso }}{% endif %}</p>
         {% endif %}
     </div>
     {% endif %}

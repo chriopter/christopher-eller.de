@@ -1,8 +1,5 @@
----title: Ice
-exif:
-  focal_length: 79
-  exposure: 0.0007999999798
-  f_number: 5.6
-  iso: 100
-  date_taken: 2023:04:21 15:59:08
----![Ice]({{ site.baseurl }}/assets/images/photos/2023-02-10-ice.jpeg)
+---
+title:  "Ice"
+---
+
+![Ice]({{ site.baseurl }}/assets/images/photos/2023-02-10-ice.jpeg)

@@ -1,9 +1,5 @@
----title: Rabelo
-exif:
-  lens: E PZ 16-50mm F3.5-5.6 OSS
-  focal_length: 49
-  exposure: 0.003125
-  f_number: 5.6
-  iso: 125
-  date_taken: 2022:04:10 12:10:27
----![Rabelo]({{ site.baseurl }}/assets/images/photos/2022-11-30-rabelo.jpg)
+---
+title:  "Rabelo"
+---
+
+![Rabelo]({{ site.baseurl }}/assets/images/photos/2022-11-30-rabelo.jpg)
