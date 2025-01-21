@@ -133,12 +133,15 @@ body, html, main {
 </style>
 
 <div class="modal" id="photoModal">
-    <button class="modal-close">&times;</button>
+    <button class="modal-close" id="closeBtn">&times;</button>
+    <button class="modal-close" id="fullSizeBtn" style="left: auto; right: 20px;">&#x2922;</button>
     <button class="nav-arrow prev-arrow">&#10094;</button>
     <button class="nav-arrow next-arrow">&#10095;</button>
     <div class="modal-content">
-        <div class="modal-photo">
-            <img src="" alt="" id="modalImage" />
+        <div class="modal-photo-container">
+            <div class="modal-photo">
+                <img src="" alt="" id="modalImage" />
+            </div>
         </div>
         <div class="modal-sidebar">
             <h2 class="modal-title"></h2>
@@ -181,7 +184,7 @@ body, html, main {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.95);
     z-index: 1000;
     overflow: hidden;
 }
@@ -202,7 +205,7 @@ body.modal-open {
 .modal-close {
     position: absolute;
     top: 20px;
-    right: 20px;
+    left: 20px;
     transform: none;
     background: rgba(255, 255, 255, 0.1);
     border: 2px solid rgba(255, 255, 255, 0.2);
@@ -231,14 +234,14 @@ body.modal-open {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    margin: 0 120px;
+    margin: 0 20px;
     background: rgba(255, 255, 255, 0.1);
     border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     color: white;
-    font-size: 24px;
-    width: 50px;
-    height: 50px;
+    font-size: 18px;
+    width: 35px;
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -274,18 +277,26 @@ body.modal-open {
     overflow: hidden;
 }
 
-.modal-photo {
+.modal-photo-container {
     flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 0; /* Allows flex item to shrink below content size */
+    position: relative;
+    min-width: 0;
+    background: #1a1a1a;
+    overflow: hidden;
+}
+
+.modal-photo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
 .modal-photo img {
-    max-width: 100%;
-    max-height: 85vh;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     cursor: default;
 }
 
@@ -330,7 +341,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalTitle = document.querySelector('.modal-title');
     const modalDate = document.querySelector('.modal-date');
     const modalMetadata = document.querySelector('.modal-metadata');
-    const closeBtn = document.querySelector('.modal-close');
+    const closeBtn = document.getElementById('closeBtn');
+    const fullSizeBtn = document.getElementById('fullSizeBtn');
     const prevBtn = document.querySelector('.prev-arrow');
     const nextBtn = document.querySelector('.next-arrow');
     const photos = Array.from(document.querySelectorAll('.photo-item'));
@@ -356,17 +368,42 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Create full-size button once
-    const fullSizeBtn = document.createElement('button');
-    fullSizeBtn.className = 'modal-close';
-    fullSizeBtn.innerHTML = '&#x2922;';
-    fullSizeBtn.style.right = 'auto';
-    fullSizeBtn.style.left = '20px';
-    modal.appendChild(fullSizeBtn);
+    function getAverageColor(img) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        let r = 0, g = 0, b = 0, count = 0;
+        
+        for (let i = 0; i < imageData.length; i += 4) {
+            r += imageData[i];
+            g += imageData[i + 1];
+            b += imageData[i + 2];
+            count++;
+        }
+        
+        r = Math.floor(r / count);
+        g = Math.floor(g / count);
+        b = Math.floor(b / count);
+        
+        // Darken the color for better contrast (20% of original brightness)
+        r = Math.floor(r * 0.3);
+        g = Math.floor(g * 0.3);
+        b = Math.floor(b * 0.3);
+        
+        return `rgb(${r}, ${g}, ${b})`;
+    }
 
     function showPhoto(index) {
         const photo = photos[index];
         modalImage.src = photo.dataset.fullImg;
+        modalImage.onload = () => {
+            const avgColor = getAverageColor(modalImage);
+            document.querySelector('.modal-photo-container').style.backgroundColor = avgColor;
+        };
         fullSizeBtn.onclick = (e) => {
             e.stopPropagation();
             window.open(photo.dataset.fullImg, '_blank');
@@ -431,6 +468,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Escape') {
             modal.classList.remove('active');
             document.body.classList.remove('modal-open');
+            // Reset URL to photos page when closing modal
+            window.history.replaceState({}, '', '/photos');
         } else if (e.key === 'ArrowLeft' && currentPhotoIndex > 0) {
             showPhoto(currentPhotoIndex - 1);
         } else if (e.key === 'ArrowRight' && currentPhotoIndex < photos.length - 1) {
