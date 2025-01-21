@@ -34,7 +34,7 @@ theme: minima
 plugins:
   - jekyll-feed
   - jekyll-paginate
-  
+
 # Sass settings
 sass:
   style: compressed
@@ -68,7 +68,7 @@ defaults:
       path: "_posts/text"
       type: "posts"
     values:
-      layout: "text"
+      layout: "post"
   - scope:
       path: "_posts/projects"
       type: "posts"
@@ -85,7 +85,7 @@ defaults:
 #   - .jekyll-cache/
 #   - gemfiles/
 #   - Gemfile
-#   - Gemfile.lock
+#   - Gemfile.locks
 #   - node_modules/
 #   - vendor/bundle/
 #   - vendor/cache/
