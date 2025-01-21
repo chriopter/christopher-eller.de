@@ -18,16 +18,3 @@ layout: default
         {{ content }}
     </div>
 </article>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const images = document.querySelectorAll('.post-content img');
-        images.forEach(function(img) {
-            const link = document.createElement('a');
-            link.href = img.src;
-            link.target = '_blank';
-            img.parentNode.insertBefore(link, img);
-            link.appendChild(img);
-        });
-    });
-</script>
