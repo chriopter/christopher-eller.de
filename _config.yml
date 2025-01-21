@@ -34,6 +34,7 @@ theme: minima
 plugins:
   - jekyll-feed
   - jekyll-paginate
+  - jekyll-exif-data
 
 # Sass settings
 sass:

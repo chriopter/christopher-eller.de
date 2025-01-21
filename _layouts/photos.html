@@ -95,17 +95,39 @@ main {
     font-size: 14px;
     opacity: 0.8;
 }
+
+.photo-info .exif-info {
+    margin-top: 8px;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.photo-info .camera {
+    margin-bottom: 2px;
+}
+
+.photo-info .location {
+    color: #fff;
+    text-decoration: underline;
+    opacity: 0.9;
+}
+
+.photo-info .location:hover {
+    opacity: 1;
+}
 </style>
 
 <div class="photo-grid">
     {% for post in site.posts %}
         {% if post.path contains '_posts/photos/' %}
             {% assign content = post.content %}
-            {% assign img_tag = content | split: '<img src="' | last | split: '" />' | first %}
+            {% assign img_tag = content | split: '<img src="' | last | split: '"' | first %}
             {% assign path_parts = img_tag | split: '/' %}
-            {% assign filename = path_parts | last | replace: '.heic', '.jpeg' %}
-            {% assign thumbnail_path = '/assets/images/photos/thumbnails/' | append: filename %}
+            {% assign filename = path_parts | last %}
+            {% assign thumbnail_path = '/assets/images/photos/thumbnails/' | append: filename | replace: '.heic', '.jpeg' %}
             {% assign full_img = img_tag %}
+            {% assign img_path = '/assets/images/photos/' | append: filename %}
+            {% assign system_path = img_path | prepend: site.source %}
             <a href="{{ site.url }}{{ full_img }}" class="photo-item">
                 <img src="{{ site.url }}{{ site.baseurl }}/assets/images/blank.png" data-echo="{{ site.url }}{{ site.baseurl }}{{ thumbnail_path }}" />
                 <div class="photo-info">
