@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Fatal airliner accidents and hijacking incidents, World"
 ---
 

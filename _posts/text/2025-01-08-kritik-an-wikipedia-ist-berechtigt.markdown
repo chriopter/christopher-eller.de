@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Kritik an Wikipedia ist berechtigt"
 ---
 

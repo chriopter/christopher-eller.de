@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Spring Leafs 2"
 ---
 

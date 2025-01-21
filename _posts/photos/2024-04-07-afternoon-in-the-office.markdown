@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Afternoon In The Office"
 ---
 

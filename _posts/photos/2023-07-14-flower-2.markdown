@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Flower 2"
 ---
 

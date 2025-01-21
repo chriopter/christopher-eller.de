@@ -133,6 +133,19 @@ main {
                 <div class="photo-info">
                     <div class="title">{{ post.title }}</div>
                     <div class="date">{{ post.date | date: "%B %d, %Y" }}</div>
+                    {% if post.camera_model or post.focal_length or post.aperture %}
+                    <div class="exif-info">
+                        {% if post.camera_model %}
+                        <div class="camera">{{ post.camera_model }}</div>
+                        {% endif %}
+                        {% if post.focal_length or post.aperture %}
+                        <div>
+                            {% if post.focal_length %}{{ post.focal_length }}{% endif %}
+                            {% if post.aperture %} • {{ post.aperture }}{% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
             </a>
         {% endif %}

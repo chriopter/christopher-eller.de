@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Kampf im Reinhardswald - Wie Energiewendegegner einen Windpark torpedieren"
 ---
 

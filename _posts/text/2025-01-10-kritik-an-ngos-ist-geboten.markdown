@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Kritik an NGOs ist geboten"
 ---
 

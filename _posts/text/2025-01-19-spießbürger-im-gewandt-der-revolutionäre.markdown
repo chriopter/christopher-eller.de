@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Spießbürger im Gewandt der Revolutionäre"
 ---
 

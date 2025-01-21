@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Mortality in the past: every second child died - Our World in Data"
 ---
 

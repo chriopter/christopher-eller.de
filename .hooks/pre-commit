@@ -2,7 +2,10 @@
 
 echo "=== Pre-commit hook started ==="
 
-# Check if required tools are installed
+###########################################
+# Check required tools
+###########################################
+
 if ! command -v exiftool &> /dev/null; then
     echo "Error: exiftool is not installed"
     echo "Please install it using: brew install exiftool"
@@ -14,6 +17,10 @@ if ! command -v magick &> /dev/null; then
     echo "Please install it using: brew install imagemagick"
     exit 1
 fi
+
+###########################################
+# Get image files
+###########################################
 
 # Debug: Print all staged files
 echo "Debug: All staged files:"
@@ -35,7 +42,11 @@ if [ -z "$all_images" ] && [ -z "$staged_images" ]; then
     exit 0
 fi
 
-echo "Removing EXIF location data from staged images..."
+###########################################
+# 1. EXIF GPS Removal
+###########################################
+
+echo "=== Removing EXIF location data from staged images ==="
 
 # Process each staged image
 for file in $staged_images; do
@@ -47,10 +58,17 @@ for file in $staged_images; do
         fi
         # Re-stage the modified file
         git add "$file"
+        echo "Removed GPS data from: $file"
     fi
 done
 
 echo "Successfully removed EXIF location data from images"
+
+###########################################
+# 2. Thumbnail Generation
+###########################################
+
+echo "=== Generating thumbnails ==="
 
 # Function to generate thumbnail if it doesn't exist
 generate_thumbnail() {
@@ -59,6 +77,7 @@ generate_thumbnail() {
     local filename=$(basename "$img")
     local name="${filename%.*}"
     local ext="${filename##*.}"
+    
     # For posts directory, create thumbnails directory in the specific post folder
     if [[ "$base_dir" == *"/posts/"* ]]; then
         local thumbnail_dir="${base_dir}/thumbnails"
@@ -88,8 +107,6 @@ generate_thumbnail() {
     fi
 }
 
-echo "Generating thumbnails for all images..."
-
 # Process all images for thumbnails first
 for file in $all_images; do
     if [ -f "$file" ]; then
@@ -104,4 +121,56 @@ for file in $staged_images; do
     fi
 done
 
+###########################################
+# 3. EXIF Extraction and Markdown Creation
+###########################################
+
+echo "=== Extracting EXIF data and creating markdown files ==="
+
+# Function to create/update markdown file with metadata
+create_markdown_file() {
+    local img="$1"
+    local filename=$(basename "$img")
+    local name="${filename%.*}"
+    local date_prefix=$(date +%Y-%m-%d)
+    local markdown_file="_posts/photos/${date_prefix}-${name}.markdown"
+    
+    # Extract metadata using exiftool
+    local camera_make=$(exiftool -s -s -s -Make "$img")
+    local camera_model=$(exiftool -s -s -s -Model "$img")
+    local focal_length=$(exiftool -s -s -s -FocalLength "$img" | sed 's/\.[0-9]* mm/ mm/')
+    local aperture=$(exiftool -s -s -s -FNumber "$img" | sed 's/^/f\//')
+    local shutter_speed=$(exiftool -s -s -s -ExposureTime "$img")
+    local iso=$(exiftool -s -s -s -ISO "$img")
+    
+    # Create markdown content
+    cat > "$markdown_file" << EOL
+---
+layout: photo
+title: "${name//-/ }"
+date: ${date_prefix} 12:00:00 +0100
+image: /assets/images/photos/${filename}
+camera_make: "${camera_make}"
+camera_model: "${camera_model}"
+focal_length: "${focal_length}"
+aperture: "${aperture}"
+shutter_speed: "${shutter_speed}"
+iso: "${iso}"
+---
+
+<img src="/assets/images/photos/${filename}" />
+EOL
+
+    echo "Created/updated markdown file: $markdown_file"
+    git add "$markdown_file"
+}
+
+# Process staged images for EXIF extraction and markdown creation
+for file in $staged_images; do
+    if [ -f "$file" ]; then
+        create_markdown_file "$file"
+    fi
+done
+
+echo "=== Pre-commit hook completed successfully ==="
 exit 0

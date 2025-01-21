@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "DHH - To the crazy ones"
 ---
 

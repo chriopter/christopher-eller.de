@@ -58,6 +58,29 @@ show_excerpts: false
 # Excluded items can be processed by explicitly listing the directories or
 # their entries' file path in the `include:` list.
 #
+# Default front matter settings based on path
+defaults:
+  - scope:
+      path: "_posts/photos"
+      type: "posts"
+    values:
+      layout: "photo"
+  - scope:
+      path: "_posts/text"
+      type: "posts"
+    values:
+      layout: "text"
+  - scope:
+      path: "_posts/projects"
+      type: "posts"
+    values:
+      layout: "post"
+  - scope:
+      path: "_posts/links"
+      type: "posts"
+    values:
+      layout: "post"
+
 # exclude:
 #   - .sass-cache/
 #   - .jekyll-cache/

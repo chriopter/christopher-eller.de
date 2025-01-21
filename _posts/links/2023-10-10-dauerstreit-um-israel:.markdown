@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Dauerstreit um Israel: Das prekäre Verhältnis zwischen Axel Springer und der Linken - Magazin 18 - Kulturstiftung des Bundes"
 ---
 

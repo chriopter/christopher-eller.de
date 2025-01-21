@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "The price for lighting in the United Kingdom"
 ---
 

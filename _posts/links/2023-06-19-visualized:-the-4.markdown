@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Visualized: The 4 Billion Year Path of Human Evolution"
 ---
 

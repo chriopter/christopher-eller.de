@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "When America was ‘great,’ according to data"
 ---
 

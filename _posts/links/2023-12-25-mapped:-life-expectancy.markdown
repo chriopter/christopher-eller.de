@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Mapped: Life Expectancy Gains From Breathing Cleaner Air"
 ---
 

@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Rote Linien ziehen | Jüdische Allgemeine"
 ---
 

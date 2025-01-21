@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Dan Coe Carto - 4K Rivers"
 ---
 

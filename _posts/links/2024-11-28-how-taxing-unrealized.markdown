@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "How Taxing Unrealized Gains Has Caused an Entrepreneurial Exodus"
 ---
 

@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Rainy Flowers 4"
 ---
 

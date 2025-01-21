@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Women’s Rights - Our World in Data"
 ---
 

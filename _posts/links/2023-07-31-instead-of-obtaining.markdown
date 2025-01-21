@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Instead of obtaining a warrant, the NSA would like to keep buying your data | Ars Technica"
 ---
 

@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "Learning to accept defeat against reality"
 ---
 

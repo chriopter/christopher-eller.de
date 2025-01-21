@@ -1,5 +1,4 @@
 ---
-layout: post
 title:  "Walljul 13 2023"
 ---
 
