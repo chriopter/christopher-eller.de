@@ -6,86 +6,53 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# GitHub Pages deployment requires these permissions
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install ImageMagick with HEIC support
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y software-properties-common
-          sudo add-apt-repository ppa:savoury1/imagemagick6 -y
-          sudo apt-get update
-
-          # Install packages needed for HEIC
-          sudo apt-get install -y libheif-dev libde265-0
-
-          # Install the new ImageMagick build from the PPA
-          sudo apt-get install -y imagemagick
-
-          # Optional: check if HEIC is recognized
-          echo "== Available Formats =="
-          convert -list format | grep HEIC || true
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
-          bundler-cache: true
-
-      # Make sure to install HEIF/HEIC support before installing/using ImageMagick
-      - name: Install ImageMagick with HEIC support
-        run: |
-          sudo apt-get update
-          # Install necessary libs for HEIC
-          sudo apt-get install -y libheif-dev libheif1 libde265-0
-          # Now (re)install ImageMagick, ensuring it picks up the HEIF delegate
-          sudo apt-get install -y --no-install-recommends imagemagick
-          
-          # You can check if HEIC is listed now:
-          # convert -list format | grep HEIC || true
-
-      - name: Install Ruby Dependencies
-        run: |
-          # Example: Installing an extra gem
-          bundle add faraday-retry
-          bundle install
-
-      - name: Cache Jekyll
+      - name: Cache Bundler
         uses: actions/cache@v3
         with:
-          path: .jekyll-cache
-          key: ${{ runner.os }}-jekyll-${{ hashFiles('Gemfile.lock', '**/*.yml', '**/*.md', '**/*.html') }}
-          restore-keys: ${{ runner.os }}-jekyll-
-
-      - name: Build site
-        run: bundle exec jekyll build
-        env:
-          JEKYLL_ENV: production
-
-      - name: Upload artifact
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+      - name: Build in Jekyll Docker (with ImageMagick)
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/srv/jekyll \
+            -v ${{ github.workspace }}/vendor/bundle:/usr/local/bundle \
+            -w /srv/jekyll \
+            jekyll/builder:latest \
+            /bin/bash -c "
+              apk add --no-cache imagemagick &&
+              chmod -R 777 /srv/jekyll &&
+              jekyll build --future
+            "
+      - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "_site"
+          path: _site
 
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     needs: build
+    runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
