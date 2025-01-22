@@ -1,4 +1,4 @@
 baseURL = 'https://christopher-eller.de/'
 languageCode = 'de-DE'
-title = 'My New Hugo Site'
+title = 'Christopher Eller'
 theme = 'ananke'
