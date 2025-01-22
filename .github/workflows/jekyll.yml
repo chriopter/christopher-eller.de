@@ -46,11 +46,10 @@ jobs:
       - name: Build with Jekyll
         # Outputs to the './_site' directory by default
         run: |
-          /bin/bash -c "
-            apk add --no-cache imagemagick &&
-            chmod -R 777 /srv/jekyll &&
-            jekyll build --future
-          "
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
+          sudo chmod -R 777 .
+          bundle exec jekyll build --future
           bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
