@@ -59,7 +59,9 @@ jobs:
             /bin/bash -c "
               apk add --no-cache imagemagick &&
               chmod -R 777 /srv/jekyll &&
-              jekyll build --future
+              bundle config set --local path 'vendor/bundle' &&
+              bundle install --jobs 4 --retry 3 &&
+              bundle exec jekyll build --future
             "
 
       - name: Upload Pages Artifact
