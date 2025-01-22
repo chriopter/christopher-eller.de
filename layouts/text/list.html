@@ -1,0 +1,103 @@
+{{ define "main" }}
+<style>
+.archive-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+@media screen and (max-width: 900px) {
+    .archive-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        padding: 15px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .archive-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 10px;
+    }
+}
+
+.archive-column {
+    min-width: 0;
+}
+
+.archive-column h2 {
+    margin-bottom: 20px;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.post-item {
+    margin-bottom: 15px;
+}
+
+.post-link {
+    color: inherit;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.post-link:hover {
+    text-decoration: underline;
+}
+
+.post-date {
+    display: block;
+    color: var(--secondary-text);
+    font-size: 0.8em;
+    margin-bottom: 2px;
+}
+</style>
+
+<div class="archive-container">
+    <div class="archive-column">
+        <h2>text</h2>
+        <ul class="post-list">
+            {{ range where .Site.RegularPages "Section" "posts" }}
+                <li class="post-item">
+                    <span class="post-date">{{ .Date.Format "2006-01-02" }}</span>
+                    <a href="{{ .RelPermalink }}" class="post-link">{{ .Title }}</a>
+                </li>
+            {{ end }}
+        </ul>
+    </div>
+
+    <div class="archive-column">
+        <h2>projects</h2>
+        <ul class="post-list">
+            {{ range where .Site.RegularPages "Section" "projects" }}
+                <li class="post-item">
+                    <span class="post-date">{{ .Date.Format "2006-01-02" }}</span>
+                    <a href="{{ .RelPermalink }}" class="post-link">{{ .Title }}</a>
+                </li>
+            {{ end }}
+        </ul>
+    </div>
+
+    <div class="archive-column">
+        <h2>links</h2>
+        <ul class="post-list">
+            {{ range where .Site.RegularPages "Section" "links" }}
+                <li class="post-item">
+                    <span class="post-date">{{ .Date.Format "2006-01-02" }}</span>
+                    <a href="{{ .RelPermalink }}" class="post-link">{{ .Title }}</a>
+                </li>
+            {{ end }}
+        </ul>
+    </div>
+</div>
+{{ end }}

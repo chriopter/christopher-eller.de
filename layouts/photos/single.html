@@ -1,37 +1,304 @@
 {{ define "main" }}
-  <article class="flex-l flex-wrap justify-between mw8 center ph3">
-    <header class="mt4 w-100">
-      <aside class="instapaper_ignoref b helvetica tracked ttu">
-        {{with .CurrentSection.Title }}{{. }}{{end}}
-      </aside>
-      <h1 class="f1 athelas mt3 mb1">
-        {{- .Title -}}
-      </h1>
-      <time class="f6 mv4 dib tracked" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
-        {{ .Date.Format "January 2, 2006" }}
-      </time>
-    </header>
+<style>
+/* Override main content width for photo pages */
+main {
+    max-width: 1000px !important;
+}
 
-    <div class="nested-copy-line-height lh-copy serif f4 nested-links mid-gray pr4-l w-two-thirds-l">
-      {{ $path := path.Base .File.Dir }}
-      {{ $imageFile := printf "%s/%s.jpeg" .File.Dir $path }}
-      {{ $imageFileJPG := printf "%s/%s.jpg" .File.Dir $path }}
-      {{ $imageFileHEIC := printf "%s/%s.heic" .File.Dir $path }}
-      {{ $imagePath := cond (fileExists $imageFile) $imageFile (cond (fileExists $imageFileJPG) $imageFileJPG $imageFileHEIC) }}
-      {{ with $imagePath }}
-        <img 
-          src="{{ . | relURL }}"
-          alt="{{ $.Title }}" 
-          class="w-100 br3 shadow-4 mb4"
-          loading="lazy"
-        >
-      {{ end }}
-      {{ .Content }}
+/* Force dark mode styles regardless of theme */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background-color: #000 !important;
+    color: #eee !important;
+}
+
+header {
+    border-bottom-color: #333 !important;
+}
+
+.site-title,
+.nav-links a {
+    color: #eee !important;
+}
+
+footer {
+    border-top-color: #333 !important;
+}
+
+footer a {
+    color: #999 !important;
+}
+
+.photo-container {
+    max-width: 100vw;
+    margin: 0 auto;
+    box-sizing: border-box;
+    min-height: calc(100vh - 80px);
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.photo-main {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    margin: 0;
+    align-items: center;
+    min-height: calc(100vh - 80px);
+    width: 100%;
+}
+
+@media (min-width: 1200px) {
+    .photo-main {
+        grid-template-columns: minmax(0, 3fr) minmax(350px, 1.1fr);
+        gap: 40px;
+        padding: 40px;
+    }
+}
+
+.photo-main img {
+    width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+}
+
+.photo-info {
+    position: sticky;
+    top: 40px;
+    text-align: left;
+    padding: 0 20px;
+}
+
+@media (max-width: 1199px) {
+    .photo-info {
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .photo-main {
+        padding: 20px;
+    }
+}
+
+.photo-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.photo-date {
+    color: #999;
+    margin-bottom: 32px;
+    font-size: 15px;
+}
+
+.photo-metadata {
+    font-size: 14px;
+    color: #999;
+}
+
+.photo-metadata p {
+    margin: 5px 0;
+}
+
+.back-to-gallery {
+    display: block;
+    margin-bottom: 20px;
+    color: #999;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+    opacity: 0.7;
+}
+
+.back-to-gallery:hover {
+    color: #fff;
+}
+
+.photo-nav {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    text-decoration: none;
+    padding: 15px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    z-index: 10;
+}
+
+.photo-nav:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.photo-nav.prev {
+    left: 75px;
+}
+
+.photo-nav.next {
+    right: 75px;
+}
+
+.photo-nav-arrow {
+    font-size: 24px;
+}
+
+@media (max-width: 1199px) {
+    .photo-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .photo-nav {
+        position: relative;
+        top: auto;
+        left: auto;
+        right: auto;
+        transform: none;
+        margin: 3px;
+        display: inline-block;
+        padding: 8px;
+    }
+
+    .photo-main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .nav-container {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        width: 100%;
+        margin: 8px 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .photo-nav {
+        padding: 8px;
+    }
+    
+    .photo-nav-arrow {
+        font-size: 20px;
+    }
+}
+
+.full-size-link {
+    display: inline-block;
+    margin-top: 15px;
+    color: #999;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.full-size-link:hover {
+    color: #fff;
+}
+</style>
+
+{{ $currentPage := . }}
+{{ $photos := where .Site.RegularPages "Section" "photos" }}
+{{ range $index, $page := $photos }}
+    {{ if eq $page $currentPage }}
+        {{ $prevIndex := sub $index 1 }}
+        {{ $nextIndex := add $index 1 }}
+        {{ with $photos }}
+            {{ if ge $prevIndex 0 }}
+                {{ $prevPage := index . $prevIndex }}
+                {{ $.Scratch.Set "prevPage" $prevPage }}
+            {{ end }}
+            {{ if lt $nextIndex (len .) }}
+                {{ $nextPage := index . $nextIndex }}
+                {{ $.Scratch.Set "nextPage" $nextPage }}
+            {{ end }}
+        {{ end }}
+    {{ end }}
+{{ end }}
+
+<div class="photo-container">
+    <div class="photo-main" id="photo-main">
+        <div>
+            {{ with .Params.image }}
+            <a href="{{ . }}" class="photo-item" target="_blank">
+                <img src="{{ . }}" alt="{{ $currentPage.Title }}" />
+            </a>
+            {{ end }}
+            
+            <div class="nav-container">
+                {{ with $.Scratch.Get "prevPage" }}
+                <a href="{{ .RelPermalink }}#photo-main" class="photo-nav prev" title="{{ .Title }}">
+                    <span class="photo-nav-arrow">←</span>
+                </a>
+                {{ end }}
+                
+                {{ with $.Scratch.Get "nextPage" }}
+                <a href="{{ .RelPermalink }}#photo-main" class="photo-nav next" title="{{ .Title }}">
+                    <span class="photo-nav-arrow">→</span>
+                </a>
+                {{ end }}
+            </div>
+        </div>
+        
+        <div class="photo-info">
+            <a href="/photos" class="back-to-gallery">← Back to Gallery</a>
+            <h1 class="photo-title">{{ .Title }}</h1>
+            {{ with .Params.date_taken }}
+            <div class="photo-date">{{ dateFormat "2. January 2006" . }}</div>
+            {{ end }}
+            
+            <div class="photo-metadata">
+                {{ with .Params.camera }}
+                <p>📷 {{ . }}</p>
+                {{ end }}
+                
+                {{ with .Params.lens }}
+                <p>🔭 {{ . }}</p>
+                {{ end }}
+                
+                {{ if or .Params.focal_length .Params.f_number .Params.exposure .Params.iso }}
+                <p>⚙️ 
+                    {{ with .Params.focal_length }}{{ . }}{{ end }}
+                    {{ with .Params.f_number }}, ƒ/{{ . }}{{ end }}
+                    {{ with .Params.exposure }}, {{ . }}{{ end }}
+                    {{ with .Params.iso }}, ISO {{ . }}{{ end }}
+                </p>
+                {{ end }}
+                
+                <p style="margin-top: 15px; font-size: 12px; opacity: 0.7;">Uploaded on {{ .Date.Format "2. January 2006" }}</p>
+            </div>
+            
+            {{ with .Params.image }}
+            <a href="{{ . }}" class="full-size-link" target="_blank">View Full Size ↗</a>
+            {{ end }}
+        </div>
     </div>
+</div>
 
-    <aside class="w-30-l mt6-l">
-      {{- partial "menu-contextual.html" . -}}
-    </aside>
-
-  </article>
+<script>
+document.addEventListener('keydown', function(e) {
+    // Left arrow key
+    if (e.key === 'ArrowLeft') {
+        const prevLink = document.querySelector('.photo-nav.prev');
+        if (prevLink) {
+            window.location.href = prevLink.href;
+        }
+    }
+    // Right arrow key
+    if (e.key === 'ArrowRight') {
+        const nextLink = document.querySelector('.photo-nav.next');
+        if (nextLink) {
+            window.location.href = nextLink.href;
+        }
+    }
+});
+</script>
 {{ end }}
