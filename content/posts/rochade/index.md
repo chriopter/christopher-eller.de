@@ -22,20 +22,16 @@ Staatsrechtler haben über Jahre <strong>indringlich</strong> vor dem Kippen Roe
 Das Verlieren der Demokraten ist im Prinzip einfach; eine Vizepräsidentin mit miesen Zufriedenheitswerten, einem inhaltsschwachen Programm bewaffnet sich mit einem Kulturkampf gut gegen böse und lässt sich mit Tiffany-Schmuck auf das Cover der Vogue setzen. Dass das nicht automatisch eine mehrheitsfähige Kandidatin der arbeitenden Mitte sein kann ist eigentlich völlig klar - wäre da nicht Trump, der eine derartige Ablehnung auslöst dass für einige neben ihm alles besser  scheint.
 Die Einsicht in diese Realität wird wohl noch etwas auf sich warten lassen.
 
-<strong>Rochade</strong>
+**Rochade**
 
 Viel interessanter ist aber die Rochade der wählenden Mitte. Es ist schlicht unglaublich was hier passiert:
 
-<a href="{{ site.baseurl }}/assets/images/posts/2024-11-09-rochade/12d85b74e8.png" target="_blank">
-<img src="{{ site.baseurl }}/assets/images/posts/2024-11-09-rochade/12d85b74e8.png" width="600" alt="">
-</a>
+![](12d85b74e8.png)
 [Quelle](https://x.com/patrickjfl/status/1854645395856482568/photo/1)
 
 Das Bild der GOP als Partei der Reichen Oberschicht und des DNC als Anwalt der einfachen Amerikaner ist Geschichte. Selbst die Wahlkampfspendenden Milliardäre sind [mehrheitlich beim DNC](https://www.independent.co.uk/news/world/americas/us-politics/trump-harris-campaign-donations-billionaires-b2641096.html). Ob es uns gefällt oder nicht - das ist schlicht eine völlig neue Zeit:
 
-<a href="{{ site.baseurl }}/assets/images/posts/2024-11-09-rochade/b11baf92cf.png" target="_blank">
-<img src="{{ site.baseurl }}/assets/images/posts/2024-11-09-rochade/b11baf92cf.png" width="500" alt="">
-</a>
+![](b11baf92cf.png)
 [Link](https://x.com/Pinboard/status/1854164597600657506)
 
 Und so ist für mich schlicht unglaublich welche Themen das Trump-Team derzeit bearbeitet und in kurzen Videos zusammenfasst. Es sind Themen die in den 2000ern und 2010ern originär von progressiven Schichten vorgetragen wurden und die selbst damals selbst in einer demokratischen Partei am Establishment vorbei nicht mehrheitsfähig waren:
@@ -53,4 +49,3 @@ Team Trump nimmt keine Rücksicht auf bisherige Gepflogenheiten. Wenn Trump dies
 Entscheidend ist, ob der DNC den Wählern endlich echte Lösungen bietet oder sich weiterhin im Selbstmitleid verliert. Im letzten Fall können sie ihren Laden gleich dichtmachen.
 
 Analogien zu europäischen linken und sozialdemokratischen Parteien liegen auf der Hand.
-

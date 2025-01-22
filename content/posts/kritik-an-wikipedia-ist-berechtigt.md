@@ -13,14 +13,11 @@ Hochkritisch sehe ich Wikipedia aber seit 2020. In einem ttt-Beitrag den ich sah
 
 Die Versionsgeschichte ist öffentlich einsehbar (und komplex nachzuvollziehen für einen “Wikipedia-Laien” wie mich; ein sicherlich nicht zu verachtender Grund warum nur eine kleine Elite regelmäßig editiert) aber bemerkenswert bleiben Entfernungs- und Relativierungsversuche wie:
 
-<ul>
-<li>Der komplette Abschnitt inklusive Quelle wurde im Juni 2020 [gelöscht](https://de.wikipedia.org/w/index.php?title=Kommune_2&type=revision&diff=201218016&oldid=201217480)</li>
-<li>Nachdem der Abschnitt nach Diskussion eingefügt wurde, startete eine [Diskussion ](https://de.wikipedia.org/wiki/Diskussion:Kommune_2) mit Aussagen von “Andrea014” die maximal relativierend, für mich verstörend, sind. :
-<ul>
-<li><em>"…Es ging ja nicht nur um den Sex, sondern auch beispielsweise um die Frage, ob man Kinder an einer roten Ampel festhält oder sie laufen lässt, damit sie über die quietschenden Reifen selbst merken, dass man bei rot nicht über die Ampel läuft. Und es ging um viele andere politische Positionen, die uns umtriebig machten…Ich halte einen gesonderten Abschnitt über Sex mit Kindern, egal, wie man titeln mag, für unangemessen…".</em></li>
-</ul>
-</li>
-</ul>
+
+* Der komplette Abschnitt inklusive Quelle wurde im Juni 2020 [gelöscht](https://de.wikipedia.org/w/index.php?title=Kommune_2&type=revision&diff=201218016&oldid=201217480)
+* Nachdem der Abschnitt nach Diskussion eingefügt wurde, startete eine [Diskussion ](https://de.wikipedia.org/wiki/Diskussion:Kommune_2) mit Aussagen von “Andrea014” die maximal relativierend, für mich verstörend, sind. :
+  * "…Es ging ja nicht nur um den Sex, sondern auch beispielsweise um die Frage, ob man Kinder an einer roten Ampel festhält oder sie laufen lässt, damit sie über die quietschenden Reifen selbst merken, dass man bei rot nicht über die Ampel läuft. Und es ging um viele andere politische Positionen, die uns umtriebig machten…Ich halte einen gesonderten Abschnitt über Sex mit Kindern, egal, wie man titeln mag, für unangemessen…".
+
 Immerhin; Heute verbleibt ein Abschnitt der zwar klar ist aber in der Formulierung trotzdem Kompromisse hinnimmt die durch solche User herbeigeführt werden - eigentlich haben die sich aber disqualifiziert.
 
 Der Blick auf die Wikipediaseiten der jeweiligen Benutzer ist mindestens erhellend um zu verstehen, aus welchem politischen Spektrum diese kommen.
