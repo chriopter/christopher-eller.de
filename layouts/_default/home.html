@@ -12,7 +12,7 @@
                         {{ $image := index $images 0 }}
                         <div class="photo-post">
                             <h2><a href="{{ .RelPermalink }}#photo-main">{{ .Title }}</a></h2>
-                            <time>{{ .Date.Format "January 2, 2006" }}</time>
+                            <time>✨ {{ .Date.Format "January 2, 2006" }}</time>
                             <a href="{{ .RelPermalink }}#photo-main" class="photo-item">
                                 {{ $thumbnail := $image }}
                                 {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
@@ -34,12 +34,12 @@
                             <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="link-url">
                                 → {{ $title }} ({{ $domain }})
                             </a>
-                            <time>{{ $date.Format "January 2, 2006" }}</time>
+                            <time>✨ {{ $date.Format "January 2, 2006" }}</time>
                         </div>
                     {{ end }}
                 {{ else }}
                     <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-                    <time>{{ .Date.Format "January 2, 2006" }}</time>
+                    <time>✨ {{ .Date.Format "January 2, 2006" }}</time>
                     {{ .Summary }}
                     {{ if .Truncated }}
                         <a href="{{ .RelPermalink }}">Read more...</a>
