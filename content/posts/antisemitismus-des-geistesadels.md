@@ -3,7 +3,7 @@ date: "2023-10-20T00:00:00Z"
 title: Antisemitismus des Geistesadels
 ---
 
-Kein Antisemit sein zu <em>können</em>, das wird in Deutschland über die Abgrenzung zu Nationalsozialismus demonstriert.
+Kein Antisemit sein zu _können_, das wird in Deutschland über die Abgrenzung zu Nationalsozialismus demonstriert.
 
 Aber ausgerechnet dort, wo man sich wegen seiner Progressivität als geschützt vor Hass und Hetze hält, feiert der salonfähige Antisemitismus seine Renaissance.
 
@@ -21,5 +21,5 @@ In Deutschland wird ein Auge zugedrückt wenn Terroristenpropaganda von Judenhas
 Das alles ist möglich, weil es im deutschen Kulturbetrieb, bei Journalisten, Akademikern und Intellektuellen einen überaus dämlichen unausgesprochenen Freifahrtschein gibt, für Dinge die eigentlich undenkbar und unsagbar sein sollten. Schlimmer noch, dieser Freifahrtschein wird sich durch die bequeme Abgrenzung zum Nazismus sogar selbst erteilt.
 Es gibt aber keinen süßen naiven "Hups, das wusste ich nicht"-Antisemitismus, keinen "So war das nicht gemeint"-Antisemitismus. Es ist Antisemitismus. Und dieser summiert sich auf, gerade ganz gewaltig.
 
-Es wird dringend Zeit, genau hinzuhören und einzuschreiten. "Nie wieder" ist <em>jetzt</em>.
+Es wird dringend Zeit, genau hinzuhören und einzuschreiten. "Nie wieder" ist _jetzt_.
 
