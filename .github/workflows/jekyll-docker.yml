@@ -18,6 +18,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      JEKYLL_VERSION: "3.9"
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -53,7 +55,7 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}:/srv/jekyll \
             -w /srv/jekyll \
-            jekyll/builder:4.2.2 \
+            jekyll/jekyll:${{ env.JEKYLL_VERSION }} \
             /bin/bash -c "
               chmod -R 777 /srv/jekyll &&
               bundle lock --add-platform x86_64-linux-musl --add-platform ruby
@@ -67,14 +69,14 @@ jobs:
 
       - name: Build in Jekyll Docker (with ImageMagick)
         run: |
-          docker pull jekyll/builder:4.2.2
+          docker pull jekyll/jekyll:${{ env.JEKYLL_VERSION }}
           docker run --rm \
             -v ${{ github.workspace }}:/srv/jekyll \
             -v ${{ github.workspace }}/vendor/bundle:/usr/local/bundle \
             -w /srv/jekyll \
             -e JEKYLL_ENV=production \
             -e PARALLEL_PROCESSOR_COUNT=4 \
-            jekyll/builder:4.2.2 \
+            jekyll/jekyll:${{ env.JEKYLL_VERSION }} \
             /bin/bash -c "
               apk add --no-cache imagemagick parallel &&
               chmod -R 777 /srv/jekyll &&
