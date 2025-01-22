@@ -46,11 +46,10 @@ jobs:
           sudo apt-get install -y imagemagick libheif-dev libde265-0
           # Verify if HEIC support is enabled
           magick -list format | grep HEIC || true
-      - name: Update PATH for ImageMagick
+      - name: Create Alias for magick
         run: |
-          echo $PATH
-          export PATH=$PATH:/usr/local/bin
-          magick --version || true
+          sudo ln -s "$(which convert)" /usr/bin/magick
+          magick --version
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
