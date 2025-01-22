@@ -342,6 +342,11 @@ footer a {
 </div>
 
 <script>
+// Scroll to photo-main on page load
+if (window.location.hash !== '#photo-main') {
+    window.location.hash = 'photo-main';
+}
+
 document.addEventListener('keydown', function(e) {
     // Left arrow key
     if (e.key === 'ArrowLeft') {
