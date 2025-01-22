@@ -12,6 +12,8 @@ gem "minima", "~> 2.5"
 gem "sass-embedded", "1.78.0"  # Pin specific version bc. error regarding sass
 # If you want to use GitHub Pages, remove the "gem "jekyll"" above and
 # uncomment the line below. To upgrade, run `bundle update github-pages`.
+# Pin activesupport to a compatible version
+gem "activesupport", "~> 6.0"
 gem "github-pages", group: :jekyll_plugins
 
 # If you have any plugins, put them here!
@@ -38,4 +40,3 @@ gem "webrick"
 gem "csv"
 gem "logger"
 gem "base64"
-gem "faraday-retry"
