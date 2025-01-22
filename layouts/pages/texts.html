@@ -1,0 +1,46 @@
+{{ define "main" }}
+<div class="posts-list">
+    {{ range (where .Site.RegularPages "Type" "posts") }}
+    <article class="post">
+        <h2 class="post-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+        <div class="post-meta">{{ .Date.Format "Jan 2, 2006" }}</div>
+    </article>
+    {{ end }}
+</div>
+
+<style>
+.posts-list {
+    margin: 0 auto;
+    max-width: 600px;
+}
+
+.post {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.post:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.post-title {
+    margin: 0;
+    font-size: 1em;
+    line-height: 1.2;
+}
+
+.post-title a {
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.post-meta {
+    font-size: 0.75em;
+    color: var(--secondary-text);
+    margin-top: 0.25rem;
+}
+</style>
+{{ end }}
