@@ -32,11 +32,11 @@ fi
 echo "Debug: All staged files:"
 git diff --cached --name-only --diff-filter=d
 
-# Get list of all image files in assets/images/photos
-all_images=$(find assets/images/photos -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.heic" -o -name "*.png" \) | grep -v "/thumbnails/" | grep -v "_thumbnail" | grep -v "/exif/" || true)
+# Get list of all image files in assets/images directories
+all_images=$(find assets/images -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.heic" -o -name "*.png" \) | grep -v "/thumbnails/" | grep -v "_thumbnail" | grep -v "/exif/" || true)
 
-# Get list of staged image files in assets/images/photos
-staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^assets/images/photos/.*\.(jpg|jpeg|heic|png)$" | grep -v "/thumbnails/" | grep -v "/exif/" || true)
+# Get list of staged image files in assets/images directories
+staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^assets/images/.*\.(jpg|jpeg|heic|png)$" | grep -v "/thumbnails/" | grep -v "/exif/" || true)
 
 # Debug: Print the filtered images
 echo "Debug: All images found: $all_images"
