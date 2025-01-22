@@ -23,6 +23,8 @@
                         </div>
                     {{ end }}
                 {{ else if eq .Type "links" }}
+                    {{ $title := .Title }}
+                    {{ $date := .Date }}
                     {{ with .RawContent }}
                         <div class="link-post">
                             {{ $content := . | replaceRE "(?s)^---.*?---\n" "" }}
@@ -30,9 +32,9 @@
                             {{ $parsed := urls.Parse $url }}
                             {{ $domain := strings.TrimPrefix "www." $parsed.Host }}
                             <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="link-url">
-                                → {{ $.Title }} ({{ $domain }})
+                                → {{ $title }} ({{ $domain }})
                             </a>
-                            <time>{{ $.Date.Format "January 2, 2006" }}</time>
+                            <time>{{ $date.Format "January 2, 2006" }}</time>
                         </div>
                     {{ end }}
                 {{ else }}

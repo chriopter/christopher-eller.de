@@ -1,5 +1,6 @@
 {{ define "main" }}
 <article>
+    {{ $title := .Title }}
     {{ with .RawContent }}
         {{ $content := . | replaceRE "(?s)^---.*?---\n" "" }}
         {{ $url := $content | strings.TrimSpace }}
