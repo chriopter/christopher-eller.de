@@ -1,5 +1,0 @@
----
-title:  "Shadows"
----
-
-![Shadows]({{ site.baseurl }}/assets/images/photos/2023-07-14-shadows.jpeg)

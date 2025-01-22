@@ -1,5 +1,0 @@
----
-title:  "Normandy"
----
-
-![Normandy]({{ site.baseurl }}/assets/images/photos/2023-03-05-normandy.jpeg)

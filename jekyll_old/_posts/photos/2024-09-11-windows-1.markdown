@@ -1,5 +1,0 @@
----
-title:  "Windows 1"
----
-
-![Windows 1]({{ site.baseurl }}/assets/images/photos/2024-09-11-windows-1.jpeg)

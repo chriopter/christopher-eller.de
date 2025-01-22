@@ -1,0 +1,37 @@
+{{ define "main" }}
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked ttu">
+        {{with .CurrentSection.Title }}{{. }}{{end}}
+      </aside>
+      <h1 class="f1 athelas mt3 mb1">
+        {{- .Title -}}
+      </h1>
+      <time class="f6 mv4 dib tracked" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
+        {{ .Date.Format "January 2, 2006" }}
+      </time>
+    </header>
+
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links mid-gray pr4-l w-two-thirds-l">
+      {{ $path := path.Base .File.Dir }}
+      {{ $imageFile := printf "%s/%s.jpeg" .File.Dir $path }}
+      {{ $imageFileJPG := printf "%s/%s.jpg" .File.Dir $path }}
+      {{ $imageFileHEIC := printf "%s/%s.heic" .File.Dir $path }}
+      {{ $imagePath := cond (fileExists $imageFile) $imageFile (cond (fileExists $imageFileJPG) $imageFileJPG $imageFileHEIC) }}
+      {{ with $imagePath }}
+        <img 
+          src="{{ . | relURL }}"
+          alt="{{ $.Title }}" 
+          class="w-100 br3 shadow-4 mb4"
+          loading="lazy"
+        >
+      {{ end }}
+      {{ .Content }}
+    </div>
+
+    <aside class="w-30-l mt6-l">
+      {{- partial "menu-contextual.html" . -}}
+    </aside>
+
+  </article>
+{{ end }}

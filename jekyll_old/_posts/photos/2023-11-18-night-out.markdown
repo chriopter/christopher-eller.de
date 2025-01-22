@@ -1,5 +1,0 @@
----
-title:  "Night Out"
----
-
-![Night Out]({{ site.baseurl }}/assets/images/photos/2023-11-18-night-out.jpeg)

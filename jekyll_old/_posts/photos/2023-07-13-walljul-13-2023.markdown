@@ -1,5 +1,0 @@
----
-title:  "Walljul 13 2023"
----
-
-![Walljul 13 2023]({{ site.baseurl }}/assets/images/photos/2023-07-13-walljul-13-2023.jpeg)

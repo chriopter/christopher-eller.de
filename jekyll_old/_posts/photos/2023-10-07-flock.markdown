@@ -1,5 +1,0 @@
----
-title:  "Flock"
----
-
-![Flock]({{ site.baseurl }}/assets/images/photos/2023-10-07-flock.jpeg)

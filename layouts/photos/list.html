@@ -1,0 +1,41 @@
+{{ define "main" }}
+  <article class="pa3 pa4-ns nested-copy-line-height">
+    <section class="cf ph3 ph5-l pv3 pv4-l f4 tc-l center measure-wide lh-copy {{ $.Param "text_color" | default "mid-gray" }}">
+      {{ .Content }}
+    </section>
+    <section class="flex flex-wrap">
+      {{ range .Pages.ByDate.Reverse }}
+        {{ $currentPage := . }}
+        {{ $path := path.Base .File.Dir }}
+        {{ $imageFile := printf "%s/%s.jpeg" .File.Dir $path }}
+        {{ $imageFileJPG := printf "%s/%s.jpg" .File.Dir $path }}
+        {{ $imageFileHEIC := printf "%s/%s.heic" .File.Dir $path }}
+        {{ $imagePath := cond (fileExists $imageFile) $imageFile (cond (fileExists $imageFileJPG) $imageFileJPG $imageFileHEIC) }}
+        <div class="relative w-100 w-third-l mb4">
+          <div class="bg-white pa4 gray overflow-hidden">
+            <!-- Debug info -->
+            <div class="f6 mb2">
+              Path: {{ $path }}<br>
+              Image JPEG: {{ $imageFile }}<br>
+              Image JPG: {{ $imageFileJPG }}<br>
+              Image HEIC: {{ $imageFileHEIC }}<br>
+              Selected: {{ $imagePath }}
+            </div>
+            {{ with $imagePath }}
+              <a href="{{ $currentPage.RelPermalink }}" class="link black dim">
+                <img 
+                  src="{{ . | relURL }}"
+                  alt="{{ $currentPage.Title }}" 
+                  class="w-100 br3 shadow-4"
+                  loading="lazy"
+                >
+                <h2 class="f5 mt3 mb0">{{ $currentPage.Title }}</h2>
+              </a>
+            {{ end }}
+            <time class="f6 db gray">{{ $currentPage.Date.Format "January 2, 2006" }}</time>
+          </div>
+        </div>
+      {{ end }}
+    </section>
+  </article>
+{{ end }}

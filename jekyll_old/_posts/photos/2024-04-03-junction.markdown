@@ -1,5 +1,0 @@
----
-title:  "Junction"
----
-
-![Junction]({{ site.baseurl }}/assets/images/photos/2024-04-03-junction.jpeg)

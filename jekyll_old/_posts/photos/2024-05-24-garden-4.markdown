@@ -1,5 +1,0 @@
----
-title:  "Garden 4"
----
-
-![Garden 4]({{ site.baseurl }}/assets/images/photos/2024-05-24-garden-4.jpeg)

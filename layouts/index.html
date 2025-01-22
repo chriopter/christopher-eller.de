@@ -1,0 +1,49 @@
+{{ define "main" }}
+  <article class="pa3 pa4-ns nested-copy-line-height">
+    <section class="cf ph3 ph5-l pv3 pv4-l f4 tc-l center measure-wide lh-copy {{ $.Param "text_color" | default "mid-gray" }}">
+      {{ .Content }}
+    </section>
+    <section class="flex flex-wrap">
+      {{ $allContent := slice }}
+      {{ range where .Site.RegularPages "Section" "photos" }}
+        {{ $allContent = $allContent | append . }}
+      {{ end }}
+      {{ range where .Site.RegularPages "Section" "posts" }}
+        {{ $allContent = $allContent | append . }}
+      {{ end }}
+
+      {{ range sort $allContent "Date" "desc" }}
+        <div class="relative w-100 mb4">
+          <div class="bg-white pa4 gray overflow-hidden">
+            <a href="{{ .RelPermalink }}" class="link black dim">
+              <h2 class="f3 mt0 mb2">{{ .Title }}</h2>
+              {{ if eq .Section "photos" }}
+                {{ $path := path.Base .File.Dir }}
+                {{ $imageFile := printf "%s/%s.jpeg" .File.Dir $path }}
+                {{ $imageFileJPG := printf "%s/%s.jpg" .File.Dir $path }}
+                {{ $imageFileHEIC := printf "%s/%s.heic" .File.Dir $path }}
+                {{ $imagePath := cond (fileExists $imageFile) $imageFile (cond (fileExists $imageFileJPG) $imageFileJPG $imageFileHEIC) }}
+                {{ with $imagePath }}
+                  <img 
+                    src="{{ . | relURL }}"
+                    alt="{{ $.Title }}" 
+                    class="w-100 br3 shadow-4 mb3"
+                    loading="lazy"
+                  >
+                {{ end }}
+              {{ else }}
+                {{ with .Description }}
+                  <p class="f5 lh-copy">{{ . }}</p>
+                {{ end }}
+                {{ with .Summary }}
+                  <p class="f5 lh-copy">{{ . }}</p>
+                {{ end }}
+              {{ end }}
+            </a>
+            <time class="f6 db gray">{{ .Date.Format "January 2, 2006" }}</time>
+          </div>
+        </div>
+      {{ end }}
+    </section>
+  </article>
+{{ end }}
