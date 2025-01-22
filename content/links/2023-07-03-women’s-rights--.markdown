@@ -1,0 +1,5 @@
+---
+title: "Women’s Rights - Our World in Data"
+---
+
+<p><a href="https://ourworldindata.org/women-rights">Women’s Rights - Our World in Data</a></p>

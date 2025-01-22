@@ -1,0 +1,140 @@
+---
+layout: default
+---
+
+<style>
+/* Force dark mode styles regardless of theme */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    background-color: #000 !important;
+    color: #eee !important;
+    position: relative;
+}
+
+header {
+    border-bottom-color: #333 !important;
+}
+
+.site-title,
+.nav-links a {
+    color: #eee !important;
+}
+
+footer {
+    border-top-color: #333 !important;
+}
+
+footer a {
+    color: #999 !important;
+}
+
+/* Override default layout constraints */
+main {
+    max-width: none !important;
+    padding: 0 !important;
+}
+
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 8px;
+    padding: 8px;
+    width: 100vw;
+    margin: 0;
+    align-items: start;
+    box-sizing: border-box;
+}
+
+@media (max-width: 1100px) {
+    .photo-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Ensure the grid container takes full width */
+body, html, main {
+    width: 100vw;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.photo-item {
+    position: relative;
+    overflow: hidden;
+    display: block;
+    aspect-ratio: 3/2;
+    text-decoration: none;
+}
+
+.photo-item img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.photo-item:hover img {
+    transform: scale(1.03);
+}
+
+.photo-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 25%;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: white;
+    padding: 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.photo-item:hover .photo-info {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.photo-info .title {
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.photo-info .date {
+    font-size: 14px;
+    opacity: 0.8;
+}
+</style>
+
+<div class="photo-grid">
+    {% for post in site.posts %}
+        {% if post.path contains '_posts/photos/' %}
+            {% assign content = post.content %}
+            {% assign img_path = content | split: '<img src="' | last | split: '"' | first %}
+            {% assign clean_path = img_path | remove: '{{ site.baseurl }}' %}
+            <a href="{{ post.url }}#photo-main" class="photo-item">
+                {% assign path_parts = clean_path | split: '/' %}
+                {% assign filename = path_parts | last %}
+                {% assign dir_path = clean_path | remove: filename %}
+                <img src="/assets/images/blank.png" data-echo="{{ dir_path }}thumbnails/{{ filename }}" alt="{{ post.title }}" />
+                <div class="photo-info">
+                    <div class="title">{{ post.title }}</div>
+                </div>
+            </a>
+        {% endif %}
+    {% endfor %}
+</div>
+
+{% include lazyload.html %}
