@@ -242,8 +242,9 @@ footer a {
                             {{ $.Scratch.Set "exif" . }}
                         {{ end }}
                     {{ end }}
+                    {{ $thumbnail := $image.Resize "1000x" }}
                     <a href="{{ $image.RelPermalink }}" class="photo-item" target="_blank">
-                        <img src="{{ $image.RelPermalink }}" alt="{{ $currentPage.Title }}" />
+                        <img src="{{ $thumbnail.RelPermalink }}" alt="{{ $currentPage.Title }}" />
                     </a>
                 {{ end }}
             {{ end }}

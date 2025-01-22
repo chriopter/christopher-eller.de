@@ -14,7 +14,8 @@
                             <h2><a href="{{ .RelPermalink }}#photo-main">{{ .Title }}</a></h2>
                             <time>{{ .Date.Format "January 2, 2006" }}</time>
                             <a href="{{ .RelPermalink }}#photo-main" class="photo-item">
-                                <img src="{{ $image.RelPermalink }}" alt="{{ .Title }}" loading="lazy" />
+                                {{ $thumbnail := $image.Resize "1000x" }}
+                                <img src="{{ $thumbnail.RelPermalink }}" alt="{{ .Title }}" loading="lazy" />
                             </a>
                         </div>
                     {{ end }}
