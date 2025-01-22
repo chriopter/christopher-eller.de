@@ -349,6 +349,19 @@
             animatePhases(toDarkMode ? toDarkPhases : toLightPhases, toDarkMode);
         });
     </script>
+
+    <script>
+        // Add target="_blank" to external links
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentHost = window.location.hostname;
+            document.querySelectorAll('a').forEach(link => {
+                if (link.hostname && link.hostname !== currentHost && link.hostname !== '') {
+                    link.setAttribute('target', '_blank');
+                    link.setAttribute('rel', 'noopener noreferrer');
+                }
+            });
+        });
+    </script>
     
     <footer style="padding: 2rem; margin-top: 2rem;">
         <div style="max-width: 800px; margin: 0 auto; display: flex; justify-content: flex-start; align-items: center; font-size: 0.9rem; color: var(--secondary-text); gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
