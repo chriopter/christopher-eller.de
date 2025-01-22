@@ -3,7 +3,7 @@
     {{ .Content }}
 
     <div class="posts">
-        {{ $paginator := .Paginate (where .Site.RegularPages "Type" "in" (slice "posts" "photos")) }}
+        {{ $paginator := .Paginate (where .Site.RegularPages "Type" "in" (slice "posts" "photos" "projects" "links")) }}
         {{ range $paginator.Pages }}
             <article class="post">
                 {{ if eq .Type "photos" }}
@@ -22,6 +22,24 @@
                             </a>
                         </div>
                     {{ end }}
+                {{ else if eq .Type "projects" }}
+                    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+                    <time>{{ .Date.Format "January 2, 2006" }}</time>
+                    <div class="project-post">
+                        {{ .Summary }}
+                        {{ if .Truncated }}
+                            <a href="{{ .RelPermalink }}">Read more...</a>
+                        {{ end }}
+                    </div>
+                {{ else if eq .Type "links" }}
+                    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+                    <time>{{ .Date.Format "January 2, 2006" }}</time>
+                    <div class="link-post">
+                        {{ .Summary }}
+                        {{ if .Truncated }}
+                            <a href="{{ .RelPermalink }}">Read more...</a>
+                        {{ end }}
+                    </div>
                 {{ else }}
                     <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
                     <time>{{ .Date.Format "January 2, 2006" }}</time>
@@ -72,6 +90,14 @@
 
 .photo-post a:hover img {
     transform: scale(1.02);
+}
+
+.project-post {
+    margin-top: 1rem;
+}
+
+.link-post {
+    margin-top: 1rem;
 }
 </style>
 {{ end }}
