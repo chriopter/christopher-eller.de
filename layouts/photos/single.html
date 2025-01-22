@@ -205,6 +205,18 @@ footer a {
         z-index: 100;
         margin: 0;
     }
+
+    .nav-container:empty {
+        display: none;
+    }
+
+    .nav-container:has(.photo-nav:only-child) {
+        justify-content: flex-end;
+    }
+
+    .nav-container:has(.photo-nav.prev:only-child) {
+        justify-content: flex-start;
+    }
 }
 
 @media (max-width: 768px) {
