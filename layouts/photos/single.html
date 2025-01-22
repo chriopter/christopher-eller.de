@@ -264,6 +264,7 @@ footer a {
                     {{ $dateStr := . }}
                     {{ $dateStr := replaceRE "^([0-9]{4}):([0-9]{2}):([0-9]{2})" "$1-$2-$3" $dateStr }}
                     {{ $dateStr := replaceRE ":([0-9]{2}):([0-9]{2})" " $1:$2" $dateStr }}
+                    {{ $dateStr := replaceRE " ([0-9]{2}) ([0-9]{2}):([0-9]{2})" " $1:$2:$3" $dateStr }}
                     {{ $parsedDate := time $dateStr }}
                     <div class="photo-date">{{ $parsedDate.Format "2. January 2006" }}</div>
                 {{ end }}
