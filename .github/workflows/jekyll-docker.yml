@@ -56,7 +56,7 @@ jobs:
             jekyll/builder:4.2.2 \
             /bin/bash -c "
               chmod -R 777 /srv/jekyll &&
-              bundle lock --add-platform x86_64-linux-musl --add-platform ruby --remove-platform x86_64-linux
+              bundle lock --add-platform x86_64-linux-musl --add-platform ruby
             "
 
       - name: Commit Updated Gemfile.lock
