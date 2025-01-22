@@ -122,10 +122,8 @@ body, html, main {
         {{ with index $images 0 }}
             {{ $image := . }}
             {{ $thumbnail := $image }}
-            {{ if and (ne $image.MediaType.SubType "heif") (ne $image.MediaType.SubType "heic") }}
-                {{ if $image.Resize }}
-                    {{ $thumbnail = $image.Resize "1000x" }}
-                {{ end }}
+            {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
+                {{ $thumbnail = $image.Resize "1000x" }}
             {{ end }}
             <a href="{{ $page.RelPermalink }}#photo-main" class="photo-item" target="_blank">
                 <img src="{{ $thumbnail.RelPermalink }}" alt="{{ $page.Title }}" loading="lazy" />

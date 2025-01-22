@@ -15,10 +15,8 @@
                             <time>{{ .Date.Format "January 2, 2006" }}</time>
                             <a href="{{ .RelPermalink }}#photo-main" class="photo-item">
                                 {{ $thumbnail := $image }}
-                                {{ if and (ne $image.MediaType.SubType "heif") (ne $image.MediaType.SubType "heic") }}
-                                    {{ if $image.Resize }}
-                                        {{ $thumbnail = $image.Resize "1000x" }}
-                                    {{ end }}
+                                {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
+                                    {{ $thumbnail = $image.Resize "1000x" }}
                                 {{ end }}
                                 <img src="{{ $thumbnail.RelPermalink }}" alt="{{ .Title }}" loading="lazy" />
                             </a>

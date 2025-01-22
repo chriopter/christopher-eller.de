@@ -246,7 +246,7 @@ footer a {
                             {{ $.Scratch.Set "exif" . }}
                         {{ end }}
                         {{ $thumbnail := $image }}
-                        {{ if $image.Resize }}
+                        {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
                             {{ $thumbnail = $image.Resize "1000x" }}
                         {{ end }}
                         <a href="{{ $image.RelPermalink }}" class="photo-item" target="_blank">
