@@ -33,28 +33,32 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
-          # Automatically sets up caching for gems in vendor/bundle
           bundler-cache: true
 
-      - name: Install System Dependencies
+      # Make sure to install HEIF/HEIC support before installing/using ImageMagick
+      - name: Install ImageMagick with HEIC support
         run: |
           sudo apt-get update
-          sudo apt-get install -y imagemagick
+          # Install necessary libs for HEIC
+          sudo apt-get install -y libheif-dev libheif1 libde265-0
+          # Now (re)install ImageMagick, ensuring it picks up the HEIF delegate
+          sudo apt-get install -y --no-install-recommends imagemagick
+          
+          # You can check if HEIC is listed now:
+          # convert -list format | grep HEIC || true
 
-      # Cache the Jekyll ".jekyll-cache" folder
+      - name: Install Ruby Dependencies
+        run: |
+          # Example: Installing an extra gem
+          bundle add faraday-retry
+          bundle install
+
       - name: Cache Jekyll
         uses: actions/cache@v3
         with:
           path: .jekyll-cache
-          # Include files that would invalidate the cache if changed.
           key: ${{ runner.os }}-jekyll-${{ hashFiles('Gemfile.lock', '**/*.yml', '**/*.md', '**/*.html') }}
           restore-keys: ${{ runner.os }}-jekyll-
-
-      - name: Install Ruby Dependencies
-        run: |
-          # Example: Installing an extra gem here
-          bundle add faraday-retry
-          bundle install
 
       - name: Build site
         run: bundle exec jekyll build
