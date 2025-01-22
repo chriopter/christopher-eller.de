@@ -1,5 +1,6 @@
 ---
 title: "Text"
 url: /texts
-layout: pages/texts
+type: page
+layout: subscribe
 ---
