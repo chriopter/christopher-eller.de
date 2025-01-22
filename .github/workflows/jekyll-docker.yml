@@ -34,8 +34,14 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
-      - name: Install Dependencies
+      - name: Install System Dependencies
         run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
+
+      - name: Install Ruby Dependencies
+        run: |
+          bundle add faraday-retry
           bundle install
 
       - name: Build site
