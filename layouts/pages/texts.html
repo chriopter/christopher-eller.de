@@ -2,8 +2,24 @@
 <div class="archive">
     <section class="posts-section">
         <h2 class="section-heading">Posts</h2>
-        {{ $posts := where .Site.RegularPages "Type" "posts" }}
-        {{ range $posts.GroupByDate "2006" }}
+        {{ $allPosts := where .Site.RegularPages "Type" "posts" }}
+        {{ $regularPosts := where $allPosts "Params.categories" "!=" "Projects" }}
+        {{ range $regularPosts.GroupByDate "2006" }}
+        <div class="year-group">
+            <h3 class="year">{{ .Key }}</h3>
+            {{ range .Pages }}
+            <div class="archive-item">
+                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            </div>
+            {{ end }}
+        </div>
+        {{ end }}
+    </section>
+
+    <section class="projects-section">
+        <h2 class="section-heading">Projects</h2>
+        {{ $projects := where (where .Site.RegularPages "Type" "posts") "Params.categories" "intersect" (slice "Projects") }}
+        {{ range $projects.GroupByDate "2006" }}
         <div class="year-group">
             <h3 class="year">{{ .Key }}</h3>
             {{ range .Pages }}
@@ -96,6 +112,7 @@
 }
 
 /* Add spacing between sections */
+.projects-section,
 .links-section {
     margin-top: 3rem;
 }
