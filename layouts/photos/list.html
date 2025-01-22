@@ -125,7 +125,7 @@ body, html, main {
             {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
                 {{ $thumbnail = $image.Resize "1000x" }}
             {{ end }}
-            <a href="{{ $page.RelPermalink }}#photo-main" class="photo-item" target="_blank">
+            <a href="{{ $page.RelPermalink }}#photo-main" class="photo-item">
                 <img src="{{ $thumbnail.RelPermalink }}" alt="{{ $page.Title }}" loading="lazy" />
                 <div class="photo-info">
                     <div class="title">{{ $page.Title }}</div>

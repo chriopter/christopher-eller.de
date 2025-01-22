@@ -326,5 +326,14 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+
+// Remove #photo-main from URL without affecting scroll position
+window.addEventListener('load', function() {
+    if (window.location.hash === '#photo-main') {
+        const scrollPosition = window.scrollY;
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+        window.scrollTo(0, scrollPosition);
+    }
+});
 </script>
 {{ end }}

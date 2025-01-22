@@ -1,0 +1,29 @@
+{{ define "main" }}
+<article>
+    <h1>{{ .Title }}</h1>
+    <div class="content">
+        {{ $content := .Content }}
+        {{ $content := replaceRE `<img src="([^"]+)"` (printf `<img src="$1" loading="lazy"`) $content }}
+        {{ $content := replaceRE `src="(/[^"]+\.(jpg|jpeg|png|gif))"` (printf `src="{{ with $.Resources.GetMatch "$1" }}{{ (.Resize "1000x").RelPermalink }}{{ else }}$1{{ end }}"`) $content }}
+        {{ $content | safeHTML }}
+    </div>
+</article>
+
+<style>
+.content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+h1 {
+    margin-bottom: 30px;
+}
+</style>
+{{ end }}
