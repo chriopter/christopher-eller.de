@@ -45,7 +45,7 @@
                     {{ $url := trim $content " \n\r\t" }}
                     {{ $parsed := urls.Parse $url }}
                     {{ $domain := strings.TrimPrefix "www." $parsed.Host }}
-                    <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ $title }} ({{ $domain }})</a>
+                    <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">→ {{ $title }} ({{ $domain }})</a>
                 {{ end }}
             </div>
             {{ end }}
