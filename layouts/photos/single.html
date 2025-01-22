@@ -278,45 +278,7 @@ footer a {
                     <p>🔭 {{ if $exif.Tags.Model }}{{ replaceRE (printf "%s ?(.+)" $exif.Tags.Model) "$1" . }}{{ else }}{{ . }}{{ end }}</p>
                     {{ end }}
                     
-                    <p>⚙️ 
-                        {{ with $exif.Tags.FocalLength }}
-                            {{ $focal := . }}
-                            {{ $focalNum := float $focal }}
-                            {{ $focalMm := printf "%.0f" $focalNum }}
-                            {{ $focalDesc := "" }}
-                            {{ if lt $focalNum 24.0 }}
-                                {{ $focalDesc = "ultra-wide angle" }}
-                            {{ else if lt $focalNum 35.0 }}
-                                {{ $focalDesc = "wide angle" }}
-                            {{ else if lt $focalNum 70.0 }}
-                                {{ $focalDesc = "standard" }}
-                            {{ else if lt $focalNum 105.0 }}
-                                {{ $focalDesc = "portrait" }}
-                            {{ else if lt $focalNum 300.0 }}
-                                {{ $focalDesc = "telephoto" }}
-                            {{ else }}
-                                {{ $focalDesc = "super telephoto" }}
-                            {{ end }}
-                            {{ if $exif.Tags.FocalLengthIn35mmFilm }}
-                                {{ $focalMm }}mm ({{ $exif.Tags.FocalLengthIn35mmFilm }}mm) <span style="opacity: 0.7; font-size: 0.9em;">({{ $focalDesc }})</span>
-                            {{ else }}
-                                {{ $focalMm }}mm <span style="opacity: 0.7; font-size: 0.9em;">({{ $focalDesc }})</span>
-                            {{ end }}
-                        {{ end }}
-                        {{ with $exif.Tags.FNumber }}
-                            {{ $fnum := . }}
-                            {{ $fnumFloat := float $fnum }}
-                            , ƒ/{{ printf "%.1f" $fnumFloat }}
-                        {{ end }}
-                        {{ with $exif.Tags.ExposureTime }}
-                            {{ $exp := . }}
-                            {{ if lt (float $exp) 1.0 }}
-                                , 1/{{ printf "%.0f" (div 1.0 (float $exp)) }}s
-                            {{ else }}
-                                , {{ printf "%.1f" (float $exp) }}s
-                            {{ end }}
-                        {{ end }}
-                        {{ with $exif.Tags.ISO }}, ISO {{ . }}{{ else }}{{ with $exif.Tags.ISOSpeedRatings }}, ISO {{ . }}{{ end }}{{ end }}
+                    <p>⚙️ {{ with $exif.Tags.FocalLength }}{{ $focalNum := float . }}{{ printf "%.0f" $focalNum }}mm{{ with $exif.Tags.FocalLengthIn35mmFormat }} ({{ . }}mm){{ end }}{{ end }}{{ with $exif.Tags.FNumber }}{{ $fnum := . }}{{ $fnumFloat := float $fnum }} • ƒ/{{ printf "%.1f" $fnumFloat }}{{ end }}{{ with $exif.Tags.ExposureTime }}{{ $exp := . }}{{ if lt (float $exp) 1.0 }} • 1/{{ printf "%.0f" (div 1.0 (float $exp)) }}s{{ else }} • {{ printf "%.1f" (float $exp) }}s{{ end }}{{ end }}{{ with $exif.Tags.ISO }} • ISO {{ . }}{{ else }}{{ with $exif.Tags.ISOSpeedRatings }} • ISO {{ . }}{{ end }}{{ end }}
                     </p>
                 {{ end }}
                 
