@@ -3,7 +3,7 @@
     {{ $title := .Title }}
     {{ with .RawContent }}
         {{ $content := . | replaceRE "(?s)^---.*?---\n" "" }}
-        {{ $url := $content | strings.TrimSpace }}
+        {{ $url := trim $content " \n\r\t" }}
         <meta http-equiv="refresh" content="0;url={{ $url }}">
         <script>
             window.location.href = "{{ $url }}";

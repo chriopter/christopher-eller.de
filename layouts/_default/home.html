@@ -28,7 +28,7 @@
                     {{ with .RawContent }}
                         <div class="link-post">
                             {{ $content := . | replaceRE "(?s)^---.*?---\n" "" }}
-                            {{ $url := $content | strings.TrimSpace }}
+                            {{ $url := trim $content " \n\r\t" }}
                             {{ $parsed := urls.Parse $url }}
                             {{ $domain := strings.TrimPrefix "www." $parsed.Host }}
                             <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="link-url">
