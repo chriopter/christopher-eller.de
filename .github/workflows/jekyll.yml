@@ -49,16 +49,20 @@ jobs:
             docker save jekyll/builder:latest > /tmp/docker-cache/image.tar
           fi
 
+      - name: Fix permissions
+        run: |
+          sudo chown -R $USER:$USER .
+
       - name: Build in Jekyll Docker (with ImageMagick)
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}:/srv/jekyll \
-            -v ${{ github.workspace }}/vendor/bundle:/usr/local/bundle \
+            --user "$(id -u):$(id -g)" \
+            -v ${{ github.workspace }}:/srv/jekyll:Z \
+            -v ${{ github.workspace }}/vendor/bundle:/usr/local/bundle:Z \
             -w /srv/jekyll \
             jekyll/builder:latest \
             /bin/bash -c "
               apk add --no-cache imagemagick &&
-              chmod -R 777 /srv/jekyll &&
               bundle config set --local path 'vendor/bundle' &&
               bundle install --jobs 4 --retry 3 &&
               bundle exec jekyll build --future
