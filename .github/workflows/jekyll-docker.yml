@@ -18,16 +18,26 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+      - name: Install ImageMagick with HEIC support
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository ppa:savoury1/imagemagick6 -y
+          sudo apt-get update
+
+          # Install packages needed for HEIC
+          sudo apt-get install -y libheif-dev libde265-0
+
+          # Install the new ImageMagick build from the PPA
+          sudo apt-get install -y imagemagick
+
+          # Optional: check if HEIC is recognized
+          echo "== Available Formats =="
+          convert -list format | grep HEIC || true
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
