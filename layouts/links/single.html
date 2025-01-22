@@ -1,17 +1,19 @@
 {{ define "main" }}
 <article>
-    {{ $content := .RawContent | replaceRE "(?s)^---.*?---\n" "" }}
-    {{ $url := $content | strings.TrimSpace }}
-    <meta http-equiv="refresh" content="0;url={{ $url }}">
-    <script>
-        window.location.href = "{{ $url }}";
-    </script>
+    {{ with .RawContent }}
+        {{ $content := . | replaceRE "(?s)^---.*?---\n" "" }}
+        {{ $url := $content | strings.TrimSpace }}
+        <meta http-equiv="refresh" content="0;url={{ $url }}">
+        <script>
+            window.location.href = "{{ $url }}";
+        </script>
 
-    <!-- Fallback content -->
-    <div class="link-redirect">
-        <p>Redirecting to external link...</p>
-        <p>If you are not redirected automatically, <a href="{{ $url }}">click here</a>.</p>
-    </div>
+        <!-- Fallback content -->
+        <div class="link-redirect">
+            <p>Redirecting to external link...</p>
+            <p>If you are not redirected automatically, <a href="{{ $url }}">click here</a>.</p>
+        </div>
+    {{ end }}
 </article>
 
 <style>

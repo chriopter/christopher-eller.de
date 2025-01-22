@@ -23,16 +23,18 @@
                         </div>
                     {{ end }}
                 {{ else if eq .Type "links" }}
-                    <div class="link-post">
-                        {{ $content := .RawContent | replaceRE "(?s)^---.*?---\n" "" }}
-                        {{ $url := $content | strings.TrimSpace }}
-                        {{ $parsed := urls.Parse $url }}
-                        {{ $domain := strings.TrimPrefix "www." $parsed.Host }}
-                        <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="link-url">
-                            → {{ .Title }} ({{ $domain }})
-                        </a>
-                        <time>{{ .Date.Format "January 2, 2006" }}</time>
-                    </div>
+                    {{ with .RawContent }}
+                        <div class="link-post">
+                            {{ $content := . | replaceRE "(?s)^---.*?---\n" "" }}
+                            {{ $url := $content | strings.TrimSpace }}
+                            {{ $parsed := urls.Parse $url }}
+                            {{ $domain := strings.TrimPrefix "www." $parsed.Host }}
+                            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="link-url">
+                                → {{ $.Title }} ({{ $domain }})
+                            </a>
+                            <time>{{ $.Date.Format "January 2, 2006" }}</time>
+                        </div>
+                    {{ end }}
                 {{ else }}
                     <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
                     <time>{{ .Date.Format "January 2, 2006" }}</time>
