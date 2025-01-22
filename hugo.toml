@@ -5,7 +5,9 @@ title = 'Christopher Eller'
 [outputs]
 home = ["HTML", "RSS"]
 section = ["HTML"]
+page = ["HTML"]
 
+# Changes rss-feed to feed.xml
 [outputFormats.RSS]
 baseName = "feed"
 
