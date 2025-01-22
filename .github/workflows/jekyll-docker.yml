@@ -53,7 +53,7 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}:/srv/jekyll \
             -w /srv/jekyll \
-            jekyll/builder:latest \
+            jekyll/builder:4.3.2 \
             /bin/bash -c "
               chmod -R 777 /srv/jekyll &&
               bundle lock --add-platform x86_64-linux-musl --add-platform ruby --remove-platform x86_64-linux
@@ -67,14 +67,14 @@ jobs:
 
       - name: Build in Jekyll Docker (with ImageMagick)
         run: |
-          docker pull jekyll/builder:latest
+          docker pull jekyll/builder:4.3.2
           docker run --rm \
             -v ${{ github.workspace }}:/srv/jekyll \
             -v ${{ github.workspace }}/vendor/bundle:/usr/local/bundle \
             -w /srv/jekyll \
             -e JEKYLL_ENV=production \
             -e PARALLEL_PROCESSOR_COUNT=4 \
-            jekyll/builder:latest \
+            jekyll/builder:4.3.2 \
             /bin/bash -c "
               apk add --no-cache imagemagick parallel &&
               chmod -R 777 /srv/jekyll &&
