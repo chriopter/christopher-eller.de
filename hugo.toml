@@ -2,10 +2,9 @@ baseURL = 'https://christopher-eller.de/'
 languageCode = 'de-DE'
 title = 'Christopher Eller'
 
-# Enable pagination
-[pagination]
-  pagerSize = 10
-  path = "page"
+# Number of items per page in lists
+paginate = 10
+paginatePath = "page"
 
 [params]
   favicon = true
