@@ -61,8 +61,14 @@ footer a {
 
 .photo-main img {
     width: 100%;
-    max-height: 90vh;
+    max-height: 75vh;
     object-fit: contain;
+}
+
+@media (min-width: 1200px) {
+    .photo-main img {
+        max-height: 75vh;
+    }
 }
 
 .photo-info {
@@ -244,13 +250,13 @@ footer a {
             
             <div class="nav-container">
                 {{ with $.Scratch.Get "prevPage" }}
-                <a href="{{ .RelPermalink }}" class="photo-nav prev" title="{{ .Title }}">
+                <a href="{{ .RelPermalink }}#photo-main" class="photo-nav prev" title="{{ .Title }}">
                     <span class="photo-nav-arrow">←</span>
                 </a>
                 {{ end }}
                 
                 {{ with $.Scratch.Get "nextPage" }}
-                <a href="{{ .RelPermalink }}" class="photo-nav next" title="{{ .Title }}">
+                <a href="{{ .RelPermalink }}#photo-main" class="photo-nav next" title="{{ .Title }}">
                     <span class="photo-nav-arrow">→</span>
                 </a>
                 {{ end }}

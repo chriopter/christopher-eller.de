@@ -1,0 +1,73 @@
+{{ define "main" }}
+<div class="home-content">
+    {{ .Content }}
+
+    <div class="posts">
+        {{ $paginator := .Paginate (where .Site.RegularPages "Type" "in" (slice "posts" "photos")) }}
+        {{ range $paginator.Pages }}
+            <article class="post">
+                {{ if eq .Type "photos" }}
+                    {{ $images := .Resources.ByType "image" }}
+                    {{ with . }}
+                        {{ $image := index $images 0 }}
+                        <div class="photo-post">
+                            <h2><a href="{{ .RelPermalink }}#photo-main">{{ .Title }}</a></h2>
+                            <time>{{ .Date.Format "January 2, 2006" }}</time>
+                            <a href="{{ .RelPermalink }}#photo-main" class="photo-item">
+                                <img src="{{ $image.RelPermalink }}" alt="{{ .Title }}" loading="lazy" />
+                            </a>
+                        </div>
+                    {{ end }}
+                {{ else }}
+                    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+                    <time>{{ .Date.Format "January 2, 2006" }}</time>
+                    {{ .Summary }}
+                    {{ if .Truncated }}
+                        <a href="{{ .RelPermalink }}">Read more...</a>
+                    {{ end }}
+                {{ end }}
+            </article>
+        {{ end }}
+    </div>
+</div>
+
+<style>
+.home-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.posts {
+    margin-bottom: 3rem;
+}
+
+.post {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #eee;
+}
+
+.post h2 {
+    margin-bottom: 0.5rem;
+}
+
+.post time {
+    display: block;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.photo-post img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-top: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.photo-post a:hover img {
+    transform: scale(1.02);
+}
+</style>
+{{ end }}

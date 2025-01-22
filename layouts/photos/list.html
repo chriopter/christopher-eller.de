@@ -116,14 +116,15 @@ body, html, main {
 </style>
 
 <div class="photo-grid">
-    {{ range where .Site.RegularPages "Section" "photos" }}
+    {{ range .Pages }}
+        {{ $page := . }}
         {{ $images := .Resources.ByType "image" }}
         {{ with index $images 0 }}
-        <a href="{{ $.RelPermalink }}" class="photo-item">
-            <img src="{{ .RelPermalink }}" alt="{{ $.Title }}" loading="lazy" />
+        <a href="{{ $page.RelPermalink }}#photo-main" class="photo-item" target="_blank">
+            <img src="{{ .RelPermalink }}" alt="{{ $page.Title }}" loading="lazy" />
             <div class="photo-info">
-                <div class="title">{{ $.Title }}</div>
-                <div class="date">{{ $.Date.Format "January 2, 2006" }}</div>
+                <div class="title">{{ $page.Title }}</div>
+                <div class="date">{{ $page.Date.Format "January 2, 2006" }}</div>
             </div>
         </a>
         {{ end }}
