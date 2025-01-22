@@ -1,4 +1,4 @@
 ---
 title: "RSS Test!"
 ---
-Commit RSS
+Commit RSS.
