@@ -117,11 +117,13 @@ body, html, main {
 
 <div class="photo-grid">
     {{ range where .Site.RegularPages "Section" "photos" }}
-        {{ with .Params.image }}
-        <a href="{{ $.RelPermalink }}#photo-main" class="photo-item">
-            <img src="{{ . }}" alt="{{ $.Title }}" loading="lazy" />
+        {{ $images := .Resources.ByType "image" }}
+        {{ with index $images 0 }}
+        <a href="{{ $.RelPermalink }}" class="photo-item">
+            <img src="{{ .RelPermalink }}" alt="{{ $.Title }}" loading="lazy" />
             <div class="photo-info">
                 <div class="title">{{ $.Title }}</div>
+                <div class="date">{{ $.Date.Format "January 2, 2006" }}</div>
             </div>
         </a>
         {{ end }}

@@ -1,7 +1,6 @@
 ---
-layout: default
 title: Subscribe
-permalink: /subscribe/
+url: /subscribe
 ---
 
 Stay updated with the latest posts by subscribing to the newsletter:
@@ -13,4 +12,4 @@ Stay updated with the latest posts by subscribing to the newsletter:
     </form>
 </div>
 
-You can also subscribe via [RSS](/feed.xml) to get updates in your favorite RSS reader.
+You can also subscribe via [RSS](/index.xml) to get updates in your favorite RSS reader.

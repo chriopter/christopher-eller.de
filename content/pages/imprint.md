@@ -1,10 +1,7 @@
 ---
-layout: default
 title: Imprint
-permalink: /imprint/
+url: /imprint
 ---
-
-# Imprint
 
 Dies ist ein privater Blog von Christopher Eller (mail@christopher-eller.de).
 
