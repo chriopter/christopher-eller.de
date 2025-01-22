@@ -47,10 +47,15 @@ jobs:
         # Outputs to the './_site' directory by default
         run: |
           sudo apt-get update
-          sudo apt-get install -y imagemagick libheif-dev
+          sudo apt-get install -y imagemagick libheif-dev libmagickcore-dev libmagickwand-dev libheif-examples
           sudo chmod -R 777 .
           sudo sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
           sudo sed -i 's/rights="none" pattern="HEIC"/rights="read|write" pattern="HEIC"/' /etc/ImageMagick-6/policy.xml
+          for file in assets/images/photos/*.heic; do
+            if [ -f "$file" ]; then
+              heif-convert "$file" "${file%.*}.jpg"
+            fi
+          done
           bundle exec jekyll build --future
           bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
