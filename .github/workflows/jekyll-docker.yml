@@ -18,6 +18,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,6 +33,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
+          # Automatically sets up caching for gems in vendor/bundle
           bundler-cache: true
 
       - name: Install System Dependencies
@@ -39,8 +41,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y imagemagick
 
+      # Cache the Jekyll ".jekyll-cache" folder
+      - name: Cache Jekyll
+        uses: actions/cache@v3
+        with:
+          path: .jekyll-cache
+          # Include files that would invalidate the cache if changed.
+          key: ${{ runner.os }}-jekyll-${{ hashFiles('Gemfile.lock', '**/*.yml', '**/*.md', '**/*.html') }}
+          restore-keys: ${{ runner.os }}-jekyll-
+
       - name: Install Ruby Dependencies
         run: |
+          # Example: Installing an extra gem here
           bundle add faraday-retry
           bundle install
 
