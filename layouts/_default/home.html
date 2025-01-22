@@ -70,30 +70,22 @@
 </div>
 
 <style>
+/* Layout */
 .home-content {
     max-width: 800px;
     margin: 0 auto;
     padding: 0 20px;
 }
 
-.home-content a {
-    color: black;
-    text-decoration: none;
-    transition: opacity 0.2s ease;
-}
-
-.home-content a:hover {
-    opacity: 0.7;
-}
-
 .posts {
     margin-bottom: 4rem;
 }
 
+/* Post styling */
 .post {
     margin-bottom: 3rem;
     padding-bottom: 3rem;
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .post:last-child {
@@ -109,11 +101,37 @@
 
 .post time {
     display: block;
-    color: #888;
+    color: var(--secondary-text);
     margin-bottom: 1.5rem;
     font-size: 0.95rem;
 }
 
+/* Links */
+.home-content a {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.home-content a:hover {
+    color: var(--link-hover-color);
+    opacity: 0.7;
+}
+
+/* Project and Link posts */
+.project-post, .link-post {
+    margin-top: 1.5rem;
+    line-height: 1.6;
+}
+
+/* Read more link */
+.post a[href$="Read more..."] {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.95rem;
+}
+
+/* Photo posts */
 .photo-post img {
     width: 100%;
     height: auto;
@@ -126,30 +144,17 @@
     transform: scale(1.02);
 }
 
-.project-post, .link-post {
-    margin-top: 1.5rem;
-    line-height: 1.6;
-    color: #333;
-}
-
-.post a[href$="Read more..."] {
-    display: inline-block;
-    margin-top: 1rem;
-    font-size: 0.95rem;
-    color: #555;
-}
-
+/* Pagination */
 .pagination {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 3rem;
     padding: 1.5rem 0;
-    border-top: 1px solid #e5e5e5;
+    border-top: 1px solid var(--border-color);
 }
 
 .pagination a {
-    color: black;
     font-weight: 500;
     padding: 0.5rem 0;
     transition: opacity 0.2s ease;
@@ -160,7 +165,7 @@
 }
 
 .page-numbers {
-    color: #888;
+    color: var(--secondary-text);
     font-size: 0.95rem;
 }
 </style>
