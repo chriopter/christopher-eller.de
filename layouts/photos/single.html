@@ -231,8 +231,10 @@ footer a {
             {{ range first 1 $images }}
                 {{ $image := . }}
                 {{ if eq $image.MediaType.MainType "image" }}
-                    {{ with $image.Exif }}
-                        {{ $.Scratch.Set "exif" . }}
+                    {{ if or (eq $image.MediaType.SubType "jpeg") (eq $image.MediaType.SubType "png") }}
+                        {{ with $image.Exif }}
+                            {{ $.Scratch.Set "exif" . }}
+                        {{ end }}
                     {{ end }}
                     <a href="{{ $image.RelPermalink }}" class="photo-item" target="_blank">
                         <img src="{{ $image.RelPermalink }}" alt="{{ $currentPage.Title }}" />
