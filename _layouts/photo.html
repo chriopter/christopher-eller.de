@@ -210,7 +210,7 @@ footer a {
         {% assign exif = site.data.photos[image_name] %}
 
         <a href="{{ img_path }}" target="_blank" style="cursor: pointer;">
-            <img src="{% thumbnail_img '/assets/images/photos/' | append: filename 1000 %}" alt="{{ page.title }}" style="cursor: zoom-in;" />
+            <img src="{{ img_path }}" alt="{{ page.title }}" style="cursor: zoom-in;" />
         </a>
         
         <div class="photo-info">
