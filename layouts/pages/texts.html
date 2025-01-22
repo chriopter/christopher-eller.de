@@ -35,7 +35,11 @@
             <h3 class="year">{{ .Key }}</h3>
             {{ range .Pages }}
             <div class="archive-item">
-                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                {{ $content := .RawContent | replaceRE "(?s)^---.*?---\n" "" }}
+                {{ $url := $content | strings.TrimSpace }}
+                {{ $parsed := urls.Parse $url }}
+                {{ $domain := strings.TrimPrefix "www." $parsed.Host }}
+                <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ .Title }} ({{ $domain }})</a>
             </div>
             {{ end }}
         </div>

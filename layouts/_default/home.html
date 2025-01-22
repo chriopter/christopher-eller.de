@@ -32,13 +32,15 @@
                         {{ end }}
                     </div>
                 {{ else if eq .Type "links" }}
-                    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-                    <time>{{ .Date.Format "January 2, 2006" }}</time>
                     <div class="link-post">
-                        {{ .Summary }}
-                        {{ if .Truncated }}
-                            <a href="{{ .RelPermalink }}">Read more...</a>
-                        {{ end }}
+                        {{ $content := .RawContent | replaceRE "(?s)^---.*?---\n" "" }}
+                        {{ $url := $content | strings.TrimSpace }}
+                        {{ $parsed := urls.Parse $url }}
+                        {{ $domain := strings.TrimPrefix "www." $parsed.Host }}
+                        <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="link-url">
+                            → {{ .Title }} ({{ $domain }})
+                        </a>
+                        <time>{{ .Date.Format "January 2, 2006" }}</time>
                     </div>
                 {{ else }}
                     <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
@@ -118,10 +120,33 @@
     opacity: 0.7;
 }
 
-/* Project and Link posts */
-.project-post, .link-post {
+/* Project posts */
+.project-post {
     margin-top: 1.5rem;
     line-height: 1.6;
+}
+
+/* Link posts */
+.link-post {
+    margin: 1.5rem 0;
+}
+
+.link-post .link-url {
+    display: block;
+    font-size: 1.2rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    word-break: break-word;
+    color: var(--link-color);
+}
+
+.link-post .link-url:hover {
+    text-decoration: underline;
+}
+
+.link-post time {
+    margin-bottom: 0;
+    margin-top: 0.5rem;
 }
 
 /* Read more link */
