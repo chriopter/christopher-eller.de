@@ -6,9 +6,8 @@ on:
   pull_request:
     branches: [ "main" ]
 
-# GitHub Pages deployment requires these permissions
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -34,16 +33,35 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-jekyll-
 
+      - name: Setup Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Normalize Gemfile.lock Platforms
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/srv/jekyll \
+            -w /srv/jekyll \
+            jekyll/builder:latest \
+            bundle lock --add-platform x86_64-linux-musl --add-platform ruby --remove-platform x86_64-linux
+
+      - name: Commit Updated Gemfile.lock
+        run: |
+          git add Gemfile.lock
+          git diff --staged --quiet || git commit -m "Update Gemfile.lock platform dependencies"
+          git push
+
       - name: Build in Jekyll Docker (with ImageMagick)
         run: |
-          docker pull jekyll/builder:4.2.2
+          docker pull jekyll/builder:latest
           docker run --rm \
             -v ${{ github.workspace }}:/srv/jekyll \
             -v ${{ github.workspace }}/vendor/bundle:/usr/local/bundle \
             -w /srv/jekyll \
             -e JEKYLL_ENV=production \
             -e PARALLEL_PROCESSOR_COUNT=4 \
-            jekyll/builder:4.2.2 \
+            jekyll/builder:latest \
             /bin/bash -c "
               apk add --no-cache imagemagick parallel &&
               chmod -R 777 /srv/jekyll &&
