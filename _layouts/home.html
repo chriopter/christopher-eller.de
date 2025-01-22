@@ -19,7 +19,7 @@ layout: default
                             {% assign img_path = content | split: '<img src="' | last | split: '"' | first %}
                             {% assign clean_path = img_path | remove: '{{ site.baseurl }}' %}
                             <a href="{{ post.url }}#photo-main">
-                                <img src="/assets/images/blank.png" data-echo="{% thumbnail_img clean_path 1000 %}" style="width: 100%; height: auto;" />
+                                <img src="/assets/images/blank.png" data-echo="{{ clean_path }}" style="width: 100%; height: auto;" />
                             </a>
                         </div>
                     </div>

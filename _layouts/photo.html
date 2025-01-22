@@ -232,7 +232,7 @@ footer a {
         {% assign exif = site.data.photos[image_name] %}
         <div>
             <a href="{{ clean_path }}" class="photo-item" target="_blank">
-                <img src="/assets/images/blank.png" data-echo="{% thumbnail_img clean_path 1000 %}" alt="{{ post.title }}" />
+                <img src="{{ clean_path }}" alt="{{ post.title }}" />
             </a>
             
             <div class="nav-container">
