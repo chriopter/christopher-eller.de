@@ -1,70 +1,31 @@
 {{ define "main" }}
-<div class="archive-grid">
-    <div class="archive-column">
-        <h2 class="archive-title">Posts</h2>
-        {{ range (where .Site.RegularPages "Type" "posts").GroupByDate "2006" }}
-        <div class="year-group">
-            <h3 class="year">{{ .Key }}</h3>
-            {{ range .Pages }}
-            <div class="archive-item">
-                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-            </div>
-            {{ end }}
-        </div>
-        {{ end }}
-    </div>
-
-    <div class="archive-column">
-        <h2 class="archive-title">Projects</h2>
-        {{ range (where .Site.RegularPages "Type" "projects").GroupByDate "2006" }}
-        <div class="year-group">
-            <h3 class="year">{{ .Key }}</h3>
-            {{ range .Pages }}
-            <div class="archive-item">
-                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-            </div>
-            {{ end }}
-        </div>
-        {{ end }}
-    </div>
-
-    <div class="archive-column">
-        <h2 class="archive-title">Links</h2>
-        {{ range (where .Site.RegularPages "Type" "links").GroupByDate "2006" }}
-        <div class="year-group">
-            <h3 class="year">{{ .Key }}</h3>
-            {{ range .Pages }}
-            <div class="archive-item">
+<div class="archive">
+    {{ $pages := union (where .Site.RegularPages "Type" "posts") (where .Site.RegularPages "Type" "links") }}
+    {{ range $pages.GroupByDate "2006" }}
+    <div class="year-group">
+        <h3 class="year">{{ .Key }}</h3>
+        {{ range .Pages }}
+        <div class="archive-item">
+            {{ if eq .Type "links" }}
                 {{ $content := .RawContent | replaceRE "(?s)^---.*?---\n" "" }}
                 {{ $url := $content | strings.TrimSpace }}
                 {{ $parsed := urls.Parse $url }}
                 {{ $domain := strings.TrimPrefix "www." $parsed.Host }}
                 <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ .Title }} ({{ $domain }})</a>
-            </div>
+            {{ else }}
+                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
             {{ end }}
         </div>
         {{ end }}
     </div>
+    {{ end }}
 </div>
 
 <style>
-.archive-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
+.archive {
     max-width: 1000px;
     margin: 0 auto;
     padding: 0 1rem;
-}
-
-.archive-column {
-    min-width: 0;
-}
-
-.archive-title {
-    margin: 0 0 1.5rem 0;
-    font-size: 1.5em;
-    font-weight: 500;
 }
 
 .year-group {
@@ -95,11 +56,5 @@
     text-decoration: underline;
 }
 
-@media (max-width: 768px) {
-    .archive-grid {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
-}
 </style>
 {{ end }}

@@ -3,7 +3,7 @@
     {{ .Content }}
 
     <div class="posts">
-        {{ $paginator := .Paginate (where .Site.RegularPages "Type" "in" (slice "posts" "photos" "projects" "links")) }}
+        {{ $paginator := .Paginate (where .Site.RegularPages "Type" "in" (slice "posts" "photos" "links")) }}
         {{ range $paginator.Pages }}
             <article class="post">
                 {{ if eq .Type "photos" }}
@@ -22,15 +22,6 @@
                             </a>
                         </div>
                     {{ end }}
-                {{ else if eq .Type "projects" }}
-                    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-                    <time>{{ .Date.Format "January 2, 2006" }}</time>
-                    <div class="project-post">
-                        {{ .Summary }}
-                        {{ if .Truncated }}
-                            <a href="{{ .RelPermalink }}">Read more...</a>
-                        {{ end }}
-                    </div>
                 {{ else if eq .Type "links" }}
                     <div class="link-post">
                         {{ $content := .RawContent | replaceRE "(?s)^---.*?---\n" "" }}
@@ -118,12 +109,6 @@
 .home-content a:hover {
     color: var(--link-hover-color);
     opacity: 0.7;
-}
-
-/* Project posts */
-.project-post {
-    margin-top: 1.5rem;
-    line-height: 1.6;
 }
 
 /* Link posts */
