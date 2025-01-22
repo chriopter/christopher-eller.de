@@ -1,6 +1,6 @@
 ---
 title: Subscribe
 url: /subscribe
-type: page
+type: pages
 layout: subscribe
 ---
