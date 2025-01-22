@@ -1,0 +1,253 @@
+#!/bin/bash
+
+echo "=== Pre-commit hook started ==="
+
+###########################################
+# Check required tools
+###########################################
+
+if ! command -v exiftool &> /dev/null; then
+    echo "Error: exiftool is not installed"
+    echo "Please install it using: brew install exiftool"
+    exit 1
+fi
+
+if ! command -v magick &> /dev/null; then
+    echo "Error: ImageMagick is not installed"
+    echo "Please install it using: brew install imagemagick"
+    exit 1
+fi
+
+if ! command -v jq &> /dev/null; then
+    echo "Error: jq is not installed"
+    echo "Please install it using: brew install jq"
+    exit 1
+fi
+
+###########################################
+# Get image files
+###########################################
+
+# Debug: Print all staged files
+echo "Debug: All staged files:"
+git diff --cached --name-only --diff-filter=d
+
+# Get list of all image files in assets/images directories
+all_images=$(find assets/images -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.heic" -o -name "*.png" \) | grep -v "/thumbnails/" | grep -v "_thumbnail" | grep -v "/exif/" || true)
+
+# Get list of staged image files in assets/images directories
+staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^assets/images/.*\.(jpg|jpeg|heic|png)$" | grep -v "/thumbnails/" | grep -v "/exif/" || true)
+
+# Debug: Print the filtered images
+echo "Debug: All images found: $all_images"
+echo "Debug: Staged images found: $staged_images"
+
+# If no images exist at all, exit successfully
+if [ -z "$all_images" ] && [ -z "$staged_images" ]; then
+    echo "No images found"
+    exit 0
+fi
+
+###########################################
+# 1. EXIF GPS Removal (Privacy First)
+###########################################
+
+echo "=== Removing EXIF location data from staged images ==="
+
+# Process each staged image
+for file in $staged_images; do
+    if [ -f "$file" ]; then
+        # Remove GPS data and create backup with _original suffix
+        if ! exiftool -overwrite_original -gps:all= "$file"; then
+            echo "Error: Failed to remove EXIF data from $file"
+            exit 1
+        fi
+        # Re-stage the modified file
+        git add "$file"
+        echo "Removed GPS data from: $file"
+    fi
+done
+
+echo "Successfully removed EXIF location data from images"
+
+###########################################
+# 2. Extract Safe EXIF Data for Posts
+###########################################
+
+echo "=== Extracting non-GPS EXIF data for photo posts ==="
+
+# Create _data/photos directory if it doesn't exist
+mkdir -p "_data/photos"
+
+# Function to process EXIF data for a photo
+process_photo_post() {
+    local image_path="$1"
+    local post_path="$2"
+    local name=$(basename "$image_path")
+    local base_name="${name%.*}"
+    local data_file="_data/photos/${base_name}.yml"
+    
+    # Skip if data file already exists
+    if [ -f "$data_file" ]; then
+        return
+    fi
+    
+    # Extract EXIF data using exiftool (with -s flag for short names)
+    local exif_json=$(exiftool -json -n -s \
+        -Make \
+        -Model \
+        -LensModel \
+        -LensMake \
+        -FocalLength \
+        -FocalLengthIn35mmFormat \
+        -ExposureTime \
+        -FNumber \
+        -ISO \
+        -DateTimeOriginal \
+        -CameraSerialNumber \
+        -LensSerialNumber \
+        -Software \
+        -ImageSize \
+        -Megapixels \
+        -ShutterSpeed \
+        -Aperture \
+        -ExposureProgram \
+        -ExposureCompensation \
+        -MeteringMode \
+        -LightValue \
+        -Flash \
+        -FlashType \
+        -WhiteBalance \
+        -ColorSpace \
+        "$image_path" 2>/dev/null)
+
+    # Process EXIF data using jq
+    local make=$(echo "$exif_json" | jq -r '.[0].Make // empty')
+    local model=$(echo "$exif_json" | jq -r '.[0].Model // empty')
+    local lens_make=$(echo "$exif_json" | jq -r '.[0].LensMake // empty')
+    local lens_model=$(echo "$exif_json" | jq -r '.[0].LensModel // empty')
+    local focal_length=$(echo "$exif_json" | jq -r '.[0].FocalLength // empty')
+    local focal_length_35=$(echo "$exif_json" | jq -r '.[0].FocalLengthIn35mmFormat // empty')
+    local exposure_time=$(echo "$exif_json" | jq -r '.[0].ExposureTime // empty')
+    local f_number=$(echo "$exif_json" | jq -r '.[0].FNumber // empty')
+    local iso=$(echo "$exif_json" | jq -r '.[0].ISO // empty')
+    local date_taken=$(echo "$exif_json" | jq -r '.[0].DateTimeOriginal // empty')
+
+    # Format camera name
+    local camera=""
+    if [ ! -z "$make" ] && [ ! -z "$model" ]; then
+        # Remove redundant make from model if present
+        local clean_model=$(echo "$model" | sed "s/^$make[[:space:]]*//i")
+        camera="$make $clean_model"
+    elif [ ! -z "$model" ]; then
+        camera="$model"
+    fi
+
+    # Format focal length
+    local focal_length_formatted=""
+    if [ ! -z "$focal_length" ]; then
+        if [ ! -z "$focal_length_35" ]; then
+            focal_length_formatted="${focal_length%.*}mm (${focal_length_35%.*}mm)"
+        else
+            focal_length_formatted="${focal_length%.*}mm"
+        fi
+    fi
+
+    # Format exposure time as fraction
+    local exposure_formatted=""
+    if [ ! -z "$exposure_time" ]; then
+        local fraction=$(awk "BEGIN {print int(1/$exposure_time)}")
+        exposure_formatted="1/$fraction"
+    fi
+
+    # Clean up lens model (remove focal length/aperture info)
+    local lens_formatted=""
+    if [ ! -z "$lens_model" ]; then
+        lens_formatted=$(echo "$lens_model" | sed 's/\s\+[0-9].*$//')
+    fi
+
+    # Create YAML data file with proper YAML formatting
+    {
+        echo "# EXIF data for $name"
+        [ ! -z "$make" ] && echo "manufacturer: \"$make\""
+        [ ! -z "$camera" ] && echo "camera: \"$camera\""
+        [ ! -z "$lens_make" ] && echo "lens_make: \"$lens_make\""
+        [ ! -z "$lens_formatted" ] && echo "lens: \"$lens_formatted\""
+        [ ! -z "$focal_length_formatted" ] && echo "focal_length: \"$focal_length_formatted\""
+        [ ! -z "$exposure_formatted" ] && echo "exposure: \"$exposure_formatted\""
+        [ ! -z "$f_number" ] && echo "f_number: \"$f_number\""
+        [ ! -z "$iso" ] && echo "iso: \"$iso\""
+        [ ! -z "$date_taken" ] && echo "date_taken: \"$date_taken\""
+    } > "$data_file"
+    
+    echo "Created EXIF data file: $data_file"
+    git add "$data_file"
+}
+
+# Process all photo posts
+for post_path in _posts/photos/*.markdown; do
+    # Extract image filename from post filename
+    filename=$(basename "$post_path" .markdown)
+    
+    # Look for corresponding image
+    for ext in jpeg jpg heic; do
+        image_path="assets/images/photos/$filename.$ext"
+        if [ -f "$image_path" ]; then
+            process_photo_post "$image_path" "$post_path"
+            break
+        fi
+    done
+done
+
+echo "Successfully extracted non-GPS EXIF data for photo posts"
+
+# Function to generate thumbnail if it doesn't exist
+generate_thumbnail() {
+    local img="$1"
+    local base_dir=$(dirname "$img")
+    local filename=$(basename "$img")
+    local name="${filename%.*}"
+    local ext="${filename##*.}"
+    # Create thumbnails directory in the same directory as the image
+    local thumbnail_dir="${base_dir}/thumbnails"
+    local thumbnail="${thumbnail_dir}/${name}.${ext}"
+
+    # Skip if file already ends with _thumbnail
+    if [[ "$name" == *"_thumbnail"* ]]; then
+        return
+    fi
+
+    # For HEIC files, create JPEG thumbnail directly
+    if [ "$(echo "$ext" | tr '[:upper:]' '[:lower:]')" = "heic" ]; then
+        thumbnail="${thumbnail_dir}/${name}.jpeg"
+    fi
+
+    # Create thumbnails directory if it doesn't exist
+    mkdir -p "$thumbnail_dir"
+
+    # Generate thumbnail if it doesn't exist
+    if [ ! -f "$thumbnail" ]; then
+        magick "$img" -resize 1024x -quality 80 "$thumbnail"
+        echo "Generated thumbnail: $thumbnail"
+        git add "$thumbnail"  # Stage the generated thumbnail
+    fi
+}
+
+echo "Generating thumbnails for all images..."
+
+# Process all images for thumbnails first
+for file in $all_images; do
+    if [ -f "$file" ]; then
+        generate_thumbnail "$file"
+    fi
+done
+
+# Then process any staged images that might not be in all_images yet
+for file in $staged_images; do
+    if [ -f "$file" ]; then
+        generate_thumbnail "$file"
+    fi
+done
+
+echo "=== Pre-commit hook completed successfully ==="
+exit 0
