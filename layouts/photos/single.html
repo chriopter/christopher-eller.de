@@ -227,21 +227,22 @@ footer a {
 <div class="photo-container">
     <div class="photo-main" id="photo-main">
         <div>
-            {{ with .Params.image }}
-            <a href="{{ . }}" class="photo-item" target="_blank">
-                <img src="{{ . }}" alt="{{ $currentPage.Title }}" />
+            {{ $images := .Resources.Match "*.{jpg,jpeg,png,gif,heic,heif}" }}
+            {{ range first 1 $images }}
+            <a href="{{ .RelPermalink }}" class="photo-item" target="_blank">
+                <img src="{{ .RelPermalink }}" alt="{{ $currentPage.Title }}" />
             </a>
             {{ end }}
             
             <div class="nav-container">
                 {{ with $.Scratch.Get "prevPage" }}
-                <a href="{{ .RelPermalink }}#photo-main" class="photo-nav prev" title="{{ .Title }}">
+                <a href="{{ .RelPermalink }}" class="photo-nav prev" title="{{ .Title }}">
                     <span class="photo-nav-arrow">←</span>
                 </a>
                 {{ end }}
                 
                 {{ with $.Scratch.Get "nextPage" }}
-                <a href="{{ .RelPermalink }}#photo-main" class="photo-nav next" title="{{ .Title }}">
+                <a href="{{ .RelPermalink }}" class="photo-nav next" title="{{ .Title }}">
                     <span class="photo-nav-arrow">→</span>
                 </a>
                 {{ end }}
@@ -276,8 +277,8 @@ footer a {
                 <p style="margin-top: 15px; font-size: 12px; opacity: 0.7;">Uploaded on {{ .Date.Format "2. January 2006" }}</p>
             </div>
             
-            {{ with .Params.image }}
-            <a href="{{ . }}" class="full-size-link" target="_blank">View Full Size ↗</a>
+            {{ range first 1 $images }}
+            <a href="{{ .RelPermalink }}" class="full-size-link" target="_blank">View Full Size ↗</a>
             {{ end }}
         </div>
     </div>
