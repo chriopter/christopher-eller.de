@@ -231,14 +231,13 @@ footer a {
             {{ range first 1 $images }}
                 {{ $image := . }}
                 {{ if eq $image.MediaType.MainType "image" }}
-                    {{ $processed := $image.Resize "2000x" }}
-                    {{ with $processed.Exif }}
+                    {{ with $image.Exif }}
                         {{ $.Scratch.Set "exif" . }}
                     {{ end }}
+                    <a href="{{ $image.RelPermalink }}" class="photo-item" target="_blank">
+                        <img src="{{ $image.RelPermalink }}" alt="{{ $currentPage.Title }}" />
+                    </a>
                 {{ end }}
-                <a href="{{ $image.RelPermalink }}" class="photo-item" target="_blank">
-                    <img src="{{ $image.RelPermalink }}" alt="{{ $currentPage.Title }}" />
-                </a>
             {{ end }}
             
             <div class="nav-container">
@@ -262,8 +261,9 @@ footer a {
             {{ $exif := $.Scratch.Get "exif" }}
             {{ if $exif }}
                 {{ with $exif.Tags.DateTimeOriginal }}
-                    {{ $dateStr := replaceRE ":([0-9]{2}) " "-$1 " . }}
-                    {{ $dateStr := replaceRE "^([0-9]{4}):([0-9]{2})" "$1-$2" $dateStr }}
+                    {{ $dateStr := . }}
+                    {{ $dateStr := replaceRE "^([0-9]{4}):([0-9]{2}):([0-9]{2})" "$1-$2-$3" $dateStr }}
+                    {{ $dateStr := replaceRE ":([0-9]{2}):([0-9]{2})" " $1:$2" $dateStr }}
                     {{ $parsedDate := time $dateStr }}
                     <div class="photo-date">{{ $parsedDate.Format "2. January 2006" }}</div>
                 {{ end }}
