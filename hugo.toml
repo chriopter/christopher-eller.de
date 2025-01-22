@@ -2,6 +2,14 @@ baseURL = 'https://christopher-eller.de/'
 languageCode = 'de-DE'
 title = 'Christopher Eller'
 
+[outputs]
+home = ["HTML", "RSS"]
+section = ["HTML"]
+
+[outputFormats.RSS]
+baseName = "feed"
+mediatype = "application/atom+xml"
+
 # Number of items per page in lists
 paginate = 10
 paginatePath = "page"
