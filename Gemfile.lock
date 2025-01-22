@@ -390,7 +390,6 @@ PLATFORMS
   x86-mingw-ucrt
   x86_64-cygwin
   x86_64-darwin
-  x86_64-linux
   x86_64-linux-android
   x86_64-linux-gnu
   x86_64-linux-musl
@@ -412,4 +411,4 @@ DEPENDENCIES
   webrick
 
 BUNDLED WITH
-   2.6.3
+   2.3.25
