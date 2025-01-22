@@ -208,12 +208,8 @@ generate_thumbnail() {
     local filename=$(basename "$img")
     local name="${filename%.*}"
     local ext="${filename##*.}"
-    # For posts directory, create thumbnails directory in the specific post folder
-    if [[ "$base_dir" == *"/posts/"* ]]; then
-        local thumbnail_dir="${base_dir}/thumbnails"
-    else
-        local thumbnail_dir="${base_dir}/thumbnails"
-    fi
+    # Create thumbnails directory in the same directory as the image
+    local thumbnail_dir="${base_dir}/thumbnails"
     local thumbnail="${thumbnail_dir}/${name}.${ext}"
 
     # Skip if file already ends with _thumbnail
