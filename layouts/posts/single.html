@@ -1,0 +1,37 @@
+{{ define "main" }}
+<article>
+    <h1>{{ .Title }}</h1>
+    <time>{{ .Date.Format "January 2, 2006" }}</time>
+    <div class="post-content">
+        {{ $content := .Content }}
+        {{ $content := replaceRE `<img src="([^"]+)"` (printf `<img src="$1" loading="lazy"`) $content }}
+        {{ $content := replaceRE `src="(/[^"]+\.(jpg|jpeg|png|gif))"` (printf `src="{{ with $.Resources.GetMatch "$1" }}{{ (.Resize "1000x").RelPermalink }}{{ else }}$1{{ end }}"`) $content }}
+        {{ $content | safeHTML }}
+    </div>
+</article>
+
+<style>
+.post-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.post-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+time {
+    display: block;
+    color: #666;
+    margin: 10px 0 30px;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+</style>
+{{ end }}

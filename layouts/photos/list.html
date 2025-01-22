@@ -120,14 +120,20 @@ body, html, main {
         {{ $page := . }}
         {{ $images := .Resources.ByType "image" }}
         {{ with index $images 0 }}
-            {{ $thumbnail := .Resize "1000x" }}
-        <a href="{{ $page.RelPermalink }}#photo-main" class="photo-item" target="_blank">
-            <img src="{{ $thumbnail.RelPermalink }}" alt="{{ $page.Title }}" loading="lazy" />
-            <div class="photo-info">
-                <div class="title">{{ $page.Title }}</div>
-                <div class="date">{{ $page.Date.Format "January 2, 2006" }}</div>
-            </div>
-        </a>
+            {{ $image := . }}
+            {{ $thumbnail := $image }}
+            {{ if and (ne $image.MediaType.SubType "heif") (ne $image.MediaType.SubType "heic") }}
+                {{ if $image.Resize }}
+                    {{ $thumbnail = $image.Resize "1000x" }}
+                {{ end }}
+            {{ end }}
+            <a href="{{ $page.RelPermalink }}#photo-main" class="photo-item" target="_blank">
+                <img src="{{ $thumbnail.RelPermalink }}" alt="{{ $page.Title }}" loading="lazy" />
+                <div class="photo-info">
+                    <div class="title">{{ $page.Title }}</div>
+                    <div class="date">{{ $page.Date.Format "January 2, 2006" }}</div>
+                </div>
+            </a>
         {{ end }}
     {{ end }}
 </div>
