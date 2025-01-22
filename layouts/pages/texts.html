@@ -1,12 +1,28 @@
 {{ define "main" }}
 <div class="archive">
-    {{ $pages := union (where .Site.RegularPages "Type" "posts") (where .Site.RegularPages "Type" "links") }}
-    {{ range $pages.GroupByDate "2006" }}
-    <div class="year-group">
-        <h3 class="year">{{ .Key }}</h3>
-        {{ range .Pages }}
-        <div class="archive-item">
-            {{ if eq .Type "links" }}
+    <section class="posts-section">
+        <h2 class="section-heading">Posts</h2>
+        {{ $posts := where .Site.RegularPages "Type" "posts" }}
+        {{ range $posts.GroupByDate "2006" }}
+        <div class="year-group">
+            <h3 class="year">{{ .Key }}</h3>
+            {{ range .Pages }}
+            <div class="archive-item">
+                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            </div>
+            {{ end }}
+        </div>
+        {{ end }}
+    </section>
+
+    <section class="links-section">
+        <h2 class="section-heading">Links</h2>
+        {{ $links := where .Site.RegularPages "Type" "links" }}
+        {{ range $links.GroupByDate "2006" }}
+        <div class="year-group">
+            <h3 class="year">{{ .Key }}</h3>
+            {{ range .Pages }}
+            <div class="archive-item">
                 {{ $title := .Title }}
                 {{ with .RawContent }}
                     {{ $content := . | replaceRE "(?s)^---.*?---\n" "" }}
@@ -15,13 +31,11 @@
                     {{ $domain := strings.TrimPrefix "www." $parsed.Host }}
                     <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ $title }} ({{ $domain }})</a>
                 {{ end }}
-            {{ else }}
-                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            </div>
             {{ end }}
         </div>
         {{ end }}
-    </div>
-    {{ end }}
+    </section>
 </div>
 
 <style>
@@ -29,6 +43,13 @@
     max-width: 1000px;
     margin: 0 auto;
     padding: 0 1rem;
+}
+
+.section-heading {
+    font-size: 1.4em;
+    font-weight: 600;
+    margin: 2rem 0 1.5rem;
+    color: var(--text-color);
 }
 
 .year-group {
@@ -48,16 +69,35 @@
     margin-bottom: 0.75rem;
 }
 
-.archive-item a {
+/* Posts section */
+.posts-section .archive-item a {
     text-decoration: none;
     color: var(--text-color);
     font-size: 1.1em;
     display: block;
 }
 
-.archive-item a:hover {
+.posts-section .archive-item a:hover {
     text-decoration: underline;
 }
 
+/* Links section */
+.links-section .archive-item a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 1em;
+    display: block;
+    opacity: 0.8;
+}
+
+.links-section .archive-item a:hover {
+    text-decoration: underline;
+    opacity: 1;
+}
+
+/* Add spacing between sections */
+.links-section {
+    margin-top: 3rem;
+}
 </style>
 {{ end }}
