@@ -1,46 +1,101 @@
 {{ define "main" }}
-<div class="posts-list">
-    {{ range (where .Site.RegularPages "Type" "posts") }}
-    <article class="post">
-        <h2 class="post-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-        <div class="post-meta">{{ .Date.Format "Jan 2, 2006" }}</div>
-    </article>
-    {{ end }}
+<div class="archive-grid">
+    <div class="archive-column">
+        <h2 class="archive-title">Posts</h2>
+        {{ range (where .Site.RegularPages "Type" "posts").GroupByDate "2006" }}
+        <div class="year-group">
+            <h3 class="year">{{ .Key }}</h3>
+            {{ range .Pages }}
+            <div class="archive-item">
+                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            </div>
+            {{ end }}
+        </div>
+        {{ end }}
+    </div>
+
+    <div class="archive-column">
+        <h2 class="archive-title">Projects</h2>
+        {{ range (where .Site.RegularPages "Type" "projects").GroupByDate "2006" }}
+        <div class="year-group">
+            <h3 class="year">{{ .Key }}</h3>
+            {{ range .Pages }}
+            <div class="archive-item">
+                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            </div>
+            {{ end }}
+        </div>
+        {{ end }}
+    </div>
+
+    <div class="archive-column">
+        <h2 class="archive-title">Links</h2>
+        {{ range (where .Site.RegularPages "Type" "links").GroupByDate "2006" }}
+        <div class="year-group">
+            <h3 class="year">{{ .Key }}</h3>
+            {{ range .Pages }}
+            <div class="archive-item">
+                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            </div>
+            {{ end }}
+        </div>
+        {{ end }}
+    </div>
 </div>
 
 <style>
-.posts-list {
+.archive-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5rem;
+    max-width: 1000px;
     margin: 0 auto;
-    max-width: 600px;
+    padding: 0 1rem;
 }
 
-.post {
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.75rem;
+.archive-column {
+    min-width: 0;
+}
+
+.archive-title {
+    margin: 0 0 2rem 0;
+    font-size: 1.5em;
+    font-weight: 500;
+}
+
+.year-group {
+    margin-bottom: 2.5rem;
+}
+
+.year {
+    margin: 0 0 1rem 0;
+    font-size: 1.1em;
+    font-weight: 500;
+    color: var(--secondary-text);
     border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
 }
 
-.post:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
+.archive-item {
+    margin-bottom: 1.25rem;
 }
 
-.post-title {
-    margin: 0;
-    font-size: 1em;
-    line-height: 1.2;
-}
-
-.post-title a {
+.archive-item a {
     text-decoration: none;
     color: var(--text-color);
+    font-size: 1.1em;
+    display: block;
 }
 
-.post-meta {
-    font-size: 0.75em;
-    color: var(--secondary-text);
-    margin-top: 0.25rem;
+.archive-item a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .archive-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
 }
 </style>
 {{ end }}

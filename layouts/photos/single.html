@@ -327,7 +327,7 @@ footer a {
                     <p>🔭 {{ if $exif.Tags.Model }}{{ replaceRE (printf "%s ?(.+)" $exif.Tags.Model) "$1" . }}{{ else }}{{ . }}{{ end }}</p>
                     {{ end }}
                     
-                    <p>⚙️ {{ with $exif.Tags.FocalLength }}{{ $focalNum := float . }}{{ printf "%.0f" $focalNum }}mm{{ with $exif.Tags.FocalLengthIn35mmFormat }} ({{ . }}mm){{ end }}{{ end }}{{ with $exif.Tags.FNumber }}{{ $fnum := . }}{{ $fnumFloat := float $fnum }} • ƒ/{{ printf "%.1f" $fnumFloat }}{{ end }}{{ with $exif.Tags.ExposureTime }}{{ if . }} • {{ . }}s{{ end }}{{ end }}{{ with $exif.Tags.ISO }} • ISO {{ . }}{{ else }}{{ with $exif.Tags.ISOSpeedRatings }} • ISO {{ . }}{{ end }}{{ end }}
+                    <p>⚙️ {{ with $exif.Tags.FocalLength }}{{ $focalNum := float . }}{{ printf "%.0f" $focalNum }}mm{{ with $exif.Tags.FocalLengthIn35mmFormat }} ({{ . }}mm){{ end }}{{ end }}{{ with $exif.Tags.FNumber }}{{ $fnum := . }}{{ $fnumFloat := float $fnum }} • ƒ/{{ printf "%.1f" $fnumFloat }}{{ end }}{{ with $exif.Tags.ExposureTime }}{{ if . }}{{ $parts := split . "/" }}{{ if eq (len $parts) 2 }}{{ $numerator := index $parts 0 }}{{ $denominator := index $parts 1 }}{{ $denominator := div (float $denominator) (float $numerator) }}{{ $roundedDenominator := math.Round $denominator }} • 1/{{ $roundedDenominator }}s{{ else }} • {{ . }}s{{ end }}{{ end }}{{ end }}{{ with $exif.Tags.ISO }} • ISO {{ . }}{{ else }}{{ with $exif.Tags.ISOSpeedRatings }} • ISO {{ . }}{{ end }}{{ end }}
                     </p>
                 {{ end }}
                 
