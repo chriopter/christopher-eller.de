@@ -10,21 +10,3 @@ title = 'Christopher Eller'
 [params]
   favicon = true
   site_manifest = "/site.webmanifest"
-
-[markup]
-  [markup.goldmark]
-    [markup.goldmark.renderer]
-      # Allow HTML in markdown files
-      unsafe = true
-
-[outputs]
-  home = ["HTML", "RSS"]
-  section = ["HTML"]
-  taxonomy = ["HTML"]
-  term = ["HTML"]
-
-[imaging]
-  # Enable EXIF data processing
-  exif.includeFields = ".*"
-  exif.disableDate = false
-  exif.disableLatLong = true
