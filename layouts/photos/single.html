@@ -275,7 +275,7 @@ footer a {
                     {{ end }}
                     
                     {{ with $exif.Tags.LensModel }}
-                    <p>🔭 {{ . }}</p>
+                    <p>🔭 {{ if $exif.Tags.Model }}{{ replaceRE (printf "%s ?(.+)" $exif.Tags.Model) "$1" . }}{{ else }}{{ . }}{{ end }}</p>
                     {{ end }}
                     
                     <p>⚙️ 
@@ -283,8 +283,25 @@ footer a {
                             {{ $focal := . }}
                             {{ $focalNum := float $focal }}
                             {{ $focalMm := printf "%.0f" $focalNum }}
-                            {{ $focalMm }}mm
-                            {{ with $exif.Tags.FocalLengthIn35mmFilm }} ({{ . }}mm){{ end }}
+                            {{ $focalDesc := "" }}
+                            {{ if lt $focalNum 24.0 }}
+                                {{ $focalDesc = "ultra-wide angle" }}
+                            {{ else if lt $focalNum 35.0 }}
+                                {{ $focalDesc = "wide angle" }}
+                            {{ else if lt $focalNum 70.0 }}
+                                {{ $focalDesc = "standard" }}
+                            {{ else if lt $focalNum 105.0 }}
+                                {{ $focalDesc = "portrait" }}
+                            {{ else if lt $focalNum 300.0 }}
+                                {{ $focalDesc = "telephoto" }}
+                            {{ else }}
+                                {{ $focalDesc = "super telephoto" }}
+                            {{ end }}
+                            {{ if $exif.Tags.FocalLengthIn35mmFilm }}
+                                {{ $focalMm }}mm ({{ $exif.Tags.FocalLengthIn35mmFilm }}mm) <span style="opacity: 0.7; font-size: 0.9em;">({{ $focalDesc }})</span>
+                            {{ else }}
+                                {{ $focalMm }}mm <span style="opacity: 0.7; font-size: 0.9em;">({{ $focalDesc }})</span>
+                            {{ end }}
                         {{ end }}
                         {{ with $exif.Tags.FNumber }}
                             {{ $fnum := . }}
