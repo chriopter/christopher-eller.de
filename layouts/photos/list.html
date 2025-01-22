@@ -39,18 +39,31 @@ main {
 
 .photo-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 8px;
     padding: 8px;
     width: 100vw;
     margin: 0;
     align-items: start;
     box-sizing: border-box;
+    grid-template-columns: 1fr; /* Default 1 column for mobile */
 }
 
-@media (max-width: 1100px) {
+/* Media queries for responsive columns */
+@media (min-width: 600px) and (max-width: 1599px) {
     .photo-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    }
+}
+
+@media (min-width: 1600px) and (max-width: 2199px) {
+    .photo-grid {
+        grid-template-columns: repeat(3, 1fr); /* 3 columns */
+    }
+}
+
+@media (min-width: 2200px) {
+    .photo-grid {
+        grid-template-columns: repeat(4, 1fr); /* Max 4 columns */
     }
 }
 
