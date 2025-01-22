@@ -201,5 +201,57 @@ done
 
 echo "Successfully extracted non-GPS EXIF data for photo posts"
 
+# Function to generate thumbnail if it doesn't exist
+generate_thumbnail() {
+    local img="$1"
+    local base_dir=$(dirname "$img")
+    local filename=$(basename "$img")
+    local name="${filename%.*}"
+    local ext="${filename##*.}"
+    # For posts directory, create thumbnails directory in the specific post folder
+    if [[ "$base_dir" == *"/posts/"* ]]; then
+        local thumbnail_dir="${base_dir}/thumbnails"
+    else
+        local thumbnail_dir="${base_dir}/thumbnails"
+    fi
+    local thumbnail="${thumbnail_dir}/${name}.${ext}"
+
+    # Skip if file already ends with _thumbnail
+    if [[ "$name" == *"_thumbnail"* ]]; then
+        return
+    fi
+
+    # For HEIC files, create JPEG thumbnail directly
+    if [ "$(echo "$ext" | tr '[:upper:]' '[:lower:]')" = "heic" ]; then
+        thumbnail="${thumbnail_dir}/${name}.jpeg"
+    fi
+
+    # Create thumbnails directory if it doesn't exist
+    mkdir -p "$thumbnail_dir"
+
+    # Generate thumbnail if it doesn't exist
+    if [ ! -f "$thumbnail" ]; then
+        magick "$img" -resize 1024x -quality 80 "$thumbnail"
+        echo "Generated thumbnail: $thumbnail"
+        git add "$thumbnail"  # Stage the generated thumbnail
+    fi
+}
+
+echo "Generating thumbnails for all images..."
+
+# Process all images for thumbnails first
+for file in $all_images; do
+    if [ -f "$file" ]; then
+        generate_thumbnail "$file"
+    fi
+done
+
+# Then process any staged images that might not be in all_images yet
+for file in $staged_images; do
+    if [ -f "$file" ]; then
+        generate_thumbnail "$file"
+    fi
+done
+
 echo "=== Pre-commit hook completed successfully ==="
 exit 0
