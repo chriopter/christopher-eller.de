@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -29,8 +29,8 @@ jobs:
           path: |
             vendor/bundle
             .jekyll-cache
-            _site/assets/images/photos/thumbnails
-          key: ${{ runner.os }}-jekyll-${{ hashFiles('**/Gemfile.lock', 'assets/images/photos/**') }}
+            _site
+          key: ${{ runner.os }}-jekyll-${{ hashFiles('**/Gemfile.lock', 'assets/images/photos/**', '_posts/**', '_layouts/**', '_includes/**') }}
           restore-keys: |
             ${{ runner.os }}-jekyll-
 
@@ -41,11 +41,16 @@ jobs:
             -v ${{ github.workspace }}:/srv/jekyll \
             -v ${{ github.workspace }}/vendor/bundle:/usr/local/bundle \
             -w /srv/jekyll \
+            -e JEKYLL_ENV=production \
+            -e PARALLEL_PROCESSOR_COUNT=4 \
             jekyll/builder:4.2.2 \
             /bin/bash -c "
-              apk add --no-cache imagemagick &&
+              apk add --no-cache imagemagick parallel &&
               chmod -R 777 /srv/jekyll &&
-              jekyll build --future
+              bundle config set --local path 'vendor/bundle' &&
+              bundle config set --local deployment 'true' &&
+              bundle install --jobs=4 --retry=3 &&
+              jekyll build --future --trace --profile
             "
 
       - name: Upload Pages Artifact
