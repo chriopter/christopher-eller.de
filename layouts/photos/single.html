@@ -231,10 +231,12 @@ footer a {
             {{ range first 1 $images }}
                 {{ $image := . }}
                 {{ if eq $image.MediaType.MainType "image" }}
-                    {{ if or (eq $image.MediaType.SubType "jpeg") (eq $image.MediaType.SubType "png") }}
-                        {{ with $image.Exif }}
-                            {{ $.Scratch.Set "exif" . }}
-                        {{ end }}
+                    {{ $processedImage := $image }}
+                    {{ if or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic") }}
+                        {{ $processedImage = $image.Fit "2000x2000 jpg" }}
+                    {{ end }}
+                    {{ with $processedImage.Exif }}
+                        {{ $.Scratch.Set "exif" . }}
                     {{ end }}
                     <a href="{{ $image.RelPermalink }}" class="photo-item" target="_blank">
                         <img src="{{ $image.RelPermalink }}" alt="{{ $currentPage.Title }}" />
