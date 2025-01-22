@@ -231,7 +231,7 @@ footer a {
         {% assign image_name = page.path | split: "/" | last | replace: ".markdown", "" %}
         {% assign exif = site.data.photos[image_name] %}
         <div>
-            <a href="{{ clean_path }}" class="photo-item">
+            <a href="{{ clean_path }}" class="photo-item" target="_blank">
                 <img src="/assets/images/blank.png" data-echo="{% thumbnail_img clean_path 1000 %}" alt="{{ post.title }}" />
             </a>
             
