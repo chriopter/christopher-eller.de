@@ -1,27 +1,8 @@
 # christopher-eller.de
-My Site in Jekyll
+My Site in Hugo
 
-## Setup
-```bash
-bundle install
-```
-
-## Updating
-To keep Jekyll and all dependencies up to date, run:
-```bash
-bundle update
-```
-
-## Testing
-```bash
-bundle exec jekyll serve
-```
-or
-```bash
-jekyll build
-```
-
-## Git Hooks
+- brew install hugo
+- hugo server
 
 ### Setup
 After cloning the repository, run this command to configure Git to use the hooks:
