@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-# GitHub Pages deployment requires these permissions
 permissions:
   contents: read
   pages: write
@@ -23,6 +22,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      # 1) Cache Bundler dependencies
       - name: Cache Bundler
         uses: actions/cache@v3
         with:
@@ -30,18 +30,32 @@ jobs:
           key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-gems-
+
+      # 2) Cache Jekyll's ".jekyll-cache" folder
+      - name: Cache Jekyll
+        uses: actions/cache@v3
+        with:
+          path: .jekyll-cache
+          # Adjust the hashFiles pattern if you want more/less to trigger a new cache
+          key: ${{ runner.os }}-jekyll-${{ hashFiles('Gemfile.lock', '_config.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-jekyll-
+
+      # 3) Build the site in a Docker container
       - name: Build in Jekyll Docker (with ImageMagick)
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}:/srv/jekyll \
-            -v ${{ github.workspace }}/vendor/bundle:/usr/local/bundle \
+            -v "${{ github.workspace }}:/srv/jekyll" \
+            -v "${{ github.workspace }}/vendor/bundle:/usr/local/bundle" \
+            -v "${{ github.workspace }}/.jekyll-cache:/srv/jekyll/.jekyll-cache" \
             -w /srv/jekyll \
             jekyll/builder:latest \
             /bin/bash -c "
               apk add --no-cache imagemagick &&
               chmod -R 777 /srv/jekyll &&
-              jekyll build --future
+              jekyll build --incremental --future
             "
+
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
