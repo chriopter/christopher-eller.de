@@ -6,14 +6,56 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# GitHub Pages deployment requires these permissions
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Install ImageMagick in the builder container
-      run: |
-        docker run \
-        -v ${{ github.workspace }}:/srv/jekyll -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
-        jekyll/builder:latest /bin/bash -c "apk add --no-cache imagemagick && chmod -R 777 /srv/jekyll && jekyll build --future"
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Cache Bundler
+        uses: actions/cache@v3
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+
+      - name: Build in Jekyll Docker (with ImageMagick)
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/srv/jekyll \
+            -v ${{ github.workspace }}/vendor/bundle:/usr/local/bundle \
+            -w /srv/jekyll \
+            jekyll/builder:latest \
+            /bin/bash -c "
+              apk add --no-cache imagemagick &&
+              chmod -R 777 /srv/jekyll &&
+              jekyll build --future
+            "
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
