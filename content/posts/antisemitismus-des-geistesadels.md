@@ -22,4 +22,3 @@ Das alles ist möglich, weil es im deutschen Kulturbetrieb, bei Journalisten, Ak
 Es gibt aber keinen süßen naiven "Hups, das wusste ich nicht"-Antisemitismus, keinen "So war das nicht gemeint"-Antisemitismus. Es ist Antisemitismus. Und dieser summiert sich auf, gerade ganz gewaltig.
 
 Es wird dringend Zeit, genau hinzuhören und einzuschreiten. "Nie wieder" ist _jetzt_.
-
