@@ -19,7 +19,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      JEKYLL_VERSION: "3.9"
+      JEKYLL_VERSION: "3.9.3"
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -78,7 +78,7 @@ jobs:
             -e PARALLEL_PROCESSOR_COUNT=4 \
             jekyll/jekyll:${{ env.JEKYLL_VERSION }} \
             /bin/bash -c "
-              apk add --no-cache imagemagick parallel &&
+              apt-get update && apt-get install -y imagemagick parallel &&
               chmod -R 777 /srv/jekyll &&
               bundle config set --local path 'vendor/bundle' &&
               bundle config set --local deployment 'true' &&
