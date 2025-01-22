@@ -21,15 +21,25 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Cache Bundler and Build
+      - name: Cache Bundler
+        uses: actions/cache@v3
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+
+      - name: Cache Jekyll Build
         uses: actions/cache@v3
         with:
           path: |
-            vendor/bundle
             .jekyll-cache
             _site
-          key: ${{ runner.os }}-jekyll-${{ hashFiles('**/Gemfile.lock', 'assets/images/photos/**', '_posts/**', '_layouts/**', '_includes/**') }}
+          key: ${{ runner.os }}-jekyll-${{ hashFiles('assets/images/photos/**', '_posts/**', '_layouts/**', '_includes/**') }}
           restore-keys: |
             ${{ runner.os }}-jekyll-
 
@@ -44,7 +54,10 @@ jobs:
             -v ${{ github.workspace }}:/srv/jekyll \
             -w /srv/jekyll \
             jekyll/builder:latest \
-            bundle lock --add-platform x86_64-linux-musl --add-platform ruby --remove-platform x86_64-linux
+            /bin/bash -c "
+              chmod -R 777 /srv/jekyll &&
+              bundle lock --add-platform x86_64-linux-musl --add-platform ruby --remove-platform x86_64-linux
+            "
 
       - name: Commit Updated Gemfile.lock
         run: |
