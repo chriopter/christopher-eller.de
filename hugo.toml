@@ -22,3 +22,9 @@ title = 'Christopher Eller'
   section = ["HTML"]
   taxonomy = ["HTML"]
   term = ["HTML"]
+
+[imaging]
+  # Enable EXIF data processing
+  exif.includeFields = ".*"
+  exif.disableDate = false
+  exif.disableLatLong = true

@@ -229,9 +229,16 @@ footer a {
         <div>
             {{ $images := .Resources.Match "*.{jpg,jpeg,png,gif,heic,heif}" }}
             {{ range first 1 $images }}
-            <a href="{{ .RelPermalink }}" class="photo-item" target="_blank">
-                <img src="{{ .RelPermalink }}" alt="{{ $currentPage.Title }}" />
-            </a>
+                {{ $image := . }}
+                {{ if eq $image.MediaType.MainType "image" }}
+                    {{ $processed := $image.Resize "2000x" }}
+                    {{ with $processed.Exif }}
+                        {{ $.Scratch.Set "exif" . }}
+                    {{ end }}
+                {{ end }}
+                <a href="{{ $image.RelPermalink }}" class="photo-item" target="_blank">
+                    <img src="{{ $image.RelPermalink }}" alt="{{ $currentPage.Title }}" />
+                </a>
             {{ end }}
             
             <div class="nav-container">
@@ -252,26 +259,48 @@ footer a {
         <div class="photo-info">
             <a href="/photos" class="back-to-gallery">← Back to Gallery</a>
             <h1 class="photo-title">{{ .Title }}</h1>
-            {{ with .Params.date_taken }}
-            <div class="photo-date">{{ dateFormat "2. January 2006" . }}</div>
+            {{ $exif := $.Scratch.Get "exif" }}
+            {{ if $exif }}
+                {{ with $exif.Tags.DateTimeOriginal }}
+                    {{ $dateStr := replaceRE ":([0-9]{2}) " "-$1 " . }}
+                    {{ $dateStr := replaceRE "^([0-9]{4}):([0-9]{2})" "$1-$2" $dateStr }}
+                    {{ $parsedDate := time $dateStr }}
+                    <div class="photo-date">{{ $parsedDate.Format "2. January 2006" }}</div>
+                {{ end }}
             {{ end }}
-            
             <div class="photo-metadata">
-                {{ with .Params.camera }}
-                <p>📷 {{ . }}</p>
-                {{ end }}
-                
-                {{ with .Params.lens }}
-                <p>🔭 {{ . }}</p>
-                {{ end }}
-                
-                {{ if or .Params.focal_length .Params.f_number .Params.exposure .Params.iso }}
-                <p>⚙️ 
-                    {{ with .Params.focal_length }}{{ . }}{{ end }}
-                    {{ with .Params.f_number }}, ƒ/{{ . }}{{ end }}
-                    {{ with .Params.exposure }}, {{ . }}{{ end }}
-                    {{ with .Params.iso }}, ISO {{ . }}{{ end }}
-                </p>
+                {{ if $exif }}
+                    {{ with $exif.Tags.Model }}
+                    <p>📷 {{ . }}</p>
+                    {{ end }}
+                    
+                    {{ with $exif.Tags.LensModel }}
+                    <p>🔭 {{ . }}</p>
+                    {{ end }}
+                    
+                    <p>⚙️ 
+                        {{ with $exif.Tags.FocalLength }}
+                            {{ $focal := . }}
+                            {{ $focalNum := float $focal }}
+                            {{ $focalMm := printf "%.0f" $focalNum }}
+                            {{ $focalMm }}mm
+                            {{ with $exif.Tags.FocalLengthIn35mmFilm }} ({{ . }}mm){{ end }}
+                        {{ end }}
+                        {{ with $exif.Tags.FNumber }}
+                            {{ $fnum := . }}
+                            {{ $fnumFloat := float $fnum }}
+                            , ƒ/{{ printf "%.1f" $fnumFloat }}
+                        {{ end }}
+                        {{ with $exif.Tags.ExposureTime }}
+                            {{ $exp := . }}
+                            {{ if lt (float $exp) 1.0 }}
+                                , 1/{{ printf "%.0f" (div 1.0 (float $exp)) }}s
+                            {{ else }}
+                                , {{ printf "%.1f" (float $exp) }}s
+                            {{ end }}
+                        {{ end }}
+                        {{ with $exif.Tags.ISO }}, ISO {{ . }}{{ else }}{{ with $exif.Tags.ISOSpeedRatings }}, ISO {{ . }}{{ end }}{{ end }}
+                    </p>
                 {{ end }}
                 
                 <p style="margin-top: 15px; font-size: 12px; opacity: 0.7;">Uploaded on {{ .Date.Format "2. January 2006" }}</p>
