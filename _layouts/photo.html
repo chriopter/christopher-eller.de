@@ -129,10 +129,11 @@ footer a {
     text-decoration: none;
     padding: 15px;
     border-radius: 5px;
-    transition: background 0.3s ease;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     backdrop-filter: blur(5px);
+    z-index: 10;
 }
 
 .photo-nav:hover {
@@ -151,9 +152,41 @@ footer a {
     font-size: 24px;
 }
 
+@media (max-width: 1199px) {
+    .photo-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .photo-nav {
+        position: relative;
+        top: auto;
+        left: auto;
+        right: auto;
+        transform: none;
+        margin: 3px;
+        display: inline-block;
+        padding: 8px;
+    }
+
+    .photo-main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .nav-container {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        width: 100%;
+        margin: 8px 0;
+    }
+}
+
 @media (max-width: 768px) {
     .photo-nav {
-        padding: 10px;
+        padding: 8px;
     }
     
     .photo-nav-arrow {
@@ -191,27 +224,31 @@ footer a {
 {% endfor %}
 
 <div class="photo-container">
-    {% if prev_post %}
-    <a href="{{ prev_post.url }}#photo-main" class="photo-nav prev" title="{{ prev_post.title }}">
-        <span class="photo-nav-arrow">←</span>
-    </a>
-    {% endif %}
-    
-    {% if next_post %}
-    <a href="{{ next_post.url }}#photo-main" class="photo-nav next" title="{{ next_post.title }}">
-        <span class="photo-nav-arrow">→</span>
-    </a>
-    {% endif %}
-    
     <div class="photo-main" id="photo-main">
         {% assign content = page.content %}
         {% assign img_path = content | split: '<img src="' | last | split: '"' | first %}
         {% assign clean_path = img_path | remove: '{{ site.baseurl }}' %}
         {% assign image_name = page.path | split: "/" | last | replace: ".markdown", "" %}
         {% assign exif = site.data.photos[image_name] %}
-        <a href="{{ post.url }}#photo-main" class="photo-item">
-            <img src="/assets/images/blank.png" data-echo="{% thumbnail_img clean_path 1000 %}" alt="{{ post.title }}" />
-        </a>
+        <div>
+            <a href="{{ clean_path }}" class="photo-item">
+                <img src="/assets/images/blank.png" data-echo="{% thumbnail_img clean_path 1000 %}" alt="{{ post.title }}" />
+            </a>
+            
+            <div class="nav-container">
+                {% if prev_post %}
+                <a href="{{ prev_post.url }}#photo-main" class="photo-nav prev" title="{{ prev_post.title }}">
+                    <span class="photo-nav-arrow">{% if page.url contains '/photos/' %}→{% else %}←{% endif %}</span>
+                </a>
+                {% endif %}
+                
+                {% if next_post %}
+                <a href="{{ next_post.url }}#photo-main" class="photo-nav next" title="{{ next_post.title }}">
+                    <span class="photo-nav-arrow">{% if page.url contains '/photos/' %}←{% else %}→{% endif %}</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
         
         <div class="photo-info">
             <a href="/photos" class="back-to-gallery">← Back to Gallery</a>
