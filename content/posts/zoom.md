@@ -7,10 +7,8 @@ Ich habe den Blog neu gemacht & die Möglichkeit geschaffen, Bilder in Originala
 
  In die hier lohnt es sich, noch mal vollständig reinzuzoomen, Klick auf "View Full Size ↗" empfohlen:
 
-[Garden]({{< ref "/photos/casino-murcia" >}})
+[Casino Murcia]({{< ref "/photos/casino-murcia" >}}) • [Garden]({{< ref "/photos/garden" >}}) • [Spring Leafs]({{< ref "/photos/spring-leafs" >}})
 
-[Garden]({{< ref "/photos/garden" >}})
 
-[Garden]({{< ref "/photos/spring-leafs" >}})
 
 
