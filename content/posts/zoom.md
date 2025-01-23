@@ -5,7 +5,6 @@ title: Zoom in!
 
 Ich habe den Blog neu gemacht & die Möglichkeit geschaffen, Bilder in Originalauflösung anzuzeigen.
 
-
  In die hier lohnt es sich, noch mal vollständig reinzuzoomen, Klick auf "View Full Size ↗" empfohlen:
 
 [Garden]({{< ref "/photos/casino-murcia" >}})
