@@ -16,7 +16,7 @@
                             <a href="{{ .RelPermalink }}#photo-main" class="photo-item">
                                 {{ $thumbnail := $image }}
                                 {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
-                                    {{ $t humbnail = $image.Resize "1000x" }}
+                                    {{ $thumbnail = $image.Resize "1000x" }}
                                 {{ end }}
                                 <img src="{{ $thumbnail.RelPermalink }}" alt="{{ .Title }}" loading="lazy" />
                             </a>
