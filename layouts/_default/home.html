@@ -40,6 +40,12 @@
                 {{ else }}
                     <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
                     <time>✨ {{ .Date.Format "January 2, 2006" }}</time>
+                    {{ with .Resources.GetMatch "*.png" }}
+                        {{ $img := .Resize "800x" }}
+                        <a href="{{ $.RelPermalink }}" class="featured-image">
+                            <img src="{{ $img.RelPermalink }}" alt="{{ $.Title }}" loading="lazy" />
+                        </a>
+                    {{ end }}
                     <div class="post-summary post-content">
                         {{ .Content | truncate 300 | safeHTML }}
                     </div>
