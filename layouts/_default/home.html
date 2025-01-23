@@ -43,7 +43,9 @@
                     <div class="post-summary">
                         {{ .Summary | safeHTML }}
                     </div>
-                    <a href="{{ .RelPermalink }}">Read more...</a>
+                    {{ if .Truncated }}
+                        <a href="{{ .RelPermalink }}">Read more...</a>
+                    {{ end }}
                 {{ end }}
             </article>
         {{ end }}
