@@ -13,7 +13,7 @@
                 {{ end }}
                 {{ with .Summary }}
                     <div class="summary">
-                        {{ . }}
+                        {{ . | safeHTML }}
                         {{ if $.Truncated }}
                             <a href="{{ $.RelPermalink }}">Read more...</a>
                         {{ end }}
@@ -77,7 +77,7 @@
 
 .list-item .summary a {
     color: var(--link-color);
-    text-decoration: none;
+    text-decoration: underline;
     transition: color 0.2s ease;
 }
 
