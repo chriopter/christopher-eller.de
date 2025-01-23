@@ -75,6 +75,7 @@
             }
             if (!isGameOver) {
                 bird.velocity = bird.jump;
+                jumpSound.play();
             } else {
                 resetGame();
             }
