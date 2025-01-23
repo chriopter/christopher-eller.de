@@ -93,6 +93,12 @@
             align-items: center;
         }
 
+        @media (max-width: 768px) {
+            .header-content {
+                margin: 0;
+            }
+        }
+
         @media (max-width: 600px) {
             .header-content {
                 flex-direction: column;
@@ -152,6 +158,13 @@
             max-width: 700px;
             margin: 0 auto;
             padding: 1.5rem 2rem;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                margin: 0;
+                padding: 1.5rem 1rem;
+            }
         }
 
         /* Post styles */
@@ -224,6 +237,18 @@
             font-size: 1.05rem;
             line-height: 1.75;
             color: var(--text-color);
+        }
+
+        /* Footer styles */
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                margin: 0;
+            }
         }
     </style>
 </head>
@@ -364,7 +389,7 @@
     </script>
     
     <footer style="padding: 2rem; margin-top: 2rem;">
-        <div style="max-width: 800px; margin: 0 auto; display: flex; justify-content: flex-start; align-items: center; font-size: 0.9rem; color: var(--secondary-text); gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+        <div class="footer-content" style="max-width: 800px; margin: 0 auto; display: flex; justify-content: flex-start; align-items: center; font-size: 0.9rem; color: var(--secondary-text); gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
             <div>
                 <a href="/imprint" style="text-decoration: none; color: inherit;">Imprint</a>
             </div>
