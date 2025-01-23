@@ -41,7 +41,7 @@
                     <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
                     <time>✨ {{ .Date.Format "January 2, 2006" }}</time>
                     <div class="post-summary post-content">
-                        {{ .Content | replaceRE "!\\[.*?\\]\\(.*?\\)" "" | truncate 300 | safeHTML }}
+                        {{ .Content | truncate 300 | safeHTML }}
                     </div>
                     {{ if .Truncated }}
                         <a href="{{ .RelPermalink }}">Read more...</a>
