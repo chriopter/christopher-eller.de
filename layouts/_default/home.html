@@ -40,8 +40,8 @@
                 {{ else }}
                     <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
                     <time>✨ {{ .Date.Format "January 2, 2006" }}</time>
-                    <div class="post-summary">
-                        {{ .Summary | safeHTML }}
+                    <div class="post-summary post-content">
+                        {{ .Content | truncate 300 | safeHTML }}
                     </div>
                     {{ if .Truncated }}
                         <a href="{{ .RelPermalink }}">Read more...</a>
@@ -99,6 +99,23 @@
 .post-summary {
     color: var(--text-color);
     line-height: 1.6;
+    margin: 1rem 0;
+}
+
+.post-summary p {
+    margin: 1rem 0;
+}
+
+.post-summary a {
+    color: var(--link-color);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+}
+
+.post-summary a:hover {
+    color: var(--link-hover-color);
+    opacity: 0.7;
 }
 
 .post:last-child {
