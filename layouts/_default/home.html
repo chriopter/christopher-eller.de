@@ -115,13 +115,20 @@
 /* Links */
 .home-content a {
     color: var(--link-color);
-    text-decoration: none;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
     transition: opacity 0.2s ease;
 }
 
 .home-content a:hover {
     color: var(--link-hover-color);
     opacity: 0.7;
+}
+
+/* Title links should not be underlined */
+.post h2 a {
+    text-decoration: none;
 }
 
 /* Link posts */
