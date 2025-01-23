@@ -279,16 +279,14 @@ footer a {
                         {{ end }}
                         {{ $thumbnail := $image }}
                         {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
-                            {{ $thumbnail = $image.Resize "1000x" }}
+                            {{ $thumbnail = $image.Resize "600x" }}
                         {{ end }}
                         <a href="{{ $image.RelPermalink }}" class="photo-item" target="_blank">
                             <img 
                                 src="{{ $thumbnail.RelPermalink }}" 
                                 data-src="{{ $image.RelPermalink }}" 
                                 alt="{{ $currentPage.Title }}"
-                                style="filter: blur(2px); transition: filter 0.3s ease-out;"
                                 loading="lazy"
-                                onload="this.style.filter='none'"
                             />
                         </a>
                     {{ end }}
@@ -353,13 +351,32 @@ footer a {
 document.addEventListener('DOMContentLoaded', function() {
     const images = document.querySelectorAll('img[data-src]');
     images.forEach(img => {
-        const highRes = new Image();
-        highRes.src = img.dataset.src;
-        highRes.onload = function() {
-            img.src = img.dataset.src;
-        };
+        // Wait for thumbnail to load first
+        if (img.complete) {
+            loadFullSize(img);
+        } else {
+            img.onload = function() {
+                loadFullSize(img);
+            };
+        }
     });
 });
+
+function loadFullSize(img) {
+    // Now load the full size image
+    const highRes = new Image();
+    highRes.onload = function() {
+        // Create a new image element to replace the thumbnail
+        const newImg = document.createElement('img');
+        newImg.src = img.dataset.src;
+        newImg.alt = img.alt;
+        newImg.loading = 'lazy';
+        
+        // Replace the thumbnail with the full size image
+        img.parentNode.replaceChild(newImg, img);
+    };
+    highRes.src = img.dataset.src;
+}
 
 // Scroll to photo-main on page load
 if (window.location.hash !== '#photo-main') {
