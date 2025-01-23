@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luther's Flight</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         canvas {
             border: 1px solid black;
             display: block;
             margin: 0 auto;
+            max-width: 100%;
+            height: auto;
         }
         body {
             display: flex;
@@ -14,16 +22,17 @@
             align-items: center;
             background: #f0f0f0;
             font-family: Arial, sans-serif;
+            padding: 10px;
         }
         #score {
-            font-size: 24px;
-            margin: 20px 0;
+            font-size: clamp(18px, 5vw, 24px);
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
     <div id="score">Score: 0</div>
-    <canvas id="gameCanvas" width="320" height="480"></canvas>
+    <canvas id="gameCanvas"></canvas>
     <script>
         // Sound effects (short beep sounds)
         const jumpSound = new Audio("data:audio/wav;base64,UklGRnQGAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YU8GAAAAAGsBmwL3AyEEQARHBDEEEATgA6EDVQMBAwEC0gKpAoICXQI7AhwC/wHlAdABvQGrAZwBjwGDAXkBcQFqAWQBXwFaAVYBUwFRAVABTwFPAVABUQFTAVYBWQFdAWIBZwFtAXMBegGBAYkBkgGbAaUBrwG6AcUB0QHdAekB9gEDAhECHwItAjsCSwJaAmoCewKMAp4CsALCAhYD");
@@ -32,22 +41,56 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const scoreElement = document.getElementById('score');
-
+        
         // Game variables
         let score = 0;
-        const bird = {
-            x: 50,
-            y: canvas.height / 2,
-            velocity: 0,
-            gravity: 0.5,
-            jump: -8,
-            size: 20
-        };
-
+        let bird;
+        let pipeWidth;
+        let pipeGap;
+        let pipeSpacing;
+        let spireHeight;
         const pipes = [];
-        const pipeWidth = 50;
-        const pipeGap = 150;
-        const pipeSpacing = 200;
+        
+        // Set canvas size and initialize game parameters
+        function resizeCanvas() {
+            const maxWidth = Math.min(window.innerWidth - 20, 500); // Max width of 500px
+            canvas.width = maxWidth;
+            canvas.height = Math.floor(maxWidth * 1.5); // Keep 2:3 ratio
+            
+            // Update game parameters based on canvas size
+            const birdSize = Math.floor(canvas.width * 0.0625); // 20px at 320px width
+            const birdX = Math.floor(canvas.width * 0.15625); // 50px at 320px width
+            
+            // Initialize or update bird
+            if (!bird) {
+                bird = {
+                    x: birdX,
+                    y: canvas.height / 2,
+                    velocity: 0,
+                    gravity: canvas.height * 0.001,
+                    jump: canvas.height * -0.0167,
+                    size: birdSize
+                };
+            } else {
+                bird.x = birdX;
+                bird.size = birdSize;
+                bird.gravity = canvas.height * 0.001;
+                bird.jump = canvas.height * -0.0167;
+                if (!gameStarted) {
+                    bird.y = canvas.height / 2;
+                }
+            }
+            
+            // Update pipe dimensions
+            pipeWidth = Math.floor(canvas.width * 0.15625);
+            pipeGap = Math.floor(canvas.height * 0.3125);
+            pipeSpacing = Math.floor(canvas.width * 0.625);
+            spireHeight = Math.floor(canvas.height * 0.0625);
+        }
+        
+        // Initial resize and add listener
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
         let frameCount = 0;
 
         // Game state
@@ -82,7 +125,7 @@
         });
 
         function createPipe() {
-            const minHeight = 50;
+            const minHeight = Math.floor(canvas.height * 0.1); // 50px at 480px height
             const maxHeight = canvas.height - pipeGap - minHeight;
             const height = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
             
@@ -106,8 +149,10 @@
         function update() {
             if (!gameStarted) {
                 ctx.fillStyle = '#000';
-                ctx.font = '20px Arial';
-                ctx.fillText('Click or press Space to start', 60, canvas.height / 2);
+                ctx.font = `${Math.floor(canvas.width * 0.05)}px Arial`;
+                const text = 'Click or press Space to start';
+                ctx.textAlign = 'center';
+                ctx.fillText(text, canvas.width / 2, canvas.height / 2);
                 requestAnimationFrame(update);
                 return;
             }
@@ -125,7 +170,7 @@
 
                 // Update pipes
                 for (let i = pipes.length - 1; i >= 0; i--) {
-                    pipes[i].x -= 2;
+                    pipes[i].x -= Math.floor(canvas.width * 0.00625); // 2px at 320px width
 
                     // Remove off-screen pipes
                     if (pipes[i].x + pipeWidth < 0) {
@@ -203,16 +248,16 @@
                 // Spire for top tower
                 ctx.beginPath();
                 ctx.moveTo(pipe.x, pipe.height);
-                ctx.lineTo(pipe.x + pipeWidth/2, pipe.height - 30);
+                ctx.lineTo(pipe.x + pipeWidth/2, pipe.height - spireHeight);
                 ctx.lineTo(pipe.x + pipeWidth, pipe.height);
                 ctx.fillStyle = '#4A2511';
                 ctx.fill();
                 
                 // Windows for top tower
                 ctx.fillStyle = '#FFD700'; // Gold windows
-                const windowHeight = 20;
-                const windowWidth = 10;
-                const windowSpacing = 40;
+                const windowHeight = Math.floor(canvas.height * 0.04);
+                const windowWidth = Math.floor(canvas.width * 0.03);
+                const windowSpacing = Math.floor(canvas.height * 0.08);
                 for(let y = windowSpacing; y < pipe.height - windowSpacing; y += windowSpacing) {
                     // Arch window
                     ctx.beginPath();
@@ -235,7 +280,7 @@
                 // Spire for bottom tower (inverted)
                 ctx.beginPath();
                 ctx.moveTo(pipe.x, pipe.height + pipeGap);
-                ctx.lineTo(pipe.x + pipeWidth/2, pipe.height + pipeGap + 30);
+                ctx.lineTo(pipe.x + pipeWidth/2, pipe.height + pipeGap + spireHeight);
                 ctx.lineTo(pipe.x + pipeWidth, pipe.height + pipeGap);
                 ctx.fillStyle = '#4A2511';
                 ctx.fill();
@@ -255,8 +300,10 @@
 
             if (isGameOver) {
                 ctx.fillStyle = '#000';
-                ctx.font = '20px Arial';
-                ctx.fillText('Game Over! Click or press Space to restart', 20, canvas.height / 2);
+                ctx.font = `${Math.floor(canvas.width * 0.05)}px Arial`;
+                const text = 'Game Over! Click or press Space to restart';
+                ctx.textAlign = 'center';
+                ctx.fillText(text, canvas.width / 2, canvas.height / 2);
             }
 
             requestAnimationFrame(update);
