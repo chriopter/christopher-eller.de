@@ -143,10 +143,13 @@
     margin-bottom: 0.5rem;
     word-break: break-word;
     color: var(--link-color);
+    text-decoration: none;
 }
 
 .link-post .link-url:hover {
     text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
 }
 
 .link-post time {
@@ -159,6 +162,13 @@
     display: inline-block;
     margin-top: 1rem;
     font-size: 0.95rem;
+    text-decoration: none;
+}
+
+.post a[href$="Read more..."]:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
 }
 
 /* Photo posts */
@@ -168,6 +178,10 @@
     border-radius: 8px;
     margin-top: 1rem;
     transition: transform 0.3s ease;
+}
+
+.photo-post a {
+    text-decoration: none;
 }
 
 .photo-post a:hover img {
@@ -188,10 +202,15 @@
     font-weight: 500;
     padding: 0.5rem 0;
     transition: opacity 0.2s ease;
+    text-decoration: none;
+    color: var(--text-color);
 }
 
 .pagination a:hover {
     opacity: 0.7;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
 }
 
 .page-numbers {
