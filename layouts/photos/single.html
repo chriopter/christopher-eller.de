@@ -279,10 +279,17 @@ footer a {
                         {{ end }}
                         {{ $thumbnail := $image }}
                         {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
-                            {{ $thumbnail = $image.Resize "1400x" }}
+                            {{ $thumbnail = $image.Resize "1000x" }}
                         {{ end }}
                         <a href="{{ $image.RelPermalink }}" class="photo-item" target="_blank">
-                            <img src="{{ $thumbnail.RelPermalink }}" alt="{{ $currentPage.Title }}" />
+                            <img 
+                                src="{{ $thumbnail.RelPermalink }}" 
+                                data-src="{{ $image.RelPermalink }}" 
+                                alt="{{ $currentPage.Title }}"
+                                style="filter: blur(2px); transition: filter 0.3s ease-out;"
+                                loading="lazy"
+                                onload="this.style.filter='none'"
+                            />
                         </a>
                     {{ end }}
                 {{ end }}
@@ -342,6 +349,18 @@ footer a {
 </div>
 
 <script>
+// Lazy loading implementation
+document.addEventListener('DOMContentLoaded', function() {
+    const images = document.querySelectorAll('img[data-src]');
+    images.forEach(img => {
+        const highRes = new Image();
+        highRes.src = img.dataset.src;
+        highRes.onload = function() {
+            img.src = img.dataset.src;
+        };
+    });
+});
+
 // Scroll to photo-main on page load
 if (window.location.hash !== '#photo-main') {
     window.location.hash = 'photo-main';
