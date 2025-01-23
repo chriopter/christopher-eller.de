@@ -41,7 +41,12 @@
                     <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
                     <time>✨ {{ .Date.Format "January 2, 2006" }}</time>
                     <div class="post-summary post-content">
-                        {{ .Content | truncate 300 | safeHTML }}
+                        {{ $content := .Summary }}
+                        {{ range .Resources.ByType "image" }}
+                            {{ $content = replace $content (printf "/%s" .Name) .RelPermalink }}
+                            {{ $content = replace $content .Name .RelPermalink }}
+                        {{ end }}
+                        {{ $content | safeHTML }}
                     </div>
                     {{ if .Truncated }}
                         <a href="{{ .RelPermalink }}">Read more...</a>
@@ -104,6 +109,14 @@
 
 .post-summary p {
     margin: 1rem 0;
+}
+
+.post-summary img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1rem 0;
+    display: block;
 }
 
 .post-summary a {
