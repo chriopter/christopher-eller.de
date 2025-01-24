@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y exiftool imagemagick
+          sudo apt-get install -y imagemagick
       
       - name: Process new photos
         shell: bash
@@ -52,7 +52,6 @@ jobs:
             CONTENT_PATH="content/photos/$CLEAN_NAME"
             mkdir -p "$CONTENT_PATH"
             
-            exiftool -overwrite_original -all= "$img"
             mv "$img" "$CONTENT_PATH/$CLEAN_NAME.$EXT"
             
             printf "+++\ndate = '%s'\ntitle = \"%s\"\n+++\n" "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" "$TITLE" > "$CONTENT_PATH/index.md"
@@ -67,9 +66,3 @@ jobs:
           git add content/photos/
           git commit -m "Process new photos" || echo "No changes to commit"
           git push
-      
-      - name: Trigger Hugo deployment
-        if: success()
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          event-type: trigger-hugo-build
