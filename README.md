@@ -15,3 +15,17 @@ The pre-commit hook performs three main functions:
 - Removes GPS/location data from photos for privacy
 - Extract EXIF
 - Check local HUGO Version & compare to pinned in .hugoversion
+
+### Photo Upload
+You can upload photos directly through GitHub's web interface:
+
+1. Navigate to the `import/` directory in the repository
+2. Click "Upload files"
+3. Upload your photo with a descriptive filename (e.g., "Sunset in Spain.jpeg")
+4. The photo will be automatically:
+   - Stripped of EXIF data
+   - Converted to proper filename format (e.g., "sunset-in-spain.jpeg")
+   - Placed in the correct Hugo structure
+   - Given a properly formatted title ("Sunset in Spain")
+
+The GitHub Action will process the photo and commit the changes automatically.
