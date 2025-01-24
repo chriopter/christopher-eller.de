@@ -18,3 +18,11 @@ paginatePath = "page"
 [params]
   favicon = true
   site_manifest = "/site.webmanifest"
+
+[markup.goldmark.renderhooks.image]
+  enable = true
+  multilingualOnly = false
+
+[markup.goldmark.renderhooks.link]
+  enable = true
+  multilingualOnly = false

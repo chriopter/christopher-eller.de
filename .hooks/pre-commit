@@ -28,8 +28,8 @@ fi
 # Get image files
 ###########################################
 
-# Debug: Print all staged files
-echo "Debug: All staged files:"
+# Print all staged files
+echo "All staged files:"
 git diff --cached --name-only --diff-filter=d
 
 # Get list of all image files in content/photos directories
@@ -38,9 +38,8 @@ all_images=$(find content/photos -type f \( -name "*.jpg" -o -name "*.jpeg" -o -
 # Get list of staged image files in content/photos directories
 staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^content/photos/.*\.(jpg|jpeg|heic|png)$" | grep -v "/thumbnails/" | grep -v "/exif/" || true)
 
-# Debug: Print the filtered images
-echo "Debug: All images found: $all_images"
-echo "Debug: Staged images found: $staged_images"
+# Print the filtered images
+echo "Staged images found: $staged_images"
 
 # If no images exist at all, exit successfully
 if [ -z "$all_images" ] && [ -z "$staged_images" ]; then
@@ -70,6 +69,22 @@ done
 
 echo "Successfully removed EXIF location data from images"
 
+###########################################
+# Check Hugo Version
+###########################################
+
+echo "=== Checking Hugo version ==="
+
+REPO_HUGO_VERSION=$(cat .hugoversion)
+LOCAL_HUGO_VERSION=$(hugo version | awk '{print $2}' | sed 's/v//' | cut -d'+' -f1)
+
+if [ "$REPO_HUGO_VERSION" != "$LOCAL_HUGO_VERSION" ]; then
+  echo -e "\033[31mERROR: Your local Hugo version is $LOCAL_HUGO_VERSION but the repo requires $REPO_HUGO_VERSION."
+  echo -e "Please install the correct Hugo version before committing.\033[0m"
+  exit 1
+fi
+
+echo "Hugo version check passed"
 
 echo "=== Pre-commit hook completed successfully ==="
 exit 0
