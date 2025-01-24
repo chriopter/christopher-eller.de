@@ -3,10 +3,7 @@
     <h1>{{ .Title }}</h1>
     <time>{{ .Date.Format "January 2, 2006" }}</time>
     <div class="post-content">
-        {{ $content := .Content }}
-        {{ $content := replaceRE `<img src="([^"]+)"` (printf `<img src="$1" loading="lazy"`) $content }}
-        {{ $content := replaceRE `src="(/[^"]+\.(jpg|jpeg|png|gif))"` (printf `src="{{ with $.Resources.GetMatch "$1" }}{{ (.Resize "1000x").RelPermalink }}{{ else }}$1{{ end }}"`) $content }}
-        {{ $content | safeHTML }}
+        {{ .Content }}
     </div>
 </article>
 
