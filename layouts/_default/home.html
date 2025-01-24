@@ -196,12 +196,20 @@
 }
 
 /* Photo posts */
-.photo-post img {
+.photo-post .photo-item {
     width: 80%;
-    height: auto;
-    border-radius: 8px;
+    max-height: 60vh;
     margin: 1rem auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.photo-post img {
+    max-width: 100%;
+    max-height: 60vh;
     display: block;
+    border-radius: 8px;
     object-fit: contain;
     transition: transform 0.3s ease;
 }
