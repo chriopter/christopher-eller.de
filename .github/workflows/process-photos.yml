@@ -19,10 +19,26 @@ jobs:
   process-photos:
     runs-on: ubuntu-latest
     steps:
+      - name: Cache Git
+        uses: actions/cache@v4
+        with:
+          path: .git
+          key: ${{ runner.os }}-git-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-git-
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
+      - name: Cache APT
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt
+          key: ${{ runner.os }}-apt-${{ hashFiles('**/process-photos.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
+
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -63,6 +79,11 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add content/photos/
+          git add content/photos/ import/
           git commit -m "Process new photos" || echo "No changes to commit"
           git push
+      
+      - name: Trigger Hugo workflow
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          event-type: trigger-hugo-build
