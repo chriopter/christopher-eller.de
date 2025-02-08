@@ -1,0 +1,153 @@
+{{ define "main" }}
+<article>
+    <h1>{{ .Title }}</h1>
+    <time>{{ .Date.Format "January 2, 2006" }}</time>
+    <div class="post-content">
+        {{ .Content }}
+    </div>
+</article>
+
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.modal.active {
+    opacity: 1;
+    pointer-events: auto;
+    display: flex;
+}
+
+.modal img {
+    max-width: 90%;
+    max-height: 90vh;
+    margin: auto;
+    display: block;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+article {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    article {
+        margin-left: 0;
+        padding: 20px;
+    }
+}
+
+h1 {
+    text-align: left;
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+time {
+    display: block;
+    color: #666;
+    margin: 0;
+    text-align: left;
+}
+
+.post-content {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+
+.post-content > * {
+    margin: 1.5rem 0;
+}
+
+.post-content > *:first-child {
+    margin-top: 0;
+}
+
+.post-content > *:last-child {
+    margin-bottom: 0;
+}
+
+.post-content p {
+    line-height: 1.6;
+}
+
+.post-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 20px 0;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.post-content img:hover {
+    transform: scale(1.02);
+}
+
+</style>
+
+<div class="modal">
+    <span class="modal-close">&times;</span>
+    <img src="" alt="">
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.querySelector('.modal');
+    const modalImg = modal.querySelector('img');
+    const modalClose = modal.querySelector('.modal-close');
+    
+    document.querySelectorAll('.post-content img').forEach(img => {
+        img.addEventListener('click', function() {
+            modalImg.src = this.src;
+            modal.classList.add('active');
+        });
+    });
+
+    modalClose.addEventListener('click', function() {
+        modal.classList.remove('active');
+    });
+
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            modal.classList.remove('active');
+        }
+    });
+});
+</script>
+{{ end }}

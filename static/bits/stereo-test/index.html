@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stereo Test</title>
+    <style>
+        /* Theme variables */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000;
+            --border-color: #eee;
+            --meter-bg: #eee;
+            --meter-fill: #4CAF50;
+            --control-bg: #f5f5f5;
+        }
+
+        .dark-mode {
+            --bg-color: #111;
+            --text-color: #fff;
+            --border-color: #333;
+            --meter-bg: #333;
+            --meter-fill: #4CAF50;
+            --control-bg: #222;
+        }
+
+        /* Base styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .controls {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .channel-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .channel {
+            background: var(--control-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            display: grid;
+            gap: 1rem;
+        }
+
+        .channel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--meter-bg);
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--meter-fill);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .meter {
+            width: 100%;
+            height: 20px;
+            background: var(--meter-bg);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            height: 100%;
+            background: var(--meter-fill);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .global-controls {
+            background: var(--control-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            display: grid;
+            gap: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        input[type="range"] {
+            padding: 0;
+        }
+
+        .value-display {
+            font-size: 0.8rem;
+            color: var(--text-color);
+            opacity: 0.7;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stereo Test</h1>
+        
+        <div class="controls">
+            <div class="channel-controls">
+                <div class="channel">
+                    <div class="channel-header">
+                        <h2>Left Channel</h2>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="left-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <label>Volume</label>
+                        <input type="range" id="left-volume" min="0" max="1" step="0.01" value="0.5">
+                        <div class="value-display" id="left-volume-value">50%</div>
+                    </div>
+                    <div class="meter">
+                        <div class="meter-fill" id="left-meter"></div>
+                    </div>
+                </div>
+
+                <div class="channel">
+                    <div class="channel-header">
+                        <h2>Right Channel</h2>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="right-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <label>Volume</label>
+                        <input type="range" id="right-volume" min="0" max="1" step="0.01" value="0.5">
+                        <div class="value-display" id="right-volume-value">50%</div>
+                    </div>
+                    <div class="meter">
+                        <div class="meter-fill" id="right-meter"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="global-controls">
+                <div>
+                    <label>Waveform</label>
+                    <select id="waveform">
+                        <option value="sine">Sine Wave</option>
+                        <option value="square">Square Wave</option>
+                        <option value="sawtooth" selected>Sawtooth Wave</option>
+                        <option value="triangle">Triangle Wave</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Frequency (Hz)</label>
+                    <input type="range" id="frequency" min="20" max="2000" step="1" value="440">
+                    <div class="value-display" id="frequency-value">440 Hz</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme handling
+        function initTheme() {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const storedTheme = localStorage.getItem('darkMode');
+            const shouldBeDark = storedTheme === 'true' || (storedTheme === null && prefersDark);
+            
+            if (shouldBeDark) {
+                document.documentElement.classList.add('dark-mode');
+                document.body.classList.add('dark-mode');
+            }
+        }
+
+        // Initialize theme
+        initTheme();
+
+        // Listen for theme changes from parent
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'theme') {
+                const isDark = event.data.theme === 'dark';
+                if (isDark) {
+                    document.documentElement.classList.add('dark-mode');
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+        });
+
+        // Audio context and nodes
+        let audioContext;
+        let oscillator;
+        let leftGain;
+        let rightGain;
+        let leftAnalyser;
+        let rightAnalyser;
+        let stereoMerger;
+        let isPlaying = false;
+
+        // Controls
+        const leftToggle = document.getElementById('left-toggle');
+        const rightToggle = document.getElementById('right-toggle');
+        const leftVolume = document.getElementById('left-volume');
+        const rightVolume = document.getElementById('right-volume');
+        const waveformSelect = document.getElementById('waveform');
+        const frequencyControl = document.getElementById('frequency');
+        const leftMeter = document.getElementById('left-meter');
+        const rightMeter = document.getElementById('right-meter');
+
+        // Value displays
+        const leftVolumeValue = document.getElementById('left-volume-value');
+        const rightVolumeValue = document.getElementById('right-volume-value');
+        const frequencyValue = document.getElementById('frequency-value');
+
+        // Initialize audio context on user interaction
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Create nodes
+                oscillator = audioContext.createOscillator();
+                oscillator.type = waveformSelect.value; // Set initial waveform type
+                leftGain = audioContext.createGain();
+                rightGain = audioContext.createGain();
+                leftAnalyser = audioContext.createAnalyser();
+                rightAnalyser = audioContext.createAnalyser();
+                stereoMerger = audioContext.createChannelMerger(2);
+
+                // Configure analysers
+                leftAnalyser.fftSize = 256;
+                rightAnalyser.fftSize = 256;
+
+                // Connect nodes
+                oscillator.connect(leftGain);
+                oscillator.connect(rightGain);
+                
+                leftGain.connect(leftAnalyser);
+                rightGain.connect(rightAnalyser);
+                
+                leftAnalyser.connect(stereoMerger, 0, 0);
+                rightAnalyser.connect(stereoMerger, 0, 1);
+                
+                stereoMerger.connect(audioContext.destination);
+
+                // Start oscillator
+                oscillator.start();
+                isPlaying = true;
+
+                // Start meter animation
+                updateMeters();
+            }
+        }
+
+        // Update audio parameters
+        function updateAudio() {
+            if (!audioContext) return;
+
+            // Update oscillator
+            oscillator.type = waveformSelect.value;
+            oscillator.frequency.setValueAtTime(
+                parseFloat(frequencyControl.value),
+                audioContext.currentTime
+            );
+
+            // Update gains
+            leftGain.gain.setValueAtTime(
+                leftToggle.checked ? parseFloat(leftVolume.value) : 0,
+                audioContext.currentTime
+            );
+            rightGain.gain.setValueAtTime(
+                rightToggle.checked ? parseFloat(rightVolume.value) : 0,
+                audioContext.currentTime
+            );
+        }
+
+        // Update meters
+        function updateMeters() {
+            if (!isPlaying) return;
+
+            requestAnimationFrame(updateMeters);
+
+            const leftData = new Uint8Array(leftAnalyser.frequencyBinCount);
+            const rightData = new Uint8Array(rightAnalyser.frequencyBinCount);
+            
+            leftAnalyser.getByteTimeDomainData(leftData);
+            rightAnalyser.getByteTimeDomainData(rightData);
+
+            // Calculate RMS values
+            let leftRMS = Math.sqrt(leftData.reduce((acc, val) => acc + (val - 128) ** 2, 0) / leftData.length) / 128;
+            let rightRMS = Math.sqrt(rightData.reduce((acc, val) => acc + (val - 128) ** 2, 0) / rightData.length) / 128;
+
+            // Update meter displays
+            leftMeter.style.width = `${leftRMS * 100}%`;
+            rightMeter.style.width = `${rightRMS * 100}%`;
+        }
+
+        // Event listeners
+        document.addEventListener('click', () => {
+            if (!audioContext) initAudio();
+        });
+
+        leftToggle.addEventListener('change', updateAudio);
+        rightToggle.addEventListener('change', updateAudio);
+        leftVolume.addEventListener('input', () => {
+            leftVolumeValue.textContent = `${Math.round(leftVolume.value * 100)}%`;
+            updateAudio();
+        });
+        rightVolume.addEventListener('input', () => {
+            rightVolumeValue.textContent = `${Math.round(rightVolume.value * 100)}%`;
+            updateAudio();
+        });
+        waveformSelect.addEventListener('change', updateAudio);
+        frequencyControl.addEventListener('input', () => {
+            frequencyValue.textContent = `${frequencyControl.value} Hz`;
+            updateAudio();
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('unload', () => {
+            if (audioContext) {
+                audioContext.close();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+name: Process Photos
+
+on:
+  push:
+    paths:
+      - 'import/**'
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: "photos"
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  process-photos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache Git
+        uses: actions/cache@v4
+        with:
+          path: .git
+          key: ${{ runner.os }}-git-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-git-
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cache APT
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt
+          key: ${{ runner.os }}-apt-${{ hashFiles('**/process-photos.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
+      
+      - name: Process new photos
+        shell: bash
+        run: |
+          convert_filename() {
+            echo "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[[:space:]]+/-/g'
+          }
+          
+          create_title() {
+            echo "$1" | sed -E 's/-/ /g' | awk '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}1'
+          }
+          
+          for img in import/*.{jpg,jpeg,heic,png}; do
+            [[ -e "$img" ]] || continue
+            
+            ORIG_NAME=$(basename "$img")
+            EXT="${ORIG_NAME##*.}"
+            NAME_NO_EXT="${ORIG_NAME%.*}"
+            
+            CLEAN_NAME=$(convert_filename "$NAME_NO_EXT")
+            TITLE=$(create_title "$NAME_NO_EXT")
+            
+            CONTENT_PATH="content/photos/$CLEAN_NAME"
+            mkdir -p "$CONTENT_PATH"
+            
+            mv "$img" "$CONTENT_PATH/$CLEAN_NAME.$EXT"
+            
+            printf "+++\ndate = '%s'\ntitle = \"%s\"\n+++\n" "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" "$TITLE" > "$CONTENT_PATH/index.md"
+            
+            echo "Processed: $ORIG_NAME -> $CLEAN_NAME.$EXT"
+          done
+      
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add content/photos/ import/
+          git commit -m "Process new photos" || echo "No changes to commit"
+          git push
+      
+      - name: Trigger Hugo workflow
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          event-type: trigger-hugo-build

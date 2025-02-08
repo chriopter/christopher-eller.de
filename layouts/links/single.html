@@ -1,0 +1,41 @@
+{{ define "main" }}
+<article>
+    {{ $title := .Title }}
+    {{ with .RawContent }}
+        {{ $content := . | replaceRE "(?s)^---.*?---\n" "" }}
+        {{ $url := trim $content " \n\r\t" }}
+        <meta http-equiv="refresh" content="0;url={{ $url }}">
+        <script>
+            window.location.href = "{{ $url }}";
+        </script>
+
+        <!-- Fallback content -->
+        <div class="link-redirect">
+            <p>Redirecting to external link...</p>
+            <p>If you are not redirected automatically, <a href="{{ $url }}">click here</a>.</p>
+        </div>
+    {{ end }}
+</article>
+
+<style>
+.link-redirect {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.link-redirect p {
+    margin: 1rem 0;
+}
+
+.link-redirect a {
+    color: var(--link-color);
+    text-decoration: underline;
+}
+
+.link-redirect a:hover {
+    color: var(--link-hover-color);
+}
+</style>
+{{ end }}

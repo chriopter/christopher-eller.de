@@ -1,0 +1,90 @@
+#!/bin/bash
+
+echo "=== Pre-commit hook started ==="
+
+###########################################
+# Check required tools
+###########################################
+
+if ! command -v exiftool &> /dev/null; then
+    echo "Error: exiftool is not installed"
+    echo "Please install it using: brew install exiftool"
+    exit 1
+fi
+
+if ! command -v magick &> /dev/null; then
+    echo "Error: ImageMagick is not installed"
+    echo "Please install it using: brew install imagemagick"
+    exit 1
+fi
+
+if ! command -v jq &> /dev/null; then
+    echo "Error: jq is not installed"
+    echo "Please install it using: brew install jq"
+    exit 1
+fi
+
+###########################################
+# Get image files
+###########################################
+
+# Print all staged files
+echo "All staged files:"
+git diff --cached --name-only --diff-filter=d
+
+# Get list of all image files in content/photos and import directories
+all_images=$(find content/photos import -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.heic" -o -name "*.png" \) | grep -v "/thumbnails/" | grep -v "_thumbnail" | grep -v "/exif/" || true)
+
+# Get list of staged image files in content/photos and import directories
+staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^(content/photos|import)/.*\.(jpg|jpeg|heic|png)$" | grep -v "/thumbnails/" | grep -v "/exif/" || true)
+
+# Print the filtered images
+echo "Staged images found: $staged_images"
+
+# If no images exist at all, exit successfully
+if [ -z "$all_images" ] && [ -z "$staged_images" ]; then
+    echo "No images found"
+    exit 0
+fi
+
+###########################################
+# 1. EXIF GPS Removal (Privacy First)
+###########################################
+
+echo "=== Removing EXIF location data from staged images ==="
+
+# Process each staged image
+for file in $staged_images; do
+    if [ -f "$file" ]; then
+        # Remove GPS data and create backup with _original suffix
+        if ! exiftool -overwrite_original -gps:all= "$file"; then
+            echo "Error: Failed to remove EXIF data from $file"
+            exit 1
+        fi
+        # Re-stage the modified file
+        git add "$file"
+        echo "Removed GPS data from: $file"
+    fi
+done
+
+echo "Successfully removed EXIF location data from images"
+
+###########################################
+# Check Hugo Version
+###########################################
+
+echo "=== Checking Hugo version ==="
+
+REPO_HUGO_VERSION=$(cat .hugoversion)
+LOCAL_HUGO_VERSION=$(hugo version | awk '{print $2}' | sed 's/v//' | cut -d'+' -f1)
+
+if [ "$REPO_HUGO_VERSION" != "$LOCAL_HUGO_VERSION" ]; then
+  echo -e "\033[31mERROR: Your local Hugo version is $LOCAL_HUGO_VERSION but the repo requires $REPO_HUGO_VERSION."
+  echo -e "Please install the correct Hugo version before committing.\033[0m"
+  exit 1
+fi
+
+echo "Hugo version check passed"
+
+echo "=== Pre-commit hook completed successfully ==="
+exit 0

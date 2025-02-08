@@ -1,0 +1,256 @@
+{{ define "main" }}
+<div class="home-content">
+    {{ .Content }}
+
+    <div class="posts">
+        {{ $paginator := .Paginate (where .Site.RegularPages "Type" "in" (slice "posts" "photos" "links")) }}
+        {{ range $paginator.Pages }}
+            <article class="post">
+                {{ if eq .Type "photos" }}
+                    {{ $images := .Resources.ByType "image" }}
+                    {{ with . }}
+                        {{ $image := index $images 0 }}
+                        <div class="photo-post">
+                            <h2><a href="{{ .RelPermalink }}#photo-main">{{ .Title }}</a></h2>
+                            <time>✨ {{ .Date.Format "January 2, 2006" }}</time>
+                            <a href="{{ .RelPermalink }}#photo-main" class="photo-item">
+                                {{ $thumbnail := $image }}
+                                {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
+                                    {{ $thumbnail = $image.Resize "1000x" }}
+                                {{ end }}
+                                <img src="{{ $thumbnail.RelPermalink }}" alt="{{ .Title }}" loading="lazy" />
+                            </a>
+                        </div>
+                    {{ end }}
+                {{ else if eq .Type "links" }}
+                    {{ $title := .Title }}
+                    {{ $date := .Date }}
+                    {{ with .RawContent }}
+                        <div class="link-post">
+                            {{ $content := . | replaceRE "(?s)^---.*?---\n" "" }}
+                            {{ $url := trim $content " \n\r\t" }}
+                            {{ $parsed := urls.Parse $url }}
+                            {{ $domain := strings.TrimPrefix "www." $parsed.Host }}
+                            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="link-url">
+                                → {{ $title }} ({{ $domain }})
+                            </a>
+                            <time>✨ {{ $date.Format "January 2, 2006" }}</time>
+                        </div>
+                    {{ end }}
+                {{ else }}
+                    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+                    <time>✨ {{ .Date.Format "January 2, 2006" }}</time>
+                    <div class="post-summary post-content">
+                        {{ .Summary | safeHTML }}
+                    </div>
+                    {{ if .Truncated }}
+                        <a href="{{ .RelPermalink }}">Read more...</a>
+                    {{ end }}
+                {{ end }}
+            </article>
+        {{ end }}
+    </div>
+
+    {{ if gt $paginator.TotalPages 1 }}
+    <div class="pagination">
+        {{ if $paginator.HasPrev }}
+            <a href="{{ $paginator.Prev.URL }}" class="prev">← Previous</a>
+        {{ end }}
+        
+        <span class="page-numbers">
+            {{ $paginator.PageNumber }} / {{ $paginator.TotalPages }}
+        </span>
+
+        {{ if $paginator.HasNext }}
+            <a href="{{ $paginator.Next.URL }}" class="next">Next →</a>
+        {{ end }}
+    </div>
+    {{ end }}
+</div>
+
+<style>
+/* Layout */
+.home-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+    color: var(--text-color);
+}
+
+@media (max-width: 768px) {
+    .home-content {
+        margin: 0;
+        padding: 20px;
+    }
+}
+
+.posts {
+    margin-bottom: 4rem;
+}
+
+/* Post styling */
+.post {
+    margin-bottom: 3rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.post-summary {
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: 1rem 0;
+}
+
+.post-summary p {
+    margin: 1rem 0;
+}
+
+
+.post-summary a {
+    color: var(--link-color);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+}
+
+.post-summary a:hover {
+    color: var(--link-hover-color);
+    opacity: 0.7;
+}
+
+.post:last-child {
+    border-bottom: none;
+}
+
+.post h2 {
+    margin-bottom: 0.75rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.post time {
+    display: block;
+    color: var(--secondary-text);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+/* Links */
+.home-content a {
+    color: var(--link-color);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+    transition: opacity 0.2s ease;
+}
+
+.home-content a:hover {
+    color: var(--link-hover-color);
+    opacity: 0.7;
+}
+
+/* Title links should not be underlined */
+.post h2 a {
+    text-decoration: none;
+}
+
+/* Link posts */
+.link-post {
+    margin: 1.5rem 0;
+}
+
+.link-post .link-url {
+    display: block;
+    font-size: 1.2rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    word-break: break-word;
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+.link-post .link-url:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+}
+
+.link-post time {
+    margin-bottom: 0;
+    margin-top: 0.5rem;
+}
+
+/* Read more link */
+.post a[href$="Read more..."] {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    text-decoration: none;
+}
+
+.post a[href$="Read more..."]:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+}
+
+/* Photo posts */
+.photo-post .photo-item {
+    width: 80%;
+    max-height: 60vh;
+    margin: 1rem auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.photo-post img {
+    max-width: 100%;
+    max-height: 60vh;
+    display: block;
+    border-radius: 8px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.photo-post a {
+    text-decoration: none;
+}
+
+.photo-post a:hover img {
+    transform: scale(1.02);
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 3rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.pagination a {
+    font-weight: 500;
+    padding: 0.5rem 0;
+    transition: opacity 0.2s ease;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.pagination a:hover {
+    opacity: 0.7;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+}
+
+.page-numbers {
+    color: var(--secondary-text);
+    font-size: 0.95rem;
+}
+</style>
+{{ end }}
