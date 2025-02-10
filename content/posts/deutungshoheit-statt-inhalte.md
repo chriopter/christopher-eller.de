@@ -174,4 +174,4 @@ Vom ökonomischen Verständnis (Das letzte Wort in „soziale Marktwirtschaft“
 Der in Schicht arbeitenden Krankenschwester beim Lebensmitteleinkauf das hart verdiente Geld abzunehmen, um dem Immobilienbesitzenden die Heizung & dem Berliner Rechtsanwalt das 49€ Ticket auf 29€ zu subventionieren ist nicht originär links.\
 Bei uns früher (TM) hieß sowas „Umverteilung von unten nach oben“ oder einfach: Klientelpolitik.
 
-Genau wie die Union 2021 wird dieses komplette politische Milieu im Februar sehr wahrscheinlich als Wortführer abgewählt und muss sich grundlegend neu sortieren. Ich hoffe und freue mich auf einen Bundestagswahlkampf 2029 mit tatsächlichen unterschiedlichen Entwürfen aus der & für die demokratische Mitte.
+Genau wie die Union 2021 wird dieses komplette politische Milieu im Februar sehr wahrscheinlich als Wortführer abgewählt und muss sich grundlegend neu sortieren. Ich hoffe und freue mich auf einen Bundestagswahlkampf 2029 mit tatsächlichen unterschiedlichen Entwürfen aus der & für die demokratische Mitte. 
