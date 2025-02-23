@@ -11,7 +11,9 @@ class ChatApp {
         this.roomCodeDisplay = document.getElementById('room-code-display');
         this.roomCodeElement = document.getElementById('room-code');
         this.roomCodeInput = document.getElementById('room-code-input');
-        this.copyCodeButton = document.getElementById('copy-code');
+        this.roomCodeContainer = document.getElementById('room-code-display');
+        this.copyFeedback = document.getElementById('copy-feedback');
+        this.statusDot = document.getElementById('connection-status-dot');
         this.leaveRoomButton = document.getElementById('leave-room');
         this.playerNameInput = document.getElementById('player-name');
         this.gameStatus = document.querySelector('.game-status');
@@ -26,7 +28,9 @@ class ChatApp {
         if (!this.roomCodeDisplay) throw new Error('Room code display element not found');
         if (!this.roomCodeElement) throw new Error('Room code element not found');
         if (!this.roomCodeInput) throw new Error('Room code input element not found');
-        if (!this.copyCodeButton) throw new Error('Copy code button element not found');
+        if (!this.roomCodeContainer) throw new Error('Room code container element not found');
+        if (!this.copyFeedback) throw new Error('Copy feedback element not found');
+        if (!this.statusDot) throw new Error('Status dot element not found');
         if (!this.leaveRoomButton) throw new Error('Leave room button element not found');
         if (!this.playerNameInput) throw new Error('Player name input element not found');
 
@@ -36,7 +40,7 @@ class ChatApp {
         this.isMyTurn = false;
         
         this.setupNetworkHandlers();
-        this.setupUIHandlers();
+        this.setupUIHandlers()
         this.setupGameHandlers();
 
         // Check for stored room code
@@ -52,18 +56,29 @@ class ChatApp {
         };
 
         this.network.onStatusUpdate = (status) => {
-            this.statusElement.textContent = status;
+            // Don't override custom success/error messages with default "Room created" message
+            if (this.statusElement.textContent !== 'Room created successfully' && 
+                this.statusElement.textContent !== 'Joined room successfully' &&
+                !this.statusElement.textContent.startsWith('Failed to')) {
+                this.statusElement.textContent = status;
+            }
+            
             const roomCode = this.network.getRoomCode();
+            const roomControls = document.querySelector('.room-controls');
             
             if (roomCode) {
                 this.roomCodeDisplay.style.display = 'block';
                 this.roomCodeElement.textContent = roomCode;
                 this.leaveRoomButton.style.display = 'block';
+                roomControls.style.display = 'none';
                 sessionStorage.setItem('roomCode', roomCode);
+                this.statusDot.classList.add('connected');
             } else {
                 this.roomCodeDisplay.style.display = 'none';
                 this.leaveRoomButton.style.display = 'none';
+                roomControls.style.display = 'flex';
                 sessionStorage.removeItem('roomCode');
+                this.statusDot.classList.remove('connected');
             }
         };
 
@@ -73,6 +88,7 @@ class ChatApp {
             this.gameStatus.textContent = "Game started! X's turn";
             this.isMyTurn = this.network.isHost;
             this.updateGameBoard();
+            this.updatePlayerInfo();
         };
 
         this.network.onPeerLeave = () => {
@@ -82,6 +98,12 @@ class ChatApp {
             this.resetGameButton.style.display = 'none';
             this.game.reset();
             this.updateGameBoard();
+            
+            // Reset opponent info
+            document.querySelector('.opponent-name').textContent = 'Waiting for opponent...';
+            document.querySelector('.opponent-symbol').textContent = '';
+            document.querySelector('.opponent-player').classList.remove('active');
+            document.querySelector('.current-player').classList.remove('active');
         };
     }
 
@@ -98,6 +120,14 @@ class ChatApp {
             } else {
                 this.gameStatus.textContent = `${state.currentPlayer}'s turn`;
             }
+            
+            // Update active player indicators
+            const isXTurn = state.currentPlayer === 'X';
+            const currentPlayerIsX = this.network.isHost;
+            document.querySelector('.current-player').classList.toggle('active', 
+                (isXTurn && currentPlayerIsX) || (!isXTurn && !currentPlayerIsX));
+            document.querySelector('.opponent-player').classList.toggle('active',
+                (isXTurn && !currentPlayerIsX) || (!isXTurn && currentPlayerIsX));
         };
 
         this.gameBoard.addEventListener('click', (event) => {
@@ -139,11 +169,43 @@ class ChatApp {
         }
     }
 
+    updatePlayerInfo() {
+        const currentPlayerSymbol = this.network.isHost ? 'X' : 'O';
+        const opponentSymbol = this.network.isHost ? 'O' : 'X';
+        
+        document.querySelector('.player-symbol').textContent = currentPlayerSymbol;
+        document.querySelector('.opponent-symbol').textContent = opponentSymbol;
+        
+        // Set initial active state
+        const isXTurn = this.game.currentPlayer === 'X';
+        document.querySelector('.current-player').classList.toggle('active', 
+            (isXTurn && this.network.isHost) || (!isXTurn && !this.network.isHost));
+        document.querySelector('.opponent-player').classList.toggle('active',
+            (isXTurn && !this.network.isHost) || (!isXTurn && this.network.isHost));
+    }
+
     setupUIHandlers() {
-        this.playerNameInput.addEventListener('change', () => {
+        document.getElementById('save-name').addEventListener('click', () => {
             const name = this.playerNameInput.value.trim();
-            this.network.setPlayerName(name);
-            localStorage.setItem('playerName', name);
+            if (name) {
+                this.network.setPlayerName(name);
+                localStorage.setItem('playerName', name);
+                // Visual feedback
+                const saveButton = document.getElementById('save-name');
+                const originalText = saveButton.textContent;
+                saveButton.textContent = 'Saved!';
+                saveButton.disabled = true;
+                setTimeout(() => {
+                    saveButton.textContent = originalText;
+                    saveButton.disabled = false;
+                }, 2000);
+            }
+        });
+
+        this.playerNameInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                document.getElementById('save-name').click();
+            }
         });
 
         // Load saved player name if exists
@@ -154,50 +216,55 @@ class ChatApp {
         }
 
         document.getElementById('create-room').addEventListener('click', async () => {
+            const createRoomButton = document.getElementById('create-room');
+            createRoomButton.disabled = true;
             try {
-                await this.network.initializeHost();
+                const roomCode = await this.network.initializeHost();
+                if (roomCode) {
+                    this.statusElement.textContent = 'Room created successfully';
+                }
             } catch (error) {
                 console.error('Failed to create room:', error);
                 this.statusElement.textContent = 'Failed to create room';
+            } finally {
+                createRoomButton.disabled = false;
             }
         });
 
-        document.getElementById('join-room').addEventListener('click', async () => {
+        const joinRoom = async () => {
             const roomCode = this.roomCodeInput.value.trim().toUpperCase();
             if (roomCode) {
+                const joinButton = document.getElementById('join-room');
+                joinButton.disabled = true;
                 try {
                     await this.network.joinRoom(roomCode);
                     this.roomCodeInput.value = '';
+                    this.statusElement.textContent = 'Joined room successfully';
                 } catch (error) {
                     console.error('Failed to join room:', error);
                     this.statusElement.textContent = 'Failed to join room';
+                } finally {
+                    joinButton.disabled = false;
                 }
             }
-        });
+        };
+
+        document.getElementById('join-room').addEventListener('click', joinRoom);
 
         this.roomCodeInput.addEventListener('keypress', async (event) => {
             if (event.key === 'Enter') {
-                const roomCode = this.roomCodeInput.value.trim().toUpperCase();
-                if (roomCode) {
-                    try {
-                        await this.network.joinRoom(roomCode);
-                        this.roomCodeInput.value = '';
-                    } catch (error) {
-                        console.error('Failed to join room:', error);
-                        this.statusElement.textContent = 'Failed to join room';
-                    }
-                }
+                joinRoom();
             }
         });
 
-        this.copyCodeButton.addEventListener('click', () => {
+        this.roomCodeContainer.addEventListener('click', () => {
             const roomCode = this.roomCodeElement.textContent;
             if (roomCode) {
                 navigator.clipboard.writeText(roomCode)
                     .then(() => {
-                        this.copyCodeButton.textContent = 'Copied!';
+                        this.copyFeedback.classList.add('show');
                         setTimeout(() => {
-                            this.copyCodeButton.textContent = 'Copy Code';
+                            this.copyFeedback.classList.remove('show');
                         }, 2000);
                     })
                     .catch(err => console.error('Failed to copy room code:', err));
@@ -205,7 +272,10 @@ class ChatApp {
         });
 
         this.leaveRoomButton.addEventListener('click', async () => {
-            await this.network.disconnect();
+            const disconnected = await this.network.disconnect();
+            if (disconnected) {
+                window.location.reload();
+            }
         });
 
         this.sendButton.addEventListener('click', () => {

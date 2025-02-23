@@ -18,59 +18,104 @@ export class Network {
         return Math.random().toString(36).substr(2, 9);
     }
 
+    isConnected() {
+        return this.peer !== null || this.peers.size > 0;
+    }
+
     async initializeHost() {
-        const roomCode = Math.random().toString(36).substr(2, 6).toUpperCase();
-        
-        this.peer = new Peer(roomCode);
-        this.isHost = true;
-
-        if (this.onStatusUpdate) {
-            this.onStatusUpdate(`Room Code: ${roomCode}`);
-        }
-
-        this.peer.on('connection', (connection) => {
-            connection.on('open', () => {
-                this.peers.set(connection.peer, connection);
-                
-                if (this.onPeerJoin) {
-                    this.onPeerJoin(connection.peer);
-                }
+        try {
+            if (this.isConnected()) {
                 if (this.onStatusUpdate) {
-                    this.onStatusUpdate(`Connected with: ${connection.peer}`);
+                    this.onStatusUpdate('Already in a room');
                 }
-            });
-
-            connection.on('data', (data) => {
-                if (data.type === 'game_move' && this.onGameMove) {
-                    this.onGameMove(data.index);
-                } else if (this.onMessageReceived) {
-                    this.onMessageReceived(connection.peer, data);
-                }
-            });
-
-            connection.on('close', () => {
-                this.peers.delete(connection.peer);
-                if (this.onPeerLeave) {
-                    this.onPeerLeave(connection.peer);
-                }
-                if (this.onStatusUpdate) {
-                    this.onStatusUpdate(`Peer disconnected: ${connection.peer}`);
-                }
-            });
-        });
-
-        this.peer.on('error', (error) => {
-            console.error('PeerJS error:', error);
-            if (this.onStatusUpdate) {
-                this.onStatusUpdate(`Error: ${error.message}`);
+                throw new Error('Already in a room');
             }
-        });
-        
-        return roomCode;
+
+            const roomCode = Math.random().toString(36).substr(2, 6).toUpperCase();
+            
+            this.peer = new Peer(roomCode);
+            this.isHost = true;
+
+            // Wait for peer connection to be established
+            await new Promise((resolve, reject) => {
+                this.peer.on('open', () => {
+                    if (this.onStatusUpdate) {
+                        this.onStatusUpdate('Room created');
+                    }
+                    resolve();
+                });
+                this.peer.on('error', reject);
+            });
+
+            this.peer.on('connection', (connection) => {
+                connection.on('open', () => {
+                    this.peers.set(connection.peer, connection);
+                    
+                    // Send player name to the new peer
+                    connection.send({
+                        type: 'player_info',
+                        name: this.playerName || 'Anonymous'
+                    });
+                    
+                    if (this.onPeerJoin) {
+                        this.onPeerJoin(connection.peer);
+                    }
+                    if (this.onStatusUpdate) {
+                        this.onStatusUpdate('Connected');
+                    }
+                });
+
+                connection.on('data', (data) => {
+                    if (data.type === 'game_move' && this.onGameMove) {
+                        this.onGameMove(data.index);
+                    } else if (data.type === 'player_info') {
+                        // Update opponent's name in the UI
+                        const opponentNameElement = document.querySelector('.opponent-name');
+                        if (opponentNameElement) {
+                            opponentNameElement.textContent = data.name;
+                        }
+                    } else if (this.onMessageReceived) {
+                        this.onMessageReceived(connection.peer, data);
+                    }
+                });
+
+                connection.on('close', () => {
+                    this.peers.delete(connection.peer);
+                    if (this.onPeerLeave) {
+                        this.onPeerLeave(connection.peer);
+                    }
+                    if (this.onStatusUpdate) {
+                        this.onStatusUpdate('Peer disconnected');
+                    }
+                });
+            });
+
+            this.peer.on('error', (error) => {
+                console.error('PeerJS error:', error);
+                if (this.onStatusUpdate) {
+                    this.onStatusUpdate(`Error: ${error.message}`);
+                }
+            });
+            
+            return roomCode;
+        } catch (error) {
+            console.error('Failed to initialize host:', error);
+            if (this.onStatusUpdate) {
+                this.onStatusUpdate(`Failed to create room: ${error.message}`);
+            }
+            throw error;
+        }
     }
 
     async joinRoom(roomCode) {
         try {
+            if (this.isConnected()) {
+                if (this.onStatusUpdate) {
+                    this.onStatusUpdate('Already connected to this room');
+                }
+                throw new Error('Already connected to this room');
+            }
+
             this.peer = new Peer();
             this.isHost = false;
 
@@ -82,17 +127,23 @@ export class Network {
             const connection = this.peer.connect(roomCode);
             
             await new Promise((resolve, reject) => {
-                connection.on('open', () => {
-                    this.peers.set(roomCode, connection);
-                    
-                    if (this.onPeerJoin) {
-                        this.onPeerJoin(roomCode);
-                    }
-                    if (this.onStatusUpdate) {
-                        this.onStatusUpdate(`Connected to room: ${roomCode}`);
-                    }
-                    resolve();
+            connection.on('open', () => {
+                this.peers.set(roomCode, connection);
+                
+                // Send player name to host
+                connection.send({
+                    type: 'player_info',
+                    name: this.playerName || 'Anonymous'
                 });
+                
+                if (this.onPeerJoin) {
+                    this.onPeerJoin(roomCode);
+                }
+                if (this.onStatusUpdate) {
+                    this.onStatusUpdate('Connected');
+                }
+                resolve();
+            });
 
                 connection.on('error', reject);
             });
@@ -100,6 +151,12 @@ export class Network {
             connection.on('data', (data) => {
                 if (data.type === 'game_move' && this.onGameMove) {
                     this.onGameMove(data.index);
+                } else if (data.type === 'player_info') {
+                    // Update opponent's name in the UI
+                    const opponentNameElement = document.querySelector('.opponent-name');
+                    if (opponentNameElement) {
+                        opponentNameElement.textContent = data.name;
+                    }
                 } else if (this.onMessageReceived) {
                     this.onMessageReceived(roomCode, data);
                 }
@@ -127,6 +184,16 @@ export class Network {
 
     setPlayerName(name) {
         this.playerName = name;
+        // Send updated name to all connected peers
+        const nameData = {
+            type: 'player_info',
+            name: name || 'Anonymous'
+        };
+        this.peers.forEach(connection => {
+            if (connection.open) {
+                connection.send(nameData);
+            }
+        });
     }
 
     sendMessage(message) {
@@ -155,17 +222,7 @@ export class Network {
     }
 
     async disconnect() {
-        if (!this.peer) return;
-
-        const confirmed = await new Promise(resolve => {
-            if (confirm('Are you sure you want to leave the room?')) {
-                resolve(true);
-            } else {
-                resolve(false);
-            }
-        });
-
-        if (!confirmed) return;
+        if (!this.peer) return false;
 
         if (this.peer) {
             this.peer.destroy();
