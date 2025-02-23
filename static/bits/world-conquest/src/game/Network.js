@@ -18,19 +18,8 @@ export class Network {
         return Math.random().toString(36).substr(2, 9);
     }
 
-    isConnected() {
-        return this.peer !== null || this.peers.size > 0;
-    }
-
     async initializeHost() {
         try {
-            if (this.isConnected()) {
-                if (this.onStatusUpdate) {
-                    this.onStatusUpdate('Already in a room');
-                }
-                throw new Error('Already in a room');
-            }
-
             const roomCode = Math.random().toString(36).substr(2, 6).toUpperCase();
             
             this.peer = new Peer(roomCode);
@@ -109,13 +98,6 @@ export class Network {
 
     async joinRoom(roomCode) {
         try {
-            if (this.isConnected()) {
-                if (this.onStatusUpdate) {
-                    this.onStatusUpdate('Already connected to this room');
-                }
-                throw new Error('Already connected to this room');
-            }
-
             this.peer = new Peer();
             this.isHost = false;
 
