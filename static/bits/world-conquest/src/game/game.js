@@ -1,4 +1,4 @@
-export class TicTacToe {
+export class Game {
     constructor() {
         this.board = Array(9).fill(null);
         this.currentPlayer = 'X';

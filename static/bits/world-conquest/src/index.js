@@ -1,5 +1,5 @@
 import { Network } from './game/Network.js';
-import { TicTacToe } from './game/TicTacToe.js';
+import { Game } from './game/game.js';
 
 class ChatApp {
     constructor() {
@@ -36,7 +36,7 @@ class ChatApp {
         if (!this.playerNameInput) throw new Error('Player name input element not found');
 
         // Initialize game and network
-        this.game = new TicTacToe();
+        this.game = new Game();
         this.network = new Network();
         this.isMyTurn = false;
         
