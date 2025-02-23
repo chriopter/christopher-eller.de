@@ -344,9 +344,12 @@
                 <div class="dropdown" id="bitsDropdown">
                     <a class="dropdown-trigger">Bits</a>
                     <div class="dropdown-content">
-                        {{ range .Site.Data.bits.projects }}
-                        <a href="{{ .path }}" target="_blank">{{ .name }}</a>
+                    {{ $files := readDir "static/bits" }}
+                    {{ range $files }}
+                        {{ if .IsDir }}
+                        <a href="/bits/{{ .Name }}" target="_blank">{{ .Name | humanize | title }}</a>
                         {{ end }}
+                    {{ end }}
                     </div>
                 </div>
                 <a href="/texts">Texts</a>

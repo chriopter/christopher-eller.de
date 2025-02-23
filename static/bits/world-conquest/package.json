@@ -1,0 +1,11 @@
+{
+  "name": "world-conquest",
+  "version": "1.0.0",
+  "description": "A multiplayer turn-based strategy game",
+  "main": "src/index.js",
+  "dependencies": {
+    "d3-geo": "^3.1.1",
+    "simple-peer": "^9.11.1",
+    "topojson-client": "^3.1.0"
+  }
+}

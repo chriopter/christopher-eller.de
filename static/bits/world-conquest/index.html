@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Conquest</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas { 
+            display: block; 
+        }
+        .game-ui {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            color: white;
+        }
+        .player-info {
+            margin-bottom: 15px;
+        }
+        .action-buttons button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px;
+            background: #444;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .action-buttons button:hover {
+            background: #666;
+        }
+    </style>
+</head>
+<body>
+    <script type="importmap">
+        {
+            "imports": {
+                "d3-geo": "./node_modules/d3-geo/dist/d3-geo.min.js",
+                "simple-peer": "./node_modules/simple-peer/simplepeer.min.js",
+                "topojson-client": "./node_modules/topojson-client/dist/topojson-client.min.js"
+            }
+        }
+    </script>
+    <script type="module" src="src/index.js"></script>
+</body>
+</html>
