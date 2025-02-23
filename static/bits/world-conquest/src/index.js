@@ -18,13 +18,12 @@ const PLAYER_COLORS = [
 class WorldConquest {
     constructor() {
         this.canvas = document.createElement('canvas');
-        this.ctx = this.canvas.getContext('2d');
         this.canvas.width = CANVAS_WIDTH;
         this.canvas.height = CANVAS_HEIGHT;
         document.body.appendChild(this.canvas);
 
         // Initialize game modules
-        this.world = new World(this.canvas, this.ctx);
+        this.world = new World(this.canvas);
         this.network = new Network();
         this.combat = new Combat(this.world);
         
@@ -43,14 +42,17 @@ class WorldConquest {
         
         // Initialize network handlers
         this.setupNetworkHandlers();
-
-        // Start game loop
-        this.gameLoop();
     }
 
     createUI() {
         const ui = document.createElement('div');
         ui.className = 'game-ui';
+        ui.style.position = 'absolute';
+        ui.style.top = '20px';
+        ui.style.left = '20px';
+        ui.style.zIndex = '1000';
+        ui.style.color = '#fff';
+        ui.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
         
         // Player info section
         const playerInfo = document.createElement('div');
@@ -60,6 +62,7 @@ class WorldConquest {
         // Action buttons
         const actionButtons = document.createElement('div');
         actionButtons.className = 'action-buttons';
+        actionButtons.style.marginTop = '20px';
         actionButtons.innerHTML = `
             <button id="host-game">Host Game</button>
             <button id="join-game">Join Game</button>
@@ -70,6 +73,28 @@ class WorldConquest {
         ui.appendChild(playerInfo);
         ui.appendChild(actionButtons);
         document.body.appendChild(ui);
+
+        // Add some basic styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .game-ui button {
+                margin: 5px;
+                padding: 8px 16px;
+                background: rgba(255,255,255,0.9);
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+            .game-ui button:hover {
+                background: rgba(255,255,255,1);
+            }
+            .game-ui button:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+        `;
+        document.head.appendChild(style);
     }
 
     setupNetworkHandlers() {
@@ -197,12 +222,23 @@ class WorldConquest {
                 if (!this.selectedTerritory) {
                     if (territory.owner === this.currentPlayer && territory.armies > 1) {
                         this.selectedTerritory = territory;
+                        territory.mesh.children.forEach(child => {
+                            if (child.material) {
+                                child.material.emissive.setHex(0x444444);
+                            }
+                        });
                     }
                 } else {
                     if (this.combat.canAttack(this.selectedTerritory, territory)) {
                         const outcome = this.combat.resolveCombat(this.selectedTerritory, territory);
                         this.handleCombatOutcome(outcome, this.selectedTerritory, territory);
                     }
+                    // Reset selected territory highlight
+                    this.selectedTerritory.mesh.children.forEach(child => {
+                        if (child.material) {
+                            child.material.emissive.setHex(0x000000);
+                        }
+                    });
                     this.selectedTerritory = null;
                 }
                 break;
@@ -361,21 +397,6 @@ class WorldConquest {
             `;
             endTurnBtn.disabled = this.currentPlayer.id !== this.network.localId;
         }
-    }
-
-    gameLoop() {
-        this.world.render();
-        
-        // Highlight selected territory
-        if (this.selectedTerritory) {
-            this.ctx.beginPath();
-            this.ctx.strokeStyle = '#fff';
-            this.ctx.lineWidth = 3;
-            this.world.path(this.selectedTerritory.path);
-            this.ctx.stroke();
-        }
-
-        requestAnimationFrame(() => this.gameLoop());
     }
 }
 

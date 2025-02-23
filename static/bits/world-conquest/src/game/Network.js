@@ -27,8 +27,8 @@ export class Network {
 
     async joinGame(roomCode) {
         try {
-            // Initialize WebRTC connection
-            const peer = new SimplePeer({
+            // Initialize WebRTC connection using global SimplePeer
+            const peer = new window.SimplePeer({
                 initiator: true,
                 trickle: false
             });

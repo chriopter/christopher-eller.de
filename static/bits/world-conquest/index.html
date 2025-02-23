@@ -9,6 +9,7 @@
             margin: 0; 
             overflow: hidden;
             font-family: Arial, sans-serif;
+            background: #000;
         }
         canvas { 
             display: block; 
@@ -16,37 +17,51 @@
         .game-ui {
             position: fixed;
             top: 20px;
-            right: 20px;
+            left: 20px;
             background: rgba(0, 0, 0, 0.7);
             padding: 20px;
             border-radius: 8px;
             color: white;
+            z-index: 1000;
         }
         .player-info {
             margin-bottom: 15px;
         }
         .action-buttons button {
-            display: block;
-            width: 100%;
-            margin: 5px 0;
-            padding: 8px;
-            background: #444;
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.9);
             border: none;
-            color: white;
+            color: #000;
             border-radius: 4px;
             cursor: pointer;
+            transition: background 0.2s;
         }
         .action-buttons button:hover {
-            background: #666;
+            background: rgba(255, 255, 255, 1);
+        }
+        .action-buttons button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        h3 {
+            margin-top: 0;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
     </style>
 </head>
 <body>
+    <!-- Load simple-peer before modules -->
+    <script src="./node_modules/simple-peer/simplepeer.min.js"></script>
+    
     <script type="importmap">
         {
             "imports": {
+                "three": "./node_modules/three/build/three.module.js",
+                "three/examples/jsm/controls/OrbitControls": "./node_modules/three/examples/jsm/controls/OrbitControls.js",
                 "d3-geo": "./node_modules/d3-geo/dist/d3-geo.js",
-                "simple-peer": "./node_modules/simple-peer/simplepeer.min.js",
                 "topojson-client": "./node_modules/topojson-client/dist/topojson-client.js"
             }
         }
