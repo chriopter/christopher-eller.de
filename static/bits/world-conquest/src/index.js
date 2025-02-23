@@ -1,4 +1,4 @@
-import { Network } from './game/Network.js';
+wimport { Network } from './game/Network.js';
 import { Game } from './game/game.js';
 
 class ChatApp {
@@ -16,9 +16,7 @@ class ChatApp {
         this.statusDot = document.getElementById('connection-status-dot');
         this.leaveRoomButton = document.getElementById('leave-room');
         this.playerNameInput = document.getElementById('player-name');
-        this.gameStatus = document.querySelector('.game-status');
-        this.gameBoard = document.querySelector('.game-board');
-        this.resetGameButton = document.getElementById('reset-game');
+        this.gameWrapper = document.getElementById('game-wrapper');
         this.roomControls = document.querySelector('.room-controls');
 
         // Validate required DOM elements
@@ -41,8 +39,8 @@ class ChatApp {
         this.isMyTurn = false;
         
         this.setupNetworkHandlers();
-        this.setupUIHandlers()
-        this.setupGameHandlers();
+        this.setupUIHandlers();
+        this.loadGameUI();
 
         // Check for stored room code
         const storedRoomCode = sessionStorage.getItem('roomCode');
@@ -88,9 +86,9 @@ class ChatApp {
         this.network.onPeerJoin = () => {
             this.messageInput.disabled = false;
             this.sendButton.disabled = false;
-            this.gameStatus.textContent = "Game started! X's turn";
+            this.gameStatus.textContent = "Game started! Blue's turn";
             this.isMyTurn = this.network.isHost;
-            this.updateGameBoard();
+            this.updateGameBoard(this.game.board);
             this.updatePlayerInfo();
         };
 
@@ -99,8 +97,9 @@ class ChatApp {
             this.sendButton.disabled = true;
             this.gameStatus.textContent = "Waiting for opponent...";
             this.resetGameButton.style.display = 'none';
+            this.nextPhaseButton.style.display = 'none';
             this.game.reset();
-            this.updateGameBoard();
+            this.updateGameBoard(this.game.board);
             
             // Reset opponent info
             document.querySelector('.opponent-name').textContent = 'Waiting for opponent...';
@@ -110,32 +109,64 @@ class ChatApp {
         };
     }
 
+    async loadGameUI() {
+        try {
+            const response = await fetch('src/game/game.html');
+            const html = await response.text();
+            this.gameWrapper.innerHTML = html;
+            
+            // Initialize game elements after loading
+            this.gameStatus = document.querySelector('.game-status');
+            this.gameBoard = document.querySelector('.game-board');
+            this.resetGameButton = document.getElementById('reset-game');
+            this.nextPhaseButton = document.getElementById('next-phase-button');
+            this.troopsCount = document.getElementById('troops-count');
+            
+            this.initializeGameBoard();
+            this.setupGameHandlers();
+        } catch (error) {
+            console.error('Failed to load game UI:', error);
+        }
+    }
+
+    initializeGameBoard() {
+        this.gameBoard.innerHTML = '';
+        for (let i = 0; i < 36; i++) { // 6x6 grid
+            const cell = document.createElement('div');
+            cell.className = 'game-cell';
+            cell.dataset.index = i;
+            
+            const troopsCount = document.createElement('div');
+            troopsCount.className = 'troops-count';
+            cell.appendChild(troopsCount);
+            
+            this.gameBoard.appendChild(cell);
+        }
+    }
+
     setupGameHandlers() {
         this.game.onGameUpdate = (state) => {
-            this.updateGameBoard();
+            this.updateGameBoard(state);
+            this.updatePhaseIndicators(state);
             
             if (state.winner) {
                 this.gameStatus.textContent = `${state.winner} wins!`;
                 this.resetGameButton.style.display = 'block';
-            } else if (state.isDraw) {
-                this.gameStatus.textContent = "It's a draw!";
-                this.resetGameButton.style.display = 'block';
+                this.nextPhaseButton.style.display = 'none';
             } else {
-                this.gameStatus.textContent = `${state.currentPlayer}'s turn`;
+                this.gameStatus.textContent = `${state.currentPlayer}'s turn - ${state.currentPhase} phase`;
+                this.troopsCount.textContent = state.troopsToPlace;
             }
             
             // Update active player indicators
-            const isXTurn = state.currentPlayer === 'X';
-            const currentPlayerIsX = this.network.isHost;
-            document.querySelector('.current-player').classList.toggle('active', 
-                (isXTurn && currentPlayerIsX) || (!isXTurn && !currentPlayerIsX));
-            document.querySelector('.opponent-player').classList.toggle('active',
-                (isXTurn && !currentPlayerIsX) || (!isXTurn && currentPlayerIsX));
+            const isCurrentTurn = state.currentPlayer === (this.network.isHost ? 'blue' : 'red');
+            document.querySelector('.current-player').classList.toggle('active', isCurrentTurn);
+            document.querySelector('.opponent-player').classList.toggle('active', !isCurrentTurn);
         };
 
         this.gameBoard.addEventListener('click', (event) => {
-            const cell = event.target;
-            if (!cell.classList.contains('game-cell')) return;
+            const cell = event.target.closest('.game-cell');
+            if (!cell) return;
             
             if (!this.isMyTurn) {
                 this.gameStatus.textContent = "Wait for your turn!";
@@ -149,42 +180,72 @@ class ChatApp {
             }
         });
 
+        this.nextPhaseButton.addEventListener('click', () => {
+            if (this.game.nextPhase()) {
+                this.network.sendGamePhase();
+            }
+        });
+
         this.resetGameButton.addEventListener('click', () => {
             this.game.reset();
             this.isMyTurn = this.network.isHost;
             this.resetGameButton.style.display = 'none';
-            this.updateGameBoard();
+            this.nextPhaseButton.style.display = 'block';
+            this.initializeGameBoard();
         });
 
         this.network.onGameMove = (index) => {
             this.game.makeMove(index);
             this.isMyTurn = true;
         };
+
+        this.network.onGamePhase = () => {
+            this.game.nextPhase();
+            this.isMyTurn = true;
+        };
     }
 
-    updateGameBoard() {
+    updateGameBoard(state) {
         const cells = this.gameBoard.children;
         for (let i = 0; i < cells.length; i++) {
             const cell = cells[i];
-            const value = this.game.board[i];
-            cell.textContent = value || '';
-            cell.classList.toggle('disabled', !!value);
+            const territory = state.board[i];
+            const troopsCount = cell.querySelector('.troops-count');
+            
+            // Reset classes
+            cell.className = 'game-cell';
+            
+            if (territory.owner) {
+                cell.classList.add(territory.owner);
+                troopsCount.textContent = territory.troops;
+            } else {
+                troopsCount.textContent = '';
+            }
+
+            // Highlight selected territory and its adjacent territories
+            if (state.selectedTerritory === i) {
+                cell.classList.add('selected');
+            } else if (state.selectedTerritory !== undefined && 
+                      this.game.getAdjacentTerritories(state.selectedTerritory).includes(i)) {
+                cell.classList.add('adjacent');
+            }
         }
     }
 
+    updatePhaseIndicators(state) {
+        const phases = ['deploy', 'attack', 'fortify'];
+        phases.forEach(phase => {
+            const button = document.querySelector(`[data-phase="${phase}"]`);
+            button.classList.toggle('active', phase === state.currentPhase);
+        });
+    }
+
     updatePlayerInfo() {
-        const currentPlayerSymbol = this.network.isHost ? 'X' : 'O';
-        const opponentSymbol = this.network.isHost ? 'O' : 'X';
+        const currentPlayerColor = this.network.isHost ? 'Blue' : 'Red';
+        const opponentColor = this.network.isHost ? 'Red' : 'Blue';
         
-        document.querySelector('.player-symbol').textContent = currentPlayerSymbol;
-        document.querySelector('.opponent-symbol').textContent = opponentSymbol;
-        
-        // Set initial active state
-        const isXTurn = this.game.currentPlayer === 'X';
-        document.querySelector('.current-player').classList.toggle('active', 
-            (isXTurn && this.network.isHost) || (!isXTurn && !this.network.isHost));
-        document.querySelector('.opponent-player').classList.toggle('active',
-            (isXTurn && !this.network.isHost) || (!isXTurn && this.network.isHost));
+        document.querySelector('.player-symbol').textContent = currentPlayerColor;
+        document.querySelector('.opponent-symbol').textContent = opponentColor;
     }
 
     setupUIHandlers() {
