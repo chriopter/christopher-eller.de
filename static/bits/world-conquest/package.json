@@ -1,16 +1,13 @@
 {
-  "name": "world-conquest",
+  "name": "p2p-chat",
   "version": "1.0.0",
-  "description": "A multiplayer turn-based strategy game",
+  "description": "A peer-to-peer chat application",
   "main": "src/index.js",
   "scripts": {
     "start": "serve ."
   },
   "dependencies": {
-    "d3-geo": "^3.1.1",
-    "simple-peer": "^9.11.1",
-    "three": "^0.173.0",
-    "topojson-client": "^3.1.0"
+    "peerjs": "^1.5.4"
   },
   "devDependencies": {
     "serve": "^14.2.4"

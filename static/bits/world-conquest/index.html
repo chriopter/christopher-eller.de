@@ -3,69 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>World Conquest</title>
+    <title>P2P Chat</title>
     <style>
         body { 
-            margin: 0; 
-            overflow: hidden;
+            margin: 0;
             font-family: Arial, sans-serif;
-            background: #000;
+            background: #f0f2f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        canvas { 
-            display: block; 
-        }
-        .game-ui {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 20px;
+        .chat-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
             border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            width: 90%;
+        }
+        .connection-status {
+            text-align: center;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin: 8px 0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 70%;
+        }
+        .message.received {
+            background: #e3f2fd;
+            align-self: flex-start;
+        }
+        .message.sent {
+            background: #e8f5e9;
+            align-self: flex-end;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+        }
+        button {
+            padding: 10px 20px;
+            background: #1976d2;
             color: white;
-            z-index: 1000;
-        }
-        .player-info {
-            margin-bottom: 15px;
-        }
-        .action-buttons button {
-            display: inline-block;
-            margin: 5px;
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.9);
             border: none;
-            color: #000;
             border-radius: 4px;
             cursor: pointer;
             transition: background 0.2s;
         }
-        .action-buttons button:hover {
-            background: rgba(255, 255, 255, 1);
+        button:hover {
+            background: #1565c0;
         }
-        .action-buttons button:disabled {
-            opacity: 0.5;
+        button:disabled {
+            background: #ccc;
             cursor: not-allowed;
         }
-        h3 {
-            margin-top: 0;
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        .connection-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <!-- Load simple-peer before modules -->
-    <script src="./node_modules/simple-peer/simplepeer.min.js"></script>
-    
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "./node_modules/three/build/three.module.js",
-                "three/examples/jsm/controls/OrbitControls": "./node_modules/three/examples/jsm/controls/OrbitControls.js",
-                "d3-geo": "./node_modules/d3-geo/dist/d3-geo.js",
-                "topojson-client": "./node_modules/topojson-client/dist/topojson-client.js"
-            }
-        }
-    </script>
+    <div class="chat-container">
+        <div class="connection-buttons">
+            <button id="create-room">Create Room</button>
+            <button id="join-room">Join Room</button>
+        </div>
+        <div id="connection-status" class="connection-status">
+            Not connected
+        </div>
+        <div id="messages" class="messages"></div>
+        <div class="input-area">
+            <input type="text" id="message-input" placeholder="Type a message..." disabled>
+            <button id="send-button" disabled>Send</button>
+        </div>
+    </div>
+
     <script type="module" src="src/index.js"></script>
 </body>
 </html>

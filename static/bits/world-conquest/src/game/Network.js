@@ -1,10 +1,15 @@
+import { Peer } from 'https://cdn.skypack.dev/peerjs@1.4.7';
+
 export class Network {
     constructor() {
         this.peers = new Map();
         this.localId = this.generateId();
-        this.onPlayerJoin = null;
-        this.onPlayerLeave = null;
-        this.onGameStateUpdate = null;
+        this.onMessageReceived = null;
+        this.onPeerJoin = null;
+        this.onPeerLeave = null;
+        this.onStatusUpdate = null;
+        this.peer = null;
+        this.isHost = false;
     }
 
     generateId() {
@@ -12,112 +17,128 @@ export class Network {
     }
 
     async initializeHost() {
-        // Generate room code for others to join
         const roomCode = Math.random().toString(36).substr(2, 6).toUpperCase();
-        console.log('Room Code:', roomCode);
         
-        // Display room code in UI
-        document.getElementById('player-status').innerHTML = `
-            Room Code: ${roomCode}<br>
-            Waiting for players to join...
-        `;
+        this.peer = new Peer(roomCode);
+        this.isHost = true;
+
+        if (this.onStatusUpdate) {
+            this.onStatusUpdate(`Room Code: ${roomCode}`);
+        }
+
+        this.peer.on('connection', (connection) => {
+            connection.on('open', () => {
+                this.peers.set(connection.peer, connection);
+                
+                if (this.onPeerJoin) {
+                    this.onPeerJoin(connection.peer);
+                }
+                if (this.onStatusUpdate) {
+                    this.onStatusUpdate(`Connected with: ${connection.peer}`);
+                }
+            });
+
+            connection.on('data', (data) => {
+                if (this.onMessageReceived) {
+                    this.onMessageReceived(connection.peer, data);
+                }
+            });
+
+            connection.on('close', () => {
+                this.peers.delete(connection.peer);
+                if (this.onPeerLeave) {
+                    this.onPeerLeave(connection.peer);
+                }
+                if (this.onStatusUpdate) {
+                    this.onStatusUpdate(`Peer disconnected: ${connection.peer}`);
+                }
+            });
+        });
+
+        this.peer.on('error', (error) => {
+            console.error('PeerJS error:', error);
+            if (this.onStatusUpdate) {
+                this.onStatusUpdate(`Error: ${error.message}`);
+            }
+        });
         
         return roomCode;
     }
 
-    async joinGame(roomCode) {
+    async joinRoom(roomCode) {
         try {
-            // Initialize WebRTC connection using global SimplePeer
-            const peer = new window.SimplePeer({
-                initiator: true,
-                trickle: false
+            this.peer = new Peer();
+            this.isHost = false;
+
+            await new Promise((resolve, reject) => {
+                this.peer.on('open', resolve);
+                this.peer.on('error', reject);
             });
 
-            // Handle connection events
-            peer.on('signal', data => {
-                // In a real implementation, this would be sent to the host
-                console.log('Signal data to send to host:', data);
+            const connection = this.peer.connect(roomCode);
+            
+            await new Promise((resolve, reject) => {
+                connection.on('open', () => {
+                    this.peers.set(roomCode, connection);
+                    
+                    if (this.onPeerJoin) {
+                        this.onPeerJoin(roomCode);
+                    }
+                    if (this.onStatusUpdate) {
+                        this.onStatusUpdate(`Connected to room: ${roomCode}`);
+                    }
+                    resolve();
+                });
+
+                connection.on('error', reject);
             });
 
-            peer.on('connect', () => {
-                console.log('Connected to host');
-                this.peers.set(peer._id, peer);
-                
-                if (this.onPlayerJoin) {
-                    this.onPlayerJoin({
-                        id: peer._id,
-                        isHost: false
-                    });
+            connection.on('data', (data) => {
+                if (this.onMessageReceived) {
+                    this.onMessageReceived(roomCode, data);
                 }
             });
 
-            peer.on('data', data => {
-                const message = JSON.parse(data);
-                this.handleMessage(message, peer._id);
-            });
-
-            peer.on('close', () => {
-                this.peers.delete(peer._id);
-                if (this.onPlayerLeave) {
-                    this.onPlayerLeave(peer._id);
+            connection.on('close', () => {
+                this.peers.delete(roomCode);
+                if (this.onPeerLeave) {
+                    this.onPeerLeave(roomCode);
+                }
+                if (this.onStatusUpdate) {
+                    this.onStatusUpdate('Disconnected from room');
                 }
             });
 
-            return peer;
+            return connection;
         } catch (error) {
-            console.error('Failed to join game:', error);
+            console.error('Failed to join room:', error);
+            if (this.onStatusUpdate) {
+                this.onStatusUpdate(`Failed to join room: ${error.message}`);
+            }
             throw error;
         }
     }
 
-    handleMessage(message, peerId) {
-        switch (message.type) {
-            case 'gameState':
-                if (this.onGameStateUpdate) {
-                    this.onGameStateUpdate(message.data);
-                }
-                break;
-            case 'action':
-                // Handle player actions
-                this.broadcastToOthers({
-                    type: 'action',
-                    data: message.data
-                }, peerId);
-                break;
-            default:
-                console.warn('Unknown message type:', message.type);
-        }
-    }
-
-    broadcastToAll(message) {
-        const data = JSON.stringify(message);
-        this.peers.forEach(peer => {
-            if (peer.connected) {
-                peer.send(data);
+    sendMessage(message) {
+        this.peers.forEach(connection => {
+            if (connection.open) {
+                connection.send(message);
             }
         });
-    }
-
-    broadcastToOthers(message, excludePeerId) {
-        const data = JSON.stringify(message);
-        this.peers.forEach((peer, id) => {
-            if (id !== excludePeerId && peer.connected) {
-                peer.send(data);
-            }
-        });
-    }
-
-    sendToPeer(peerId, message) {
-        const peer = this.peers.get(peerId);
-        if (peer && peer.connected) {
-            peer.send(JSON.stringify(message));
-        }
     }
 
     disconnect() {
-        this.peers.forEach(peer => {
-            peer.destroy();
+        if (this.peer) {
+            this.peer.destroy();
+        }
+        this.peers.forEach(connection => {
+            connection.close();
         });
         this.peers.clear();
+        this.peer = null;
+        this.isHost = false;
+        if (this.onStatusUpdate) {
+            this.onStatusUpdate('Disconnected');
+        }
     }
 }
