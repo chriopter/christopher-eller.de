@@ -19,6 +19,7 @@ class ChatApp {
         this.gameStatus = document.querySelector('.game-status');
         this.gameBoard = document.querySelector('.game-board');
         this.resetGameButton = document.getElementById('reset-game');
+        this.roomControls = document.querySelector('.room-controls');
 
         // Validate required DOM elements
         if (!this.messageInput) throw new Error('Message input element not found');
@@ -64,19 +65,21 @@ class ChatApp {
             }
             
             const roomCode = this.network.getRoomCode();
-            const roomControls = document.querySelector('.room-controls');
-            
             if (roomCode) {
                 this.roomCodeDisplay.style.display = 'block';
                 this.roomCodeElement.textContent = roomCode;
                 this.leaveRoomButton.style.display = 'block';
-                roomControls.style.display = 'none';
+                if (this.roomControls) {
+                    this.roomControls.style.display = 'none';
+                }
                 sessionStorage.setItem('roomCode', roomCode);
                 this.statusDot.classList.add('connected');
             } else {
                 this.roomCodeDisplay.style.display = 'none';
                 this.leaveRoomButton.style.display = 'none';
-                roomControls.style.display = 'flex';
+                if (this.roomControls) {
+                    this.roomControls.style.display = 'flex';
+                }
                 sessionStorage.removeItem('roomCode');
                 this.statusDot.classList.remove('connected');
             }
