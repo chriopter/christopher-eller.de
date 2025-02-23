@@ -19,7 +19,7 @@ The game is built with a modular architecture consisting of several key componen
   - Strategic value calculated from size and location
   - Neighbor relationships
   - Army counts
-  - Owner information
+  - Owner informationq
 
 ### Networking
 - Peer-to-peer implementation using WebRTC
