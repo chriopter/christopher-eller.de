@@ -8,8 +8,10 @@ export class Network {
         this.onPeerJoin = null;
         this.onPeerLeave = null;
         this.onStatusUpdate = null;
+        this.onGameMove = null;
         this.peer = null;
         this.isHost = false;
+        this.playerName = '';
     }
 
     generateId() {
@@ -39,7 +41,9 @@ export class Network {
             });
 
             connection.on('data', (data) => {
-                if (this.onMessageReceived) {
+                if (data.type === 'game_move' && this.onGameMove) {
+                    this.onGameMove(data.index);
+                } else if (this.onMessageReceived) {
                     this.onMessageReceived(connection.peer, data);
                 }
             });
@@ -94,7 +98,9 @@ export class Network {
             });
 
             connection.on('data', (data) => {
-                if (this.onMessageReceived) {
+                if (data.type === 'game_move' && this.onGameMove) {
+                    this.onGameMove(data.index);
+                } else if (this.onMessageReceived) {
                     this.onMessageReceived(roomCode, data);
                 }
             });
@@ -119,15 +125,48 @@ export class Network {
         }
     }
 
+    setPlayerName(name) {
+        this.playerName = name;
+    }
+
     sendMessage(message) {
+        const messageData = {
+            type: 'chat',
+            text: message,
+            sender: this.playerName || 'Anonymous'
+        };
         this.peers.forEach(connection => {
             if (connection.open) {
-                connection.send(message);
+                connection.send(messageData);
             }
         });
     }
 
-    disconnect() {
+    sendGameMove(index) {
+        const moveData = {
+            type: 'game_move',
+            index: index
+        };
+        this.peers.forEach(connection => {
+            if (connection.open) {
+                connection.send(moveData);
+            }
+        });
+    }
+
+    async disconnect() {
+        if (!this.peer) return;
+
+        const confirmed = await new Promise(resolve => {
+            if (confirm('Are you sure you want to leave the room?')) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        });
+
+        if (!confirmed) return;
+
         if (this.peer) {
             this.peer.destroy();
         }
@@ -140,5 +179,24 @@ export class Network {
         if (this.onStatusUpdate) {
             this.onStatusUpdate('Disconnected');
         }
+
+        // Clear stored room code
+        sessionStorage.removeItem('roomCode');
+        return true;
+    }
+
+    async attemptReconnect(roomCode) {
+        try {
+            await this.joinRoom(roomCode);
+            return true;
+        } catch (error) {
+            console.error('Reconnection failed:', error);
+            return false;
+        }
+    }
+
+    getRoomCode() {
+        if (!this.peer) return null;
+        return this.isHost ? this.peer.id : Array.from(this.peers.keys())[0];
     }
 }

@@ -11,19 +11,130 @@
             background: #f0f2f5;
             height: 100vh;
             display: flex;
-            flex-direction: column;
         }
-        .chat-container {
-            max-width: 800px;
-            margin: 20px auto;
+        .left-panel {
+            width: 250px;
             background: white;
+            padding: 20px;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .room-info {
+            padding: 15px;
+            background: #e3f2fd;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+        .room-code {
+            font-family: monospace;
+            font-size: 1.2em;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .copy-code {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 5px;
+            width: 100%;
+        }
+        .copy-code:hover {
+            background: #1976d2;
+        }
+        .room-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .join-input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        .leave-room {
+            background: #ff5252;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: auto;
+        }
+        .leave-room:hover {
+            background: #ff1744;
+        }
+        .main-container {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             padding: 20px;
+            gap: 20px;
             width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .game-status {
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .game-cell {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #1976d2;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .game-cell:hover {
+            background-color: #e3f2fd;
+        }
+
+        .game-cell.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
         }
         .connection-status {
             text-align: center;
@@ -91,14 +202,44 @@
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="connection-buttons">
+    <div class="left-panel">
+        <div class="name-input" style="margin-bottom: 15px;">
+            <input type="text" id="player-name" class="join-input" placeholder="Enter your name" maxlength="20">
+        </div>
+        <div class="room-info">
+            <div id="connection-status">Not connected</div>
+            <div id="room-code-display" class="room-code" style="display: none;">
+                <div>Room Code:</div>
+                <div id="room-code"></div>
+                <button id="copy-code" class="copy-code">Copy Code</button>
+            </div>
+        </div>
+        <div class="room-controls">
             <button id="create-room">Create Room</button>
-            <button id="join-room">Join Room</button>
+            <div>
+                <input type="text" id="room-code-input" class="join-input" placeholder="Enter room code">
+                <button id="join-room">Join Room</button>
+            </div>
         </div>
-        <div id="connection-status" class="connection-status">
-            Not connected
+        <button id="leave-room" class="leave-room" style="display: none;">Leave Room</button>
+    </div>
+    <div class="main-container">
+        <div class="game-container">
+            <div class="game-status">Waiting for opponent...</div>
+            <div class="game-board">
+                <div class="game-cell" data-index="0"></div>
+                <div class="game-cell" data-index="1"></div>
+                <div class="game-cell" data-index="2"></div>
+                <div class="game-cell" data-index="3"></div>
+                <div class="game-cell" data-index="4"></div>
+                <div class="game-cell" data-index="5"></div>
+                <div class="game-cell" data-index="6"></div>
+                <div class="game-cell" data-index="7"></div>
+                <div class="game-cell" data-index="8"></div>
+            </div>
+            <button id="reset-game" style="display: none;">New Game</button>
         </div>
+        <div class="chat-container">
         <div id="messages" class="messages"></div>
         <div class="input-area">
             <input type="text" id="message-input" placeholder="Type a message..." disabled>
