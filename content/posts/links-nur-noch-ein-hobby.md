@@ -49,4 +49,5 @@ Dazu zählt auch die Idee eines Mietpreisdeckels, der nur die Besitzenden (die, 
 
 Das ist kein Aufruf für eine linke Renaissance: Die Interessen der arbeitenden gesellschaftlichen Mitte in unserer freien, marktwirtschaftlichen Ordnung sind überhaupt nicht gut vertreten durch diese antiquierten Spinnereien ökonomischer Unaufgeklärtheit.
 
-Aber: Es wäre Platz - [es wäre Zeit für eine Arbeiterpartei in der Mitte](https://www.tagesschau.de/wahl/archiv/2025-02-23-BT-DE/charts/umfrage-afd/chart_1851569.shtml) die den Sozialstaat so zu verstehen, wie er gemeint war: Eine Absicherung gegen Schicksalsschläge statt einer Vollkasko für diejenigen, die keine Entscheidungen treffen wollen. Dieser linke Sumpf ist einfach Schrott.
+Aber: Es wäre Platz - [es wäre Zeit für eine Arbeiterpartei in der Mitte](https://www.tagesschau.de/wahl/archiv/2025-02-23-BT-DE/charts/umfrage-afd/chart_1851569.shtml) die den Sozialstaat so zu verstehen, wie er gemeint war: Eine Absicherung gegen Schicksalsschläge statt einer Vollkasko für diejenigen, die keine Entscheidungen treffen wollen. Und eine arbeitende Mitte, die durch sich selbst vertreten wird - nicht durch Mitglieder eines Milieus das auf Sie herabblickt.\
+Dieser linke Sumpf ist einfach Schrott.
