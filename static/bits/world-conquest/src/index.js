@@ -17,9 +17,19 @@ class ChatApp {
         this.leaveRoomButton = document.getElementById('leave-room');
         this.playerNameInput = document.getElementById('player-name');
         this.gameStatus = document.querySelector('.game-status');
-        this.gameBoard = document.querySelector('.game-board');
         this.resetGameButton = document.getElementById('reset-game');
-        this.roomControls = document.querySelector('.room-controls');
+        this.roomControls = document.querySelector('.room-actions');
+        this.angleSlider = document.getElementById('angle-slider');
+        this.powerSlider = document.getElementById('power-slider');
+        this.angleValue = document.getElementById('angle-value');
+        this.powerValue = document.getElementById('power-value');
+        this.throwButton = document.getElementById('throw-button');
+        this.forwardButton = document.getElementById('forward-button');
+        this.backwardButton = document.getElementById('backward-button');
+        this.leftButton = document.getElementById('left-button');
+        this.rightButton = document.getElementById('right-button');
+        this.rotateLeftButton = document.getElementById('rotate-left-button');
+        this.rotateRightButton = document.getElementById('rotate-right-button');
 
         // Validate required DOM elements
         if (!this.messageInput) throw new Error('Message input element not found');
@@ -34,6 +44,20 @@ class ChatApp {
         if (!this.statusDot) throw new Error('Status dot element not found');
         if (!this.leaveRoomButton) throw new Error('Leave room button element not found');
         if (!this.playerNameInput) throw new Error('Player name input element not found');
+        if (!this.gameStatus) throw new Error('Game status element not found');
+        if (!this.resetGameButton) throw new Error('Reset game button element not found');
+        if (!this.roomControls) throw new Error('Room controls element not found');
+        if (!this.angleSlider) throw new Error('Angle slider element not found');
+        if (!this.powerSlider) throw new Error('Power slider element not found');
+        if (!this.angleValue) throw new Error('Angle value element not found');
+        if (!this.powerValue) throw new Error('Power value element not found');
+        if (!this.throwButton) throw new Error('Throw button element not found');
+        if (!this.forwardButton) throw new Error('Forward button element not found');
+        if (!this.backwardButton) throw new Error('Backward button element not found');
+        if (!this.leftButton) throw new Error('Left button element not found');
+        if (!this.rightButton) throw new Error('Right button element not found');
+        if (!this.rotateLeftButton) throw new Error('Rotate left button element not found');
+        if (!this.rotateRightButton) throw new Error('Rotate right button element not found');
 
         // Initialize game and network
         this.game = new Game();
@@ -41,7 +65,7 @@ class ChatApp {
         this.isMyTurn = false;
         
         this.setupNetworkHandlers();
-        this.setupUIHandlers()
+        this.setupUIHandlers();
         this.setupGameHandlers();
 
         // Check for stored room code
@@ -88,19 +112,26 @@ class ChatApp {
         this.network.onPeerJoin = () => {
             this.messageInput.disabled = false;
             this.sendButton.disabled = false;
-            this.gameStatus.textContent = "Game started! X's turn";
+            this.throwButton.disabled = false;
+            this.gameStatus.textContent = "Game started! Your turn";
             this.isMyTurn = this.network.isHost;
-            this.updateGameBoard();
             this.updatePlayerInfo();
+            
+            // Update game status based on whose turn it is
+            if (this.isMyTurn) {
+                this.gameStatus.textContent = "Your turn! Move, aim, and shoot";
+            } else {
+                this.gameStatus.textContent = "Opponent's turn. Wait for them to shoot";
+            }
         };
 
         this.network.onPeerLeave = () => {
             this.messageInput.disabled = true;
             this.sendButton.disabled = true;
+            this.throwButton.disabled = true;
             this.gameStatus.textContent = "Waiting for opponent...";
             this.resetGameButton.style.display = 'none';
             this.game.reset();
-            this.updateGameBoard();
             
             // Reset opponent info
             document.querySelector('.opponent-name').textContent = 'Waiting for opponent...';
@@ -108,43 +139,106 @@ class ChatApp {
             document.querySelector('.opponent-player').classList.remove('active');
             document.querySelector('.current-player').classList.remove('active');
         };
+
+        this.network.onGameReset = () => {
+            this.game.reset();
+            this.isMyTurn = !this.network.isHost; // Other player who reset goes first
+            this.resetGameButton.style.display = 'none';
+            
+            // Update game status based on whose turn it is
+            if (this.isMyTurn) {
+                this.gameStatus.textContent = "Your turn! Move, aim, and shoot";
+            } else {
+                this.gameStatus.textContent = "Opponent's turn. Wait for them to shoot";
+            }
+        };
+        
+        this.network.onGameMove = (angle, power) => {
+            this.game.shootBullet(angle, power);
+            this.isMyTurn = true;
+        };
     }
 
     setupGameHandlers() {
         this.game.onGameUpdate = (state) => {
-            this.updateGameBoard();
-            
-            if (state.winner) {
-                this.gameStatus.textContent = `${state.winner} wins!`;
-                this.resetGameButton.style.display = 'block';
-            } else if (state.isDraw) {
-                this.gameStatus.textContent = "It's a draw!";
-                this.resetGameButton.style.display = 'block';
-            } else {
-                this.gameStatus.textContent = `${state.currentPlayer}'s turn`;
+            if (state.winner !== undefined) {
+                const winnerText = state.winner === 0 ? 
+                    (this.network.isHost ? "You win!" : "Opponent wins!") : 
+                    (this.network.isHost ? "Opponent wins!" : "You win!");
+                
+                if (state.gameOver) {
+                    this.gameStatus.textContent = `Game over! ${winnerText}`;
+                    this.resetGameButton.style.display = 'block';
+                } else {
+                    // Update turn status
+                    const isMyTurn = (state.currentPlayer === 0 && this.network.isHost) || 
+                                    (state.currentPlayer === 1 && !this.network.isHost);
+                    
+                    if (isMyTurn) {
+                        this.gameStatus.textContent = "Your turn! Move, aim, and shoot";
+                    } else {
+                        this.gameStatus.textContent = "Opponent's turn. Wait for them to shoot";
+                    }
+                }
             }
             
             // Update active player indicators
-            const isXTurn = state.currentPlayer === 'X';
-            const currentPlayerIsX = this.network.isHost;
+            const isPlayer1Turn = state.currentPlayer === 0;
+            const currentPlayerIsPlayer1 = this.network.isHost;
             document.querySelector('.current-player').classList.toggle('active', 
-                (isXTurn && currentPlayerIsX) || (!isXTurn && !currentPlayerIsX));
+                (isPlayer1Turn && currentPlayerIsPlayer1) || (!isPlayer1Turn && !currentPlayerIsPlayer1));
             document.querySelector('.opponent-player').classList.toggle('active',
-                (isXTurn && !currentPlayerIsX) || (!isXTurn && currentPlayerIsX));
+                (isPlayer1Turn && !currentPlayerIsPlayer1) || (!isPlayer1Turn && currentPlayerIsPlayer1));
         };
 
-        this.gameBoard.addEventListener('click', (event) => {
-            const cell = event.target;
-            if (!cell.classList.contains('game-cell')) return;
-            
+        // Movement and rotation controls
+        this.forwardButton.addEventListener('click', () => {
+            if (this.isMyTurn) {
+                this.game.movePlayer('forward');
+            }
+        });
+        
+        this.backwardButton.addEventListener('click', () => {
+            if (this.isMyTurn) {
+                this.game.movePlayer('backward');
+            }
+        });
+        
+        this.leftButton.addEventListener('click', () => {
+            if (this.isMyTurn) {
+                this.game.movePlayer('left');
+            }
+        });
+        
+        this.rightButton.addEventListener('click', () => {
+            if (this.isMyTurn) {
+                this.game.movePlayer('right');
+            }
+        });
+        
+        this.rotateLeftButton.addEventListener('click', () => {
+            if (this.isMyTurn) {
+                this.game.rotatePlayer(-15); // Rotate 15 degrees left
+            }
+        });
+        
+        this.rotateRightButton.addEventListener('click', () => {
+            if (this.isMyTurn) {
+                this.game.rotatePlayer(15); // Rotate 15 degrees right
+            }
+        });
+        
+        this.throwButton.addEventListener('click', () => {
             if (!this.isMyTurn) {
                 this.gameStatus.textContent = "Wait for your turn!";
                 return;
             }
 
-            const index = parseInt(cell.dataset.index);
-            if (this.game.makeMove(index)) {
-                this.network.sendGameMove(index);
+            const angle = parseInt(this.angleSlider.value);
+            const power = parseInt(this.powerSlider.value);
+            
+            if (this.game.shootBullet(angle, power)) {
+                this.network.sendGameMove(angle, power);
                 this.isMyTurn = false;
             }
         });
@@ -153,41 +247,44 @@ class ChatApp {
             this.game.reset();
             this.isMyTurn = this.network.isHost;
             this.resetGameButton.style.display = 'none';
-            this.updateGameBoard();
+            
+            // Update game status based on whose turn it is
+            if (this.isMyTurn) {
+                this.gameStatus.textContent = "Your turn! Move, aim, and shoot";
+            } else {
+                this.gameStatus.textContent = "Opponent's turn. Wait for them to shoot";
+            }
+            
+            // Send game reset event to the other player
+            this.network.sendGameReset();
         });
-
-        this.network.onGameMove = (index) => {
-            this.game.makeMove(index);
-            this.isMyTurn = true;
-        };
-    }
-
-    updateGameBoard() {
-        const cells = this.gameBoard.children;
-        for (let i = 0; i < cells.length; i++) {
-            const cell = cells[i];
-            const value = this.game.board[i];
-            cell.textContent = value || '';
-            cell.classList.toggle('disabled', !!value);
-        }
     }
 
     updatePlayerInfo() {
-        const currentPlayerSymbol = this.network.isHost ? 'X' : 'O';
-        const opponentSymbol = this.network.isHost ? 'O' : 'X';
+        const currentPlayerSymbol = this.network.isHost ? 'Player 1' : 'Player 2';
+        const opponentSymbol = this.network.isHost ? 'Player 2' : 'Player 1';
         
         document.querySelector('.player-symbol').textContent = currentPlayerSymbol;
         document.querySelector('.opponent-symbol').textContent = opponentSymbol;
         
         // Set initial active state
-        const isXTurn = this.game.currentPlayer === 'X';
+        const isPlayer1Turn = this.game.currentPlayer === 0;
         document.querySelector('.current-player').classList.toggle('active', 
-            (isXTurn && this.network.isHost) || (!isXTurn && !this.network.isHost));
+            (isPlayer1Turn && this.network.isHost) || (!isPlayer1Turn && !this.network.isHost));
         document.querySelector('.opponent-player').classList.toggle('active',
-            (isXTurn && !this.network.isHost) || (!isXTurn && this.network.isHost));
+            (isPlayer1Turn && !this.network.isHost) || (!isPlayer1Turn && this.network.isHost));
     }
 
     setupUIHandlers() {
+        // Slider handlers
+        this.angleSlider.addEventListener('input', () => {
+            this.angleValue.textContent = `${this.angleSlider.value}°`;
+        });
+        
+        this.powerSlider.addEventListener('input', () => {
+            this.powerValue.textContent = this.powerSlider.value;
+        });
+        
         document.getElementById('save-name').addEventListener('click', () => {
             const name = this.playerNameInput.value.trim();
             if (name) {

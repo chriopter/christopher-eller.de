@@ -9,6 +9,7 @@ export class Network {
         this.onPeerLeave = null;
         this.onStatusUpdate = null;
         this.onGameMove = null;
+        this.onGameReset = null;
         this.peer = null;
         this.isHost = false;
         this.playerName = '';
@@ -56,7 +57,9 @@ export class Network {
 
                 connection.on('data', (data) => {
                     if (data.type === 'game_move' && this.onGameMove) {
-                        this.onGameMove(data.index);
+                        this.onGameMove(data.angle, data.power);
+                    } else if (data.type === 'game_reset' && this.onGameReset) {
+                        this.onGameReset();
                     } else if (data.type === 'player_info') {
                         // Update opponent's name in the UI
                         const opponentNameElement = document.querySelector('.opponent-name');
@@ -132,7 +135,9 @@ export class Network {
 
             connection.on('data', (data) => {
                 if (data.type === 'game_move' && this.onGameMove) {
-                    this.onGameMove(data.index);
+                    this.onGameMove(data.angle, data.power);
+                } else if (data.type === 'game_reset' && this.onGameReset) {
+                    this.onGameReset();
                 } else if (data.type === 'player_info') {
                     // Update opponent's name in the UI
                     const opponentNameElement = document.querySelector('.opponent-name');
@@ -191,14 +196,26 @@ export class Network {
         });
     }
 
-    sendGameMove(index) {
+    sendGameMove(angle, power) {
         const moveData = {
             type: 'game_move',
-            index: index
+            angle: angle,
+            power: power
         };
         this.peers.forEach(connection => {
             if (connection.open) {
                 connection.send(moveData);
+            }
+        });
+    }
+
+    sendGameReset() {
+        const resetData = {
+            type: 'game_reset'
+        };
+        this.peers.forEach(connection => {
+            if (connection.open) {
+                connection.send(resetData);
             }
         });
     }
