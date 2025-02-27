@@ -100,8 +100,7 @@ jobs:
             --minify \
             --gc \
             --enableGitInfo \
-            --baseURL "${{ steps.pages.outputs.base_url }}/" \
-            --parallel=4
+            --baseURL "${{ steps.pages.outputs.base_url }}/"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
