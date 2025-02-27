@@ -23,34 +23,26 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Cache Git
+      # Consolidated cache step for dependencies and processed content
+      - name: Cache dependencies and content
         uses: actions/cache@v4
         with:
-          path: .git
-          key: ${{ runner.os }}-git-${{ github.sha }}
+          path: |
+            /var/cache/apt
+            /tmp/imagemagick-installed
+            content/photos
+          key: ${{ runner.os }}-photo-processing-${{ hashFiles('import/**', '.github/workflows/process-photos.yml') }}
           restore-keys: |
-            ${{ runner.os }}-git-
-
-      - name: Cache APT
-        uses: actions/cache@v4
-        with:
-          path: /var/cache/apt
-          key: ${{ runner.os }}-apt-${{ hashFiles('**/process-photos.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-apt-
-            
-      - name: Cache processed photos
-        uses: actions/cache@v4
-        with:
-          path: content/photos
-          key: ${{ runner.os }}-photos-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-photos-
-
+            ${{ runner.os }}-photo-processing-
+          
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y imagemagick
+          if [[ ! -f "/tmp/imagemagick-installed/installed" ]]; then
+            sudo apt-get update
+            sudo apt-get install -y imagemagick
+            mkdir -p /tmp/imagemagick-installed
+            touch /tmp/imagemagick-installed/installed
+          fi
       
       - name: Process new photos
         shell: bash
@@ -62,6 +54,10 @@ jobs:
           create_title() {
             echo "$1" | sed -E 's/-/ /g' | awk '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}1'
           }
+          
+          # Count photos to process
+          photo_count=$(find import -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.heic" -o -name "*.png" \) | wc -l)
+          echo "Processing $photo_count photo(s)"
           
           for img in import/*.{jpg,jpeg,heic,png}; do
             [[ -e "$img" ]] || continue
@@ -95,3 +91,4 @@ jobs:
         uses: peter-evans/repository-dispatch@v3
         with:
           event-type: trigger-hugo-build
+          client-payload: '{"full_rebuild": false}'

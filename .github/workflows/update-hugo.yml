@@ -16,32 +16,16 @@ jobs:
         with:
           fetch-depth: 1  # Shallow clone for speed
       
-      - name: Cache API responses
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/hugo-version-check
-          key: ${{ runner.os }}-hugo-api-${{ github.run_id }}
-          restore-keys: |
-            ${{ runner.os }}-hugo-api-
-      
       - name: Check Hugo version
         id: check
         run: |
-          # Create cache directory
-          mkdir -p ~/.cache/hugo-version-check
-          
-          # Get latest Hugo version with caching
-          CACHE_FILE=~/.cache/hugo-version-check/latest_version.txt
-          if [[ -f "$CACHE_FILE" ]] && [[ $(find "$CACHE_FILE" -mmin -60) ]]; then
-            LATEST=$(cat "$CACHE_FILE")
-            echo "Using cached Hugo version: $LATEST"
-          else
-            LATEST=$(curl -s https://api.github.com/repos/gohugoio/hugo/releases/latest | jq -r '.tag_name' | sed 's/^v//')
-            echo "$LATEST" > "$CACHE_FILE"
-            echo "Retrieved latest Hugo version: $LATEST"
-          fi
-          
+          # Get current and latest Hugo versions
           CURRENT=$(cat .hugoversion)
+          LATEST=$(curl -s https://api.github.com/repos/gohugoio/hugo/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+          
+          echo "Current Hugo version: $CURRENT"
+          echo "Latest Hugo version: $LATEST"
+          
           echo "LATEST=$LATEST" >> $GITHUB_OUTPUT
           echo "CURRENT=$CURRENT" >> $GITHUB_OUTPUT
           echo "NEEDS_UPDATE=$([ "$LATEST" != "$CURRENT" ] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
@@ -60,6 +44,8 @@ jobs:
             This PR updates the Hugo version from ${{ steps.check.outputs.CURRENT }} to ${{ steps.check.outputs.LATEST }}.
             
             Release notes: https://github.com/gohugoio/hugo/releases/tag/v${{ steps.check.outputs.LATEST }}
+            
+            Note: This update will trigger a full rebuild with cache invalidation when merged.
           branch: update-hugo-version
           delete-branch: true
           labels: dependencies
