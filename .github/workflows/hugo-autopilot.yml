@@ -1,0 +1,30 @@
+name: Hugo Autopilot
+
+on:
+  # Build triggers
+  push:
+    branches: ["main"]
+    paths-ignore:
+      - 'import/**'  # Ignore changes to import directory
+  
+  # Update Hugo triggers
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly on Monday
+  
+  # Auto-merge triggers
+  pull_request:
+  
+  # Manual trigger for all jobs
+  workflow_dispatch:
+  
+  # Triggered by other workflows
+  repository_dispatch:
+    types: [trigger-hugo-build]
+
+jobs:
+  autopilot:
+    uses: chriopter/hugo-autopilot/.github/workflows/hugo-autopilot-router.yml@main
+    with:
+      hugo_version_file: '.hugoversion'
+      enable_git_info: true
+      merge_method: 'squash'

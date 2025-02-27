@@ -21,7 +21,7 @@ You can upload photos directly through GitHub's web interface:
 
 1. Navigate to the `import/` directory in the repository
 2. Push photo with a descriptive filename (e.g., "Sunset in Spain.jpeg")
-3. The photo will be automatically:
+3. The photo will by Workflow be automatically:
    - Stripped of EXIF GPS data
    - Converted to proper filename format (e.g., "sunset-in-spain.jpeg")
    - Placed in the correct Hugo structure
@@ -32,22 +32,4 @@ You can upload photos directly through GitHub's web interface:
 
 ### CI/CD and GitHub Actions
 
-#### Pushing Changes
-- GitHub Actions builds and deploys the site when changes are pushed to main
-- Uses peaceiris/actions-hugo@v3 for Hugo setup
-- Build process optimized for consistency and reliability
-
-#### Dependabot & Auto-Merge
-- **Dependabot**: Automatically updates GitHub Actions dependencies with daily checks
-- Configured to group all GitHub Actions updates into a single PR
--  Using GitHub's recommended best practices with `dependabot/fetch-metadata` to safely auto-merge
-
-
-#### Hugo Updates
-- `.hugoversion`: Contains the Hugo version used by GitHub Actions
-- Custom Action: Checks weekly for new Hugo versions and creates PRs
-- Direct auto-merge implementation in the update-hugo workflow
-
-#### Photo Processing
-- Photo processing: Upload to import/ directory and workflow handles the rest
-- Automatically processes photos and triggers a site rebuild
+- Uses https://github.com/chriopter/hugo-autopilot
