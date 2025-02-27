@@ -27,4 +27,5 @@ jobs:
     with:
       hugo_version_file: '.hugoversion'
       enable_git_info: true
+      base_branch: 'main'
       merge_method: 'squash'
