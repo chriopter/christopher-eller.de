@@ -62,18 +62,20 @@ jobs:
           if [[ "${{ github.event_name == 'workflow_dispatch' && github.event.inputs.full_rebuild }}" == "true" || \
                 "${{ github.event_name == 'repository_dispatch' && github.event.client_payload.full_rebuild }}" == "true" ]]; then
             echo "FULL_REBUILD=true" >> $GITHUB_OUTPUT
-            echo "Full rebuild requested"
+            echo "::notice::🔄 FULL REBUILD: Manually requested"
           # Check if Hugo version changed
           elif git diff --name-only HEAD^ HEAD | grep -q ".hugoversion"; then
             echo "FULL_REBUILD=true" >> $GITHUB_OUTPUT
-            echo "Hugo version changed - will perform full rebuild"
+            echo "::notice::🔄 FULL REBUILD: Hugo version changed"
           else
             echo "FULL_REBUILD=false" >> $GITHUB_OUTPUT
-            echo "Using cached build"
+            echo "::notice::♻️ USING CACHE: No rebuild trigger detected"
           fi
       
       # Single optimized cache step
-      - uses: actions/cache@v4
+      - name: Cache Hugo resources
+        id: cache-resources
+        uses: actions/cache@v4
         if: steps.check-rebuild.outputs.FULL_REBUILD != 'true'
         with:
           path: ${{ env.HUGO_CACHEDIR }}
@@ -81,6 +83,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-hugo-${{ steps.hugo-version.outputs.HUGO_VERSION }}-
             ${{ runner.os }}-hugo-
+      
+      - name: Report cache status
+        run: |
+          if [[ "${{ steps.check-rebuild.outputs.FULL_REBUILD }}" == "true" ]]; then
+            echo "::notice::🔥 CACHE BYPASSED: Performing full rebuild"
+          elif [[ "${{ steps.cache-resources.outputs.cache-hit }}" == "true" ]]; then
+            echo "::notice::✅ CACHE HIT: Using cached Hugo resources"
+          else
+            echo "::notice::❌ CACHE MISS: Building with fresh cache"
+          fi
       
       - name: Setup Pages
         id: pages
@@ -96,11 +108,20 @@ jobs:
         env:
           HUGO_ENVIRONMENT: production
         run: |
+          # Record start time
+          START_TIME=$(date +%s)
+          
+          # Build the site
           hugo \
             --minify \
             --gc \
             --enableGitInfo \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
+          
+          # Calculate and display build time
+          END_TIME=$(date +%s)
+          BUILD_TIME=$((END_TIME - START_TIME))
+          echo "::notice::⏱️ BUILD TIME: $BUILD_TIME seconds"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
