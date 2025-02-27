@@ -23,7 +23,7 @@ on:
 
 jobs:
   autopilot:
-    uses: chriopter/hugo-autopilot/.github/workflows/hugo-autopilot-router.yml@main
+    uses: chriopter/hugo-autopilot/.github/workflows/hugo-autopilot.yml@main
     with:
       hugo_version_file: '.hugoversion'
       enable_git_info: true
