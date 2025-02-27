@@ -32,8 +32,19 @@ The GitHub Action will process the photo and commit the changes automatically.
 ### Create Link
 1. hugo new content/links/title-with-spaces.md
 
-### CI/CD and Dependabot
-- `.hugoversion`: Contains the Hugo version used by GitHub Actions for building the site
-- GitHub Actions: Reads the version from `.hugoversion` to install the correct Hugo version
-- Dependabot: Automatically updates GitHub Actions but not the Hugo version itself
-- Custom Action: Checks weekly for new Hugo versions and creates PRs to update `.hugoversion`
+### CI/CD and GitHub Actions
+
+#### Pushing Changes
+- GitHub Actions builds and deploys the site when changes are pushed to main
+- Optimized caching for faster builds
+- Uses peaceiris/actions-hugo@v3 for Hugo setup (JavaScript implementation, not Docker)
+
+#### Dependabot & Version Check
+- `.hugoversion`: Contains the Hugo version used by GitHub Actions
+- Dependabot: Automatically updates GitHub Actions but not Hugo version
+- Custom Action: Checks weekly for new Hugo versions and creates PRs
+
+#### Full Rebuild and Photos
+- Full rebuild is triggered automatically when Hugo version changes
+- Manual full rebuild: Actions → Deploy Hugo Site to Pages → Run workflow → Check "Force full rebuild"
+- Photo processing: Upload to import/ directory and workflow handles the rest
