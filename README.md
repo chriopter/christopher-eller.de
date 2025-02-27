@@ -41,7 +41,7 @@ You can upload photos directly through GitHub's web interface:
 - `.hugoversion`: Contains the Hugo version used by GitHub Actions
 - Dependabot: Automatically updates GitHub Actions dependencies
 - Custom Action: Checks weekly for new Hugo versions and creates PRs
-- Automatic PR Merging: Using pascalgn/automerge-action to automatically merge PRs with the "Automerge" label
+- Automatic PR Merging: Using pascalgn/automerge-action to automatically merge both Dependabot PRs and Hugo update PRs
 - Consolidated Updates: Dependabot updates are grouped into a single PR for easier management
 
 #### Photo Processing

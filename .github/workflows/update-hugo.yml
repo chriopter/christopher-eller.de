@@ -48,5 +48,3 @@ jobs:
             [Release notes](https://github.com/gohugoio/hugo/releases/tag/v${{ steps.check.outputs.LATEST }})
           branch: update-hugo
           delete-branch: true
-          labels: |
-            Automerge
