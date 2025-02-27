@@ -36,13 +36,14 @@ The GitHub Action will process the photo and commit the changes automatically.
 
 #### Pushing Changes
 - GitHub Actions builds and deploys the site when changes are pushed to main
-- Uses peaceiris/actions-hugo@v3 for Hugo setup 
+- Uses peaceiris/actions-hugo@v3 for Hugo setup
+- Build process optimized for consistency and reliability
 
 #### Dependabot & Auto-Merge
 - `.hugoversion`: Contains the Hugo version used by GitHub Actions
 - Dependabot: Automatically updates GitHub Actions but not Hugo version
 - Custom Action: Checks weekly for new Hugo versions and creates PRs
-- Repo Auto-Merges PRs
+- PRs are Automerged by Repo Settings
 
 #### Photo Processing
 - Photo processing: Upload to import/ directory and workflow handles the rest
