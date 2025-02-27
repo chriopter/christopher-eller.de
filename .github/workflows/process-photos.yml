@@ -19,6 +19,10 @@ jobs:
   process-photos:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Cache Git
         uses: actions/cache@v4
         with:
@@ -27,10 +31,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-git-
 
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Cache APT
         uses: actions/cache@v4
         with:
@@ -38,6 +38,14 @@ jobs:
           key: ${{ runner.os }}-apt-${{ hashFiles('**/process-photos.yml') }}
           restore-keys: |
             ${{ runner.os }}-apt-
+            
+      - name: Cache processed photos
+        uses: actions/cache@v4
+        with:
+          path: content/photos
+          key: ${{ runner.os }}-photos-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-photos-
 
       - name: Install dependencies
         run: |

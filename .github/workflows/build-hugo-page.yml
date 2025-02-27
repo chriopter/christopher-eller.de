@@ -41,21 +41,51 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 1  # Shallow clone for speed
+          
       - name: Read Hugo version
         id: hugo-version
         run: echo "HUGO_VERSION=$(cat .hugoversion)" >> $GITHUB_OUTPUT
+        
+      # Comprehensive caching strategy
+      - name: Cache Hugo resources
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.hugo_cache/
+            ~/.cache/hugo_cache/
+            ${{ runner.temp }}/hugo_cache
+            /tmp/hugo_cache
+            resources/_gen
+          key: ${{ runner.os }}-hugo-${{ steps.hugo-version.outputs.HUGO_VERSION }}-${{ hashFiles('hugo.toml', 'content/**', 'layouts/**', 'static/**') }}
+          restore-keys: |
+            ${{ runner.os }}-hugo-${{ steps.hugo-version.outputs.HUGO_VERSION }}-
+            ${{ runner.os }}-hugo-
+            
+      - name: Cache Node.js dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json', '**/npm-shrinkwrap.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+            
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+        
+      - name: Install Node.js dependencies
+        run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+        
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
           hugo-version: ${{ steps.hugo-version.outputs.HUGO_VERSION }}
           extended: true
+          
       - name: Install Dart Sass
         run: sudo snap install dart-sass
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v5
-      - name: Install Node.js dependencies
-        run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+        
       - name: Build with Hugo
         env:
           HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
@@ -63,6 +93,8 @@ jobs:
         run: |
           hugo \
             --minify \
+            --gc \
+            --enableGitInfo \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
