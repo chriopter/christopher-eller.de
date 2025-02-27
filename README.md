@@ -27,8 +27,6 @@ You can upload photos directly through GitHub's web interface:
    - Placed in the correct Hugo structure
    - Given a properly formatted title ("Sunset in Spain")
 
-The GitHub Action will process the photo and commit the changes automatically.
-
 ### Create Link
 1. hugo new content/links/title-with-spaces.md
 
@@ -41,9 +39,10 @@ The GitHub Action will process the photo and commit the changes automatically.
 
 #### Dependabot & Auto-Merge
 - `.hugoversion`: Contains the Hugo version used by GitHub Actions
-- Dependabot: Automatically updates GitHub Actions but not Hugo version
+- Dependabot: Automatically updates GitHub Actions dependencies
 - Custom Action: Checks weekly for new Hugo versions and creates PRs
-- PRs are Automerged by Repo Settings
+- Automatic PR Merging: Both Dependabot PRs and Hugo update PRs are automatically merged when all checks pass
+- Consolidated Updates: Dependabot updates are grouped into a single PR for easier management
 
 #### Photo Processing
 - Photo processing: Upload to import/ directory and workflow handles the rest
