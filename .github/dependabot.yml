@@ -17,3 +17,7 @@ updates:
     commit-message:
       prefix: "ci"
       include: "scope"
+    groups:
+      github-actions:
+        patterns:
+          - "*"  # This will group all GitHub Actions updates together
