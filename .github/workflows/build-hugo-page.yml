@@ -116,6 +116,8 @@ jobs:
             --minify \
             --gc \
             --enableGitInfo \
+            --renderToMemory \
+            --noTimes \
             --baseURL "${{ steps.pages.outputs.base_url }}/"
           
           # Calculate and display build time
