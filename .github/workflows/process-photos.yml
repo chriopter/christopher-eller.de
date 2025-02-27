@@ -1,4 +1,4 @@
-name: Process Photos
+name: Import Photos
 
 on:
   push:
