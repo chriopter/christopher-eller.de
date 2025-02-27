@@ -28,3 +28,4 @@ jobs:
       hugo_version_file: '.hugoversion'
       enable_git_info: true
       merge_method: 'squash'
+ 
