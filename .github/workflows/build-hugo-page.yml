@@ -10,12 +10,6 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-    inputs:
-      full_rebuild:
-        description: 'Force full rebuild (invalidate all caches)'
-        required: false
-        default: false
-        type: boolean
 
   # Triggered by process-photos workflow
   repository_dispatch:
@@ -42,57 +36,16 @@ jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
-    env:
-      HUGO_CACHEDIR: /tmp/hugo_cache
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
-          fetch-depth: 2  # Fetch HEAD and HEAD^ for proper diff
+          fetch-depth: 0  # Simplified to just fetch all history
       
       - name: Read Hugo version
         id: hugo-version
         run: echo "HUGO_VERSION=$(cat .hugoversion)" >> $GITHUB_OUTPUT
-      
-      - name: Check if full rebuild needed
-        id: check-rebuild
-        run: |
-          # Check if manually requested or repository_dispatch with full_rebuild
-          if [[ "${{ github.event_name == 'workflow_dispatch' && github.event.inputs.full_rebuild }}" == "true" || \
-                "${{ github.event_name == 'repository_dispatch' && github.event.client_payload.full_rebuild }}" == "true" ]]; then
-            echo "FULL_REBUILD=true" >> $GITHUB_OUTPUT
-            echo "::notice::🔄 FULL REBUILD: Manually requested"
-          # Check if Hugo version changed
-          elif git diff --name-only HEAD^ HEAD | grep -q ".hugoversion"; then
-            echo "FULL_REBUILD=true" >> $GITHUB_OUTPUT
-            echo "::notice::🔄 FULL REBUILD: Hugo version changed"
-          else
-            echo "FULL_REBUILD=false" >> $GITHUB_OUTPUT
-            echo "::notice::♻️ USING CACHE: No rebuild trigger detected"
-          fi
-      
-      # Single optimized cache step
-      - name: Cache Hugo resources
-        id: cache-resources
-        uses: actions/cache@v4
-        if: steps.check-rebuild.outputs.FULL_REBUILD != 'true'
-        with:
-          path: ${{ env.HUGO_CACHEDIR }}
-          key: ${{ runner.os }}-hugo-${{ steps.hugo-version.outputs.HUGO_VERSION }}-${{ hashFiles('hugo.toml', 'content/**/*.md', 'layouts/**/*.html', '**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-hugo-${{ steps.hugo-version.outputs.HUGO_VERSION }}-
-            ${{ runner.os }}-hugo-
-      
-      - name: Report cache status
-        run: |
-          if [[ "${{ steps.check-rebuild.outputs.FULL_REBUILD }}" == "true" ]]; then
-            echo "::notice::🔥 CACHE BYPASSED: Performing full rebuild"
-          elif [[ "${{ steps.cache-resources.outputs.cache-hit }}" == "true" ]]; then
-            echo "::notice::✅ CACHE HIT: Using cached Hugo resources"
-          else
-            echo "::notice::❌ CACHE MISS: Building with fresh cache"
-          fi
       
       - name: Setup Pages
         id: pages

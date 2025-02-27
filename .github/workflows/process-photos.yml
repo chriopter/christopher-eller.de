@@ -22,27 +22,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      # Consolidated cache step for dependencies and processed content
-      - name: Cache dependencies and content
-        uses: actions/cache@v4
-        with:
-          path: |
-            /var/cache/apt
-            /tmp/imagemagick-installed
-            content/photos
-          key: ${{ runner.os }}-photo-processing-${{ hashFiles('import/**', '.github/workflows/process-photos.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-photo-processing-
           
       - name: Install dependencies
         run: |
-          if [[ ! -f "/tmp/imagemagick-installed/installed" ]]; then
-            sudo apt-get update
-            sudo apt-get install -y imagemagick
-            mkdir -p /tmp/imagemagick-installed
-            touch /tmp/imagemagick-installed/installed
-          fi
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
       
       - name: Process new photos
         shell: bash
@@ -91,4 +75,4 @@ jobs:
         uses: peter-evans/repository-dispatch@v3
         with:
           event-type: trigger-hugo-build
-          client-payload: '{"full_rebuild": false}'
+          client-payload: '{}'
