@@ -38,11 +38,15 @@ jobs:
         if: steps.check.outputs.NEEDS_UPDATE == 'true'
         run: echo "${{ steps.check.outputs.LATEST }}" > .hugoversion
       
-      - uses: peter-evans/create-pull-request@v7
+      - name: Create Pull Request
         if: steps.check.outputs.NEEDS_UPDATE == 'true'
+        uses: peter-evans/create-pull-request@v7
         with:
           commit-message: "Update Hugo to ${{ steps.check.outputs.LATEST }}"
           title: "Update Hugo: ${{ steps.check.outputs.CURRENT }} → ${{ steps.check.outputs.LATEST }}"
-          body: "[Release notes](https://github.com/gohugoio/hugo/releases/tag/v${{ steps.check.outputs.LATEST }})"
+          body: |
+            [Release notes](https://github.com/gohugoio/hugo/releases/tag/v${{ steps.check.outputs.LATEST }})
+            
+            Note: To auto-merge this PR, click the "Enable auto-merge" button if you have enabled the "Allow auto-merge" setting in repository settings.
           branch: update-hugo
           delete-branch: true
