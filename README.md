@@ -38,11 +38,13 @@ You can upload photos directly through GitHub's web interface:
 - Build process optimized for consistency and reliability
 
 #### Dependabot & Auto-Merge
-- `.hugoversion`: Contains the Hugo version used by GitHub Actions
-- Dependabot: Automatically updates GitHub Actions dependencies
-- Custom Action: Checks weekly for new Hugo versions and creates PRs
+- Dependabot: Automatically updates GitHub Actions dependencies, Consolidated PR is created
 - Automatic PR Merging: Using pascalgn/automerge-action to automatically merge both Dependabot PRs and Hugo update PRs
-- Consolidated Updates: Dependabot updates are grouped into a single PR for easier management
+
+#### Hugo Updates
+- `.hugoversion`: Contains the Hugo version used by GitHub Actions
+- Custom Action: Checks weekly for new Hugo versions and creates PRs
+- Automatic Merged PR will trigger normal page-build
 
 #### Photo Processing
 - Photo processing: Upload to import/ directory and workflow handles the rest
