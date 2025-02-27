@@ -1,51 +1,48 @@
-name: Update Hugo Version
+name: Update Hugo
 
 on:
   schedule:
-    - cron: '0 6 * * 1'  # Every Monday at 6 AM
-  workflow_dispatch:  # Allow manual triggering
+    - cron: '0 6 * * 1'  # Weekly on Monday
+  workflow_dispatch:
 
 jobs:
-  update-hugo:
+  update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1  # Shallow clone for speed
       
       - name: Check Hugo version
         id: check
         run: |
-          # Get current and latest Hugo versions
           CURRENT=$(cat .hugoversion)
           LATEST=$(curl -s https://api.github.com/repos/gohugoio/hugo/releases/latest | jq -r '.tag_name' | sed 's/^v//')
           
-          echo "Current Hugo version: $CURRENT"
-          echo "Latest Hugo version: $LATEST"
+          # Exit gracefully if API call fails
+          if [ -z "$LATEST" ]; then
+            echo "Failed to fetch latest Hugo version"
+            exit 0
+          fi
           
-          echo "LATEST=$LATEST" >> $GITHUB_OUTPUT
-          echo "CURRENT=$CURRENT" >> $GITHUB_OUTPUT
-          echo "NEEDS_UPDATE=$([ "$LATEST" != "$CURRENT" ] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+          echo "Current: $CURRENT, Latest: $LATEST"
+          
+          if [ "$LATEST" != "$CURRENT" ]; then
+            echo "NEEDS_UPDATE=true" >> $GITHUB_OUTPUT
+            echo "CURRENT=$CURRENT" >> $GITHUB_OUTPUT
+            echo "LATEST=$LATEST" >> $GITHUB_OUTPUT
+          fi
       
-      - name: Update .hugoversion file
+      - name: Update version file
         if: steps.check.outputs.NEEDS_UPDATE == 'true'
         run: echo "${{ steps.check.outputs.LATEST }}" > .hugoversion
       
-      - name: Create Pull Request
+      - uses: peter-evans/create-pull-request@v7
         if: steps.check.outputs.NEEDS_UPDATE == 'true'
-        uses: peter-evans/create-pull-request@v7
         with:
-          commit-message: "chore: update Hugo to ${{ steps.check.outputs.LATEST }}"
-          title: "Update Hugo from ${{ steps.check.outputs.CURRENT }} to ${{ steps.check.outputs.LATEST }}"
-          body: |
-            This PR updates the Hugo version from ${{ steps.check.outputs.CURRENT }} to ${{ steps.check.outputs.LATEST }}.
-            
-            Release notes: https://github.com/gohugoio/hugo/releases/tag/v${{ steps.check.outputs.LATEST }}
-            
-            Note: This update will trigger a full rebuild with cache invalidation when merged.
-          branch: update-hugo-version
+          commit-message: "Update Hugo to ${{ steps.check.outputs.LATEST }}"
+          title: "Update Hugo: ${{ steps.check.outputs.CURRENT }} → ${{ steps.check.outputs.LATEST }}"
+          body: "[Release notes](https://github.com/gohugoio/hugo/releases/tag/v${{ steps.check.outputs.LATEST }})"
+          branch: update-hugo
           delete-branch: true
-          labels: dependencies
