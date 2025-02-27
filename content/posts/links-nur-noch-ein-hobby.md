@@ -5,7 +5,7 @@ title: Links - Nur noch ein Hobby der Bourgeoisie
 
 
 
-Die [grüne Hausnummer](https://www.mainz-bingen.de/default-wAssets/docs/Bauen-Energie-Umwelt/Umwelt-und-Energieberatungszentrum/Klimaschutz/Umweltbildung/Gruene-Hausnummer-PLUS/UEBZ_GrueneHausnummerPLUS_Bewerbungsbogen.pdf) von Mainz-Bingen ist das absolute Endstadium der Zuschaustellung des eigenen Haushaltseinkommens. In einem Selbstbewertungsbogen können sich Eigenheimbesitzer eine Art Ökoscore errechnen, der sie für ein Siegel an ihrer Hauswand qualifiziert.
+Die [grüne Hausnummer](https://www.mainz-bingen.de/default-wAssets/docs/Bauen-Energie-Umwelt/Umwelt-und-Energieberatungszentrum/Klimaschutz/Umweltbildung/Gruene-Hausnummer-PLUS/UEBZ_GrueneHausnummerPLUS_Bewerbungsbogen.pdf) von Mainz-Bingen ist das absolute Endstadium der Zuschaustellung des eigenen Haushaltseinkommens. In einem Selbstbewertungsbogen können sich Eigenheimbesitzer eine Art Öko-Score errechnen, der sie für ein Siegel an ihrer Hauswand qualifiziert.
 
 Wie immer geht es hierbei gar nicht primär um Klimaschutz, sondern um die Zurschaustellung der eigenen Moral über die Höhe der Ausgaben, die man mit gutem Gewissen getätigt hat.\
 Denn: Der Fragebogen vergibt beispielsweise 5 Punkte für „kein Auto", aber insgesamt 7 Punkte für ein Elektroauto mit Ladestation oder insgesamt sogar 10, wenn man einen Hybrid-Zweitwagen fahren würde. Auch der Rest des Fragebogens ist vor allem mit einem zu gewinnen: Einem großen Eigenheim, viel Grundstücksfläche und viel Geld. Ganz großes Kino!
