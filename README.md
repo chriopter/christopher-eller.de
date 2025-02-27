@@ -31,3 +31,9 @@ The GitHub Action will process the photo and commit the changes automatically.
 
 ### Create Link
 1. hugo new content/links/title-with-spaces.md
+
+### CI/CD and Dependabot
+- `.hugoversion`: Contains the Hugo version used by GitHub Actions for building the site
+- GitHub Actions: Reads the version from `.hugoversion` to install the correct Hugo version
+- Dependabot: Automatically updates GitHub Actions but not the Hugo version itself
+- Custom Action: Checks weekly for new Hugo versions and creates PRs to update `.hugoversion`
