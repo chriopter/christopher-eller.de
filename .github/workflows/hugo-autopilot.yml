@@ -19,7 +19,7 @@ on:
   
   # Triggered by other workflows
   repository_dispatch:
-    types: [trigger-hugo-autopilot]
+    types: [hugo-autopilot-build]
     
 jobs:
   autopilot:
