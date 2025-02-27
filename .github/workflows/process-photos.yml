@@ -74,5 +74,5 @@ jobs:
       - name: Trigger Hugo workflow
         uses: peter-evans/repository-dispatch@v3
         with:
-          event-type: trigger-hugo-autopilot-build
+          event-type: hugo-autopilot-build
           client-payload: '{}'
