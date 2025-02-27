@@ -50,9 +50,12 @@ jobs:
           branch: update-hugo
           delete-branch: true
       
-      - name: Trigger automerge
+      - name: Auto-merge Pull Request
         if: steps.create-pr.outputs.pull-request-number
-        uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: automerge.yml
-          inputs: '{"pr_number": ${{ steps.create-pr.outputs.pull-request-number }}}'
+        uses: pascalgn/automerge-action@v0.16.4
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          MERGE_LABELS: ""  # No labels required
+          MERGE_METHOD: "squash"
+          MERGE_COMMIT_MESSAGE: "pull-request-title"
+          PULL_REQUEST: "${{ steps.create-pr.outputs.pull-request-number }}"

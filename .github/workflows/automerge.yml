@@ -1,36 +1,23 @@
-name: Auto-merge PRs
-on:
-  pull_request:
-    branches: [main]
-  repository_dispatch:
-    types: [auto-merge-pr]
+name: Dependabot Auto-merge
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  auto-merge-dependabot:
+  dependabot:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
-    permissions:
-      contents: write
-      pull-requests: write
+    if: github.actor == 'dependabot[bot]' && github.repository == 'christophereller/christopher-eller.de'
     steps:
-      - uses: pascalgn/automerge-action@v0.16.4
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          
+      - name: Enable auto-merge for Dependabot PRs
+        run: gh pr merge --auto --squash "$PR_URL"
         env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          MERGE_LABELS: ""  # No labels required
-          MERGE_METHOD: "squash"
-          MERGE_COMMIT_MESSAGE: "pull-request-title"
-
-  auto-merge-pr:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'repository_dispatch' && github.event.client_payload.event_type == 'auto-merge-pr'
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - uses: pascalgn/automerge-action@v0.16.4
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          MERGE_LABELS: ""  # No labels required
-          MERGE_METHOD: "squash"
-          MERGE_COMMIT_MESSAGE: "pull-request-title"
-          PULL_REQUEST: "${{ github.event.client_payload.pr_number }}"
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
