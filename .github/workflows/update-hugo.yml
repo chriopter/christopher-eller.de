@@ -46,7 +46,7 @@ jobs:
           title: "Update Hugo: ${{ steps.check.outputs.CURRENT }} → ${{ steps.check.outputs.LATEST }}"
           body: |
             [Release notes](https://github.com/gohugoio/hugo/releases/tag/v${{ steps.check.outputs.LATEST }})
-            
-            Note: To auto-merge this PR, click the "Enable auto-merge" button if you have enabled the "Allow auto-merge" setting in repository settings.
           branch: update-hugo
           delete-branch: true
+          labels: |
+            Automerge
