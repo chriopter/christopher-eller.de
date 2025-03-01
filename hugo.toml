@@ -1,6 +1,7 @@
 baseURL = 'https://christopher-eller.de/'
 languageCode = 'de-DE'
 title = 'Christopher Eller'
+theme = 'modulunar'
 
 [outputs]
 home = ["HTML", "RSS"]
@@ -18,6 +19,7 @@ paginatePath = "page"
 [params]
   favicon = true
   site_manifest = "/site.webmanifest"
+  enablePhotosModule = true
 
 [markup.goldmark.renderhooks.image]
   enable = true
