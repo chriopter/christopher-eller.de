@@ -28,3 +28,6 @@ paginatePath = "page"
 [markup.goldmark.renderhooks.link]
   enable = true
   multilingualOnly = false
+
+[markup.goldmark.renderer]
+  unsafe = true
