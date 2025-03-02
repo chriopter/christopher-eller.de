@@ -1,9 +1,6 @@
 # christopher-eller.de
 My Site in Hugo
 
-- brew install hugo
-- hugo server
-
 ### Setup
 After cloning the repository, run this command to configure Git to use the hooks:
 ```bash
@@ -17,17 +14,12 @@ The pre-commit hook performs three main functions:
 - Check local HUGO Version & compare to pinned in .hugoversion
 
 ### Photo Upload
-You can upload photos directly through GitHub's web interface:
+You can upload photos directly through GitHub's web interface.
 
-1. Navigate to the `import/` directory in the repository
-2. Push photo with a descriptive filename (e.g., "Sunset in Spain.jpeg")
-3. The photo will by Workflow be automatically:
-   - Stripped of EXIF GPS data
-   - Converted to proper filename format (e.g., "sunset-in-spain.jpeg")
-   - Placed in the correct Hugo structure
-   - Given a properly formatted title ("Sunset in Spain")
+- Upload jpg to `import/` with a descriptive filename (e.g., "Sunset in Spain.jpeg")
+- Workflow will automatically Strip EXIF, Convert Filename, Create Post with Formatted Title
 
-### Create Link
+### Create Link Post Type
 1. hugo new content/links/title-with-spaces.md
 
 ### CI/CD and GitHub Actions
