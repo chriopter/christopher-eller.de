@@ -8,10 +8,7 @@ git config --local include.path ../.gitconfig && brew install exiftool
 ```
 
 ### Pre-commit Hook Functions
-The pre-commit hook performs three main functions:
-- Removes GPS/location data from photos for privacy
-- Extract EXIF
-- Check local HUGO Version & compare to pinned in .hugoversion
+The pre-commit hook Removes GPS EXIF & compare local Hugo version to pinned in .hugoversion
 
 ### Photo Upload
 You can upload photos directly through GitHub's web interface.
