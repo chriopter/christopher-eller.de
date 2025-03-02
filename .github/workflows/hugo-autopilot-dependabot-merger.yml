@@ -1,0 +1,26 @@
+name: Hugo Autopilot Dependabot Merger
+
+on:
+  # Triggers the PR auto-merge job when Dependabot creates a PR
+  pull_request:
+  
+  # Allows manual triggering from the GitHub Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow PR merging
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # Auto-merge Dependabot PRs
+  automerge:
+    uses: chriopter/hugo-autopilot/.github/workflows/hugo-autopilot-dependabot-merger.yml@main
+    permissions:
+      contents: write
+      pull-requests: write
+    with:
+      # Method to use when merging PRs
+      merge_method: 'squash'
+      # Commit message template
+      commit_message: 'pull-request-title'

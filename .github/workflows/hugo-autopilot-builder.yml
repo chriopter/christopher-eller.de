@@ -1,0 +1,40 @@
+name: Hugo Autopilot Builder
+
+on:
+  # Triggers the build and deploy job when you push to main branch
+  push:
+    branches: ["main"]
+    paths-ignore:
+      - 'import/**'
+      - '.github/**'
+  
+  # Allows manual triggering from the GitHub Actions tab
+  workflow_dispatch:
+  
+  # Allows other workflows to trigger the build job
+  repository_dispatch:
+    types: [hugo-autopilot-build]
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  # Build and deploy Hugo site
+  build:
+    uses: chriopter/hugo-autopilot/.github/workflows/hugo-autopilot-builder.yml@main
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    with:
+      # Path to your Hugo version file
+      hugo_version_file: '.hugoversion'
+      # Enable Git info for Hugo (last modified dates, etc.)
+      enable_git_info: true
+      # The branch to build from
+      base_branch: 'main'
+      # Paths to ignore for triggering builds
+      ignore_paths: 'import/**,.github/**'
