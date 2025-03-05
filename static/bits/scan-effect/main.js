@@ -4,7 +4,7 @@
  */
 
 // Set PDF.js worker path
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'lib/pdf.worker.min.js';
 
 // DOM Elements
 const uploadArea = document.getElementById('upload-area');
