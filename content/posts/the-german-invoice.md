@@ -17,9 +17,10 @@ The whole world doesn't understand what this obsession is about. But we Germans 
 
 But why? What's the purpose of a PDF when I already have bank statements, credit card records, and countless order emails that list the vendor and match the exact amount paid?
 
-This fixation on having an invoice look like its 1975 is a huge waste of resources, and it distracts from actual fraud.
-For instance, selecting a different country with 0% VAT is still possible in many online stores for digital goods.
-Companies valued millions don't care about our VAT & when they are valued billions they just write "VAT" on invoices and add 19%, without transferring that money via MOSS back to Germany. They're not collecting VAT – they're imposing a tax on Germans to avoid additional customer support work. It's fraud but we don't care.
+This fixation on having an invoice look like its 1975 is a huge waste of resources, and it distracts from actual fraud.\
+For instance, selecting a different country with 0% VAT is still possible in many online stores for digital goods.\
+Companies valued millions don't care about our VAT & when they are valued billions they just write "VAT" on invoices and add 19%, without transferring that money via MOSS back to Germany.\
+They're not collecting VAT – they're imposing a tax on Germans to avoid additional customer support work. It's fraud but we don't care.
 
 What's the point of harassing small business owners until they block entire countries as customers, while big companies get away with years of improper VAT collection? How long will we continue to think the world wraps around our rules?
 
