@@ -16,8 +16,15 @@ paginate = 10
 paginatePath = "page"
 
 [params]
+  description = "Personal website of Christopher Eller - Sharing texts, links, and photos"
+  # Use profile picture for all OpenGraph/Twitter Card images
+  images = ["/pages/about/profile.jpg"]
   favicon = true
   site_manifest = "/site.webmanifest"
+  
+  # Twitter handle (without the @)
+  [params.social]
+    twitter = "chriopter"
 
 [markup.goldmark.renderhooks.image]
   enable = true
