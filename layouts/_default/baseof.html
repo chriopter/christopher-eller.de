@@ -89,10 +89,10 @@
             margin-bottom: 1rem;
         }
 
-        header .header-content {
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 2rem;
-        }
+header .header-content {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1.5rem;
+}
 
         .header-content {
             max-width: 800px;
@@ -111,13 +111,21 @@
         @media (max-width: 600px) {
             .header-content {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: center; /* Changed from flex-start to center */
                 gap: 1rem;
+            }
+
+            .site-title {
+                text-align: center; /* Center the site title */
+            }
+
+            .site-title > div {
+                align-items: center; /* Center the site title and small links */
             }
 
             .nav-links {
                 width: 100%;
-                justify-content: space-between;
+                justify-content: center; /* Changed from space-between to center */
                 flex-wrap: wrap;
                 gap: 1rem;
             }
@@ -146,7 +154,7 @@
 
         .nav-links {
             display: flex;
-            gap: 2rem;
+            gap: 1rem; /* Reduced from 2rem to 1rem to decrease horizontal whitespace */
             align-items: center;
         }
 
@@ -335,9 +343,29 @@
     <header>
         <div class="header-content">
             <div class="site-title">
-                <a href="/" style="text-decoration: none; color: inherit;">{{ .Site.Title }}</a>
-                <span class="moon-toggle" id="moonToggle" style="pointer-events: auto;" title="Click to toggle theme, double-click to sync with system">{{ "🌕" }}</span>
-                <script>document.getElementById('moonToggle').textContent = document.documentElement.dataset.moonState;</script>
+                <div style="display: flex; flex-direction: column;">
+                    <div style="display: flex; align-items: center;">
+                        <a href="/" style="text-decoration: none; color: inherit;">{{ .Site.Title }}</a>
+                        <span class="moon-toggle" id="moonToggle" style="pointer-events: auto; margin-left: 0.75rem;" title="Click to toggle theme, double-click to sync with system">{{ "🌕" }}</span>
+                        <script>document.getElementById('moonToggle').textContent = document.documentElement.dataset.moonState;</script>
+                    </div>
+                    <div style="font-size: 0.7rem; color: var(--secondary-text); margin-top: 0.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <a href="/about" style="text-decoration: none; color: inherit;">About</a> ·
+                        <a href="/subscribe" style="text-decoration: none; color: inherit;">Subscribe</a> · 
+                        <a href="https://github.com/chriopter" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit; display: flex; align-items: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                            </svg>
+                        </a> · 
+                        <a href="https://instagram.com/christopher_eller_3000" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit; display: flex; align-items: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
             </div>
             <nav class="nav-links">
                 <a href="/photos">Photos</a>
@@ -353,9 +381,6 @@
                     </div>
                 </div>
                 <a href="/texts">Texts</a>
-                <span class="nav-separator">|</span>
-                <a href="/about">About</a>
-                <a href="/subscribe">Subscribe</a>
             </nav>
         </div>
     </header>

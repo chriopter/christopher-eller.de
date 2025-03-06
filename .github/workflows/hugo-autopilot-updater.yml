@@ -1,0 +1,29 @@
+name: Hugo Autopilot Updater
+
+on:
+  # Triggers the Hugo update job weekly to check for new Hugo versions
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly on Monday
+  
+  # Allows manual triggering from the GitHub Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow PR creation and merging
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # Update Hugo version
+  update:
+    uses: chriopter/hugo-autopilot/.github/workflows/hugo-autopilot-updater.yml@main
+    permissions:
+      contents: write
+      pull-requests: write
+    with:
+      # Path to your Hugo version file
+      hugo_version_file: '.hugoversion'
+      # Branch name to use for update PRs
+      update_branch: 'update-hugo'
+      # Prefix for Hugo update PR titles
+      pr_title_prefix: 'Update Hugo:'
