@@ -18,7 +18,7 @@ paginatePath = "page"
 [params]
   description = "Personal website of Christopher Eller - Sharing texts, links, and photos"
   # Use profile picture for all OpenGraph/Twitter Card images
-  images = ["https://christopher-eller.de/pages/about/profile.jpg"]
+  images = ["https://christopher-eller.de/about/profile.jpg"]
   favicon = true
   site_manifest = "/site.webmanifest"
   
