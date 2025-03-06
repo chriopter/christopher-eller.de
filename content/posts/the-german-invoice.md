@@ -13,7 +13,7 @@ Businesses offering invoice creation or merchant of record services have found a
 
 Even payment processors that transfer billions each day can't get it 100% right to generate a true German invoice™.
 
-The whole world doesn't understand what this obsession is about. But we Germans are, of course, right – and everyone else is wrong!
+The whole world doesn't understand what this obsession is about. And so they fail to really get it right. But we Germans are, of course, right – and everyone else is wrong!
 
 But why? What's the purpose of a PDF when I already have bank statements, credit card records, and countless order emails that list the vendor and match the exact amount paid?
 
