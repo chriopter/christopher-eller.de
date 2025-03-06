@@ -21,6 +21,6 @@ This fixation on having an invoice look like its 1975 is a huge waste of resourc
 For instance, selecting a different country with 0% VAT is still possible in many online stores for digital goods.
 Companies valued millions don't care about our VAT & when they are valued billions they just write "VAT" on invoices and add 19%, without transferring that money via MOSS back to Germany. They're not collecting VAT – they're imposing a tax on Germans to avoid additional customer support work. It's fraud but we don't care.
 
-What's the point of harassing small business owners until they block entire countries as customers, while big companies get away with years of improper VAT collection? How long will we continue to think the world wraps around our rules?
+What's the point of harassing small business owners for a stupid PDF file that does change nothing until they block entire countries as customers, while big companies get away with years of improper VAT collection? How long will we continue to think the world wraps around our rules?
 
 Yet strangely, we Germans don't care about what's really happening behind the curtains. We're simply satisfied when "ze Rechnungggg.pdf" finally arrives, having fulfilled our duty of annoying some small business owner in Wisconsin selling desktop background art for 3 bucks.
