@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Countdown Timer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Management Mode -->
+        <div id="management-mode">
+            <div class="management-form">
+                <div class="input-group">
+                    <label for="countdown-date">Date</label>
+                    <input type="date" id="countdown-date" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="countdown-time">Time</label>
+                    <input type="time" id="countdown-time" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="countdown-label">Label (Optional)</label>
+                    <input type="text" id="countdown-label" placeholder="e.g., New Year's Eve, Product Launch">
+                </div>
+                
+                <h2>Appearance</h2>
+                
+                <div class="input-group">
+                    <label for="emoji-select">Background Emoji</label>
+                    <select id="emoji-select">
+                        <option value="none">None</option>
+                        <option value="🎉">🎉 Party Popper</option>
+                        <option value="🎊">🎊 Confetti Ball</option>
+                        <option value="✨">✨ Sparkles</option>
+                        <option value="🎂">🎂 Birthday Cake</option>
+                        <option value="🎁">🎁 Gift</option>
+                        <option value="🎈">🎈 Balloon</option>
+                        <option value="❤️">❤️ Heart</option>
+                        <option value="🌟">🌟 Star</option>
+                        <option value="🍾">🍾 Champagne</option>
+                        <option value="🥂">🥂 Clinking Glasses</option>
+                        <option value="👻">👻 Ghost</option>
+                        <option value="🎃">🎃 Pumpkin</option>
+                        <option value="🌈">🌈 Rainbow</option>
+                        <option value="🚀">🚀 Rocket</option>
+                        <option value="🌴">🌴 Palm Tree</option>
+                        <option value="❄️">❄️ Snowflake</option>
+                        <option value="🔥">🔥 Fire</option>
+                        <option value="custom">Custom Emoji...</option>
+                    </select>
+                </div>
+                
+                <div class="input-group" id="custom-emoji-group" style="display: none;">
+                    <label for="custom-emoji">Custom Emoji</label>
+                    <input type="text" id="custom-emoji" placeholder="Enter one emoji">
+                </div>
+                
+                <div class="input-group">
+                    <label for="bg-color">Background Color</label>
+                    <input type="color" id="bg-color" value="#e6f7ff">
+                </div>
+                
+                <div class="input-group">
+                    <label for="density-select">Background Density</label>
+                    <select id="density-select">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+
+                <button type="button" id="generate-btn">Generate Countdown URL</button>
+            </div>
+
+            <div class="preview-heading">
+                <h2>Preview</h2>
+                <span class="preview-label" id="preview-status"></span>
+            </div>
+            
+            <div class="countdown-display" id="preview-display">
+                <div class="countdown-bg" id="preview-background"></div>
+                <div class="countdown-content">
+                    <div class="countdown-label" id="preview-countdown-label"></div>
+                    <div class="human-readable-time" id="preview-human-readable"></div>
+                    <div class="countdown-digits">
+                        <div class="digit-group">
+                            <div class="digit" id="preview-days">00</div>
+                            <div class="digit-label">Days</div>
+                        </div>
+                        <div class="digit-group">
+                            <div class="digit" id="preview-hours">00</div>
+                            <div class="digit-label">Hours</div>
+                        </div>
+                        <div class="digit-group">
+                            <div class="digit" id="preview-minutes">00</div>
+                            <div class="digit-label">Minutes</div>
+                        </div>
+                        <div class="digit-group">
+                            <div class="digit" id="preview-seconds">00</div>
+                            <div class="digit-label">Seconds</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="url-section" id="url-section">
+                <h2>Shareable URL</h2>
+                <div class="url-display" id="url-display"></div>
+                <div class="url-actions">
+                    <button class="copy-btn" id="copy-btn">
+                        <svg class="copy-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                        </svg>
+                        Copy URL
+                    </button>
+                    <button class="open-btn" id="open-countdown-btn">Open Countdown</button>
+                    <span class="copy-success" id="copy-success">Copied to clipboard!</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Display Mode -->
+        <div id="display-mode" style="display: none;">
+            <div class="countdown-display">
+                <div class="countdown-bg" id="display-background"></div>
+                <div class="countdown-content">
+                    <div class="countdown-label" id="display-countdown-label"></div>
+                    <div class="human-readable-time" id="display-human-readable"></div>
+                    <div class="countdown-digits">
+                        <div class="digit-group">
+                            <div class="digit" id="display-days">00</div>
+                            <div class="digit-label">Days</div>
+                        </div>
+                        <div class="digit-group">
+                            <div class="digit" id="display-hours">00</div>
+                            <div class="digit-label">Hours</div>
+                        </div>
+                        <div class="digit-group">
+                            <div class="digit" id="display-minutes">00</div>
+                            <div class="digit-label">Minutes</div>
+                        </div>
+                        <div class="digit-group">
+                            <div class="digit" id="display-seconds">00</div>
+                            <div class="digit-label">Seconds</div>
+                        </div>
+                    </div>
+                    <div id="expired-message" class="countdown-expired" style="display: none;">
+                        Countdown Complete!
+                    </div>
+                    <div class="countdown-actions">
+                        <button class="action-btn share-btn" id="share-btn">Share Countdown</button>
+                        <button class="edit-btn" id="edit-btn">Edit Countdown</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
