@@ -20,7 +20,7 @@ Wissen wir eigentlich noch, wie wir Trump als Lakaien Putins beschimpft haben, a
 Den Westen zu sabotieren – das machen wir zwar nicht so unsympathisch wie Trump mit seiner scharfen Rhetorik, aber dafür umso erfolgreicher: durch bequemes Nichtstun, durch das Appeasement von Schrott-Regimen, durch die Finanzierung von Diktaturen und das gnadenlose, einseitige Abernten einer Friedensdividende.
 
 Danke, Mr. Trump, dass Sie genau das tun, was wir Deutschen jahrelang selbst getan haben – westliche Werte mit Füßen zu treten. Endlich können wir unsere Position ändern!
-Und wenn alles in Trümmern liegt, können wir endlich sagen: „Wir haben es euch ja gleich gesagt.“
+\Und wenn alles in Trümmern liegt, können wir endlich sagen: „Wir haben es euch ja gleich gesagt.“
 
 Oder wir legen unsere Arroganz ab, reflektieren unsere Fehler und beenden die Hybris bei all diesen Themen, bevor wir den Bürgern anderer Länder sagen, wen sie wählen sollen.
 
