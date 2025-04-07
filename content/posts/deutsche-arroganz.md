@@ -13,7 +13,7 @@ Arrogant haben wir die Amerikaner als Umweltsünder bezeichnet, die uns nur ihr 
 
 Wir haben als Exportweltmeister gleichzeitig in breiter Zivilgesellschaft Freihandelsabkommen bekämpft, und bis zuletzt hat die EU Zölle von 10 bzw. 25 % auf Autoimporte – auch aus den USA – erhoben. Jetzt ist Trump ein Feind des Freihandels – also sind wir seit letzter Woche eben doch Freihandels-Fans.
 
-Ein kriegstreibender Idiot war Trump in seiner ersten Amtsperiode, als er den Iran-Deal scharf kritisierte – und solange er die Mullahs nicht großartig findet, tun wir es eben. Vertreter desselben Regimes, das Schulmädchen vergiftet, [https://x.com/Volker_Beck/status/1897964397806436650](laden wir auf eine Tourismusmesse ein). Urlaub in einer Mörderdiktatur – beworben in deutschen Messehallen. Das ist unsere „wertegeleitete Außenpolitik“.
+Ein kriegstreibender Idiot war Trump in seiner ersten Amtsperiode, als er den Iran-Deal scharf kritisierte – und solange er die Mullahs nicht großartig findet, tun wir es eben. Vertreter desselben Regimes, das Schulmädchen vergiftet, [laden wir auf eine Tourismusmesse ein](https://x.com/Volker_Beck/status/1897964397806436650). Urlaub in einer Mörderdiktatur – beworben in deutschen Messehallen. Das ist unsere „wertegeleitete Außenpolitik“.
 
 Wissen wir eigentlich noch, wie wir Trump als Lakaien Putins beschimpft haben, als er China als einen Hauptgegner der USA bezeichnete? Wie sehen wir das heute?
 
