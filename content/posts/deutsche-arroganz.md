@@ -1,6 +1,6 @@
 +++
-date = ‘2025-04-07T08:01:55+01:00’
-title = ‘Deutsche Arroganz’
+date: "2025-04-07T00:00:00Z"
+title = "Deutsche Arroganz"
 +++
 
 Deutsche Überheblichkeit und Arroganz sind das, was uns den Abschwung beschert hat, den wir gerade erleben. Wohlstandsverwahrlost durch die Früchte eines Exportweltmeisters haben wir das Leistungsprinzip gegen Arroganz und den internationalen Export unserer Moral und Belehrungen getauscht – und ein Ende ist nicht in Sicht.
