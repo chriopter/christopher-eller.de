@@ -14,7 +14,7 @@ import { updateURL } from '../utils/history.js';
  * @param {boolean} updateHistory - Whether to update browser history
  * @param {boolean} doZoom - Whether to zoom the map to the place
  */
-export function showPlaceDetails(place, updateHistory = true, doZoom = false) {
+export function showPlaceDetails(place, updateHistory = true, doZoom = true) {
     const { placeDetailContainer, placeDetailContent } = elements;
     if (!placeDetailContainer || !placeDetailContent || !place) return;
     
@@ -32,11 +32,11 @@ export function showPlaceDetails(place, updateHistory = true, doZoom = false) {
     // Create detail HTML
     const detailHTML = `
         <article class="place-detail">
-            <header class="place-header" style="text-align: left; width: 100%; display: block;">
-                <h1 style="text-align: left; margin-left: 0; padding-left: 0; display: block; width: 100%;">${place.title}</h1>
-                ${place.description ? `<p class="place-description" style="text-align: left; margin-left: 0; padding-left: 0; display: block; width: 100%;">${place.description}</p>` : ''}
+            <header class="place-header">
+                <h1>${place.title}</h1>
+                ${place.description ? `<p class="place-description">${place.description}</p>` : ''}
             </header>
-            <div class="place-action-buttons" style="margin: 1.5rem 0 2rem 0;" id="place-action-buttons">
+            <div class="place-action-buttons" id="place-action-buttons">
                 <button class="place-action-btn zoom-to-place" title="Zoom to this place">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
@@ -56,7 +56,7 @@ export function showPlaceDetails(place, updateHistory = true, doZoom = false) {
             </div>
             ${photoGalleryHTML}
             <div class="place-content">
-                <div class="loading-content">Loading content...</div>
+                ${place.content || '<div class="error-content">No content available.</div>'}
             </div>
         </article>
     `;
@@ -75,9 +75,6 @@ export function showPlaceDetails(place, updateHistory = true, doZoom = false) {
     if (doZoom) {
         zoomToPlace(place);
     }
-    
-    // Load place content
-    loadPlaceContent(place);
     
     // Setup action buttons
     setupActionButtons(place);
@@ -136,7 +133,7 @@ function setupActionButtons(place) {
     const copyBtn = document.querySelector('.copy-link');
     if (copyBtn) {
         copyBtn.addEventListener('click', () => {
-            const fullUrl = window.location.origin + place.permalink;
+            const fullUrl = `${window.location.origin}/places/?place=${encodeURIComponent(place.permalink)}`;
             navigator.clipboard.writeText(fullUrl)
                 .then(() => {
                     const originalText = copyBtn.innerHTML;
@@ -161,85 +158,6 @@ function setupActionButtons(place) {
 }
 
 /**
- * Load place content from permalink
- * @param {Object} place - The place object
- */
-function loadPlaceContent(place) {
-    const contentContainer = document.querySelector('.place-content');
-    if (!contentContainer) return;
-    
-    fetch(place.permalink)
-        .then(response => response.text())
-        .then(html => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            
-            // Try to find the content
-            let contentElement = null;
-            
-            // Option 1: Try specific content container
-            contentElement = doc.querySelector('article .place-content') || 
-                           doc.querySelector('main .place-content');
-            
-            if (!contentElement) {
-                // Option 2: Extract from article/main
-                const article = doc.querySelector('article') || doc.querySelector('main');
-                
-                if (article) {
-                    // Remove navigation, headers, footers, etc.
-                    const elementsToRemove = article.querySelectorAll(
-                        'header, .header, nav, .nav, footer, .footer, ' +
-                        '.place-action-buttons, .map-container, .side-panel, ' +
-                        '.panel-toggle, .menu-pill, .back-button'
-                    );
-                    elementsToRemove.forEach(el => el.remove());
-                    
-                    // Process the article
-                    const h2Elements = article.querySelectorAll('h2');
-                    
-                    if (h2Elements.length > 0) {
-                        // Create content wrapper for h2 sections
-                        contentElement = document.createElement('div');
-                        contentElement.className = 'extracted-content';
-                        
-                        h2Elements.forEach(h2 => {
-                            const section = document.createElement('div');
-                            section.className = 'content-section';
-                            section.appendChild(h2.cloneNode(true));
-                            
-                            let nextElement = h2.nextElementSibling;
-                            while (nextElement && nextElement.tagName !== 'H2') {
-                                section.appendChild(nextElement.cloneNode(true));
-                                nextElement = nextElement.nextElementSibling;
-                            }
-                            
-                            contentElement.appendChild(section);
-                        });
-                    } else {
-                        contentElement = article;
-                    }
-                }
-            }
-            
-            // Update content
-            contentContainer.innerHTML = '';
-            if (contentElement) {
-                // Final cleanup
-                const scripts = contentElement.querySelectorAll('script');
-                scripts.forEach(script => script.remove());
-                
-                contentContainer.appendChild(contentElement);
-            } else {
-                contentContainer.innerHTML = '<div class="error-content">Sorry, content could not be loaded.</div>';
-            }
-        })
-        .catch(error => {
-            contentContainer.innerHTML = '<div class="error-content">Error loading content.</div>';
-            console.error('Error fetching content:', error);
-        });
-}
-
-/**
  * Return to the list view
  * @param {boolean} updateHistory - Whether to update browser history
  */
@@ -257,32 +175,5 @@ export function backToListView(updateHistory = true) {
     // Update URL
     if (updateHistory) {
         updateURL(null);
-    }
-}
-
-/**
- * Handle single place view when directly accessing a place URL
- */
-export function handleSinglePlaceView() {
-    const placeData = document.getElementById('place-data');
-    if (!placeData) return;
-    
-    try {
-        const singlePlace = JSON.parse(placeData.textContent);
-        
-        // Add this place to allPlaces array if not already there
-        if (!allPlaces.some(p => p.permalink === singlePlace.permalink)) {
-            allPlaces.push(singlePlace);
-        }
-        
-        // Show the place details in the sidebar
-        setTimeout(() => {
-            const place = allPlaces.find(p => p.permalink === singlePlace.permalink);
-            if (place) {
-                showPlaceDetails(place, false);
-            }
-        }, 500);
-    } catch (e) {
-        console.error('Error parsing single place data:', e);
     }
 }

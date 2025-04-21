@@ -2,7 +2,7 @@
  * Marker management functionality
  */
 
-import { placesMap, markers, allPlaces, isInitialRender } from '../base/state.js';
+import { placesMap, markers, allPlaces, isInitialRender, isPanelVisible, updateState } from '../base/state.js';
 import { panelConfig } from '../base/config.js';
 import { showPlaceDetails } from './placeDetails.js';
 import { getPhotoGalleryHTML } from './gallery.js';
@@ -67,7 +67,8 @@ export function addPlaceMarker(place) {
     marker.addTo(placesMap);
     
     // Store marker reference
-    markers[place.permalink] = marker;
+    const updatedMarkers = { ...markers, [place.permalink]: marker };
+    updateState('markers', updatedMarkers);
 
     return marker;
 }
@@ -80,7 +81,7 @@ export function renderPlaces(shouldUpdateBounds = false) {
     // Clear existing markers
     if (placesMap) {
         Object.values(markers).forEach(marker => placesMap.removeLayer(marker));
-        markers = {};
+        updateState('markers', {});
     }
 
     // Filter places
@@ -109,7 +110,7 @@ export function renderPlaces(shouldUpdateBounds = false) {
         
         // Set initial render to false after first render
         if (isInitialRender) {
-            isInitialRender = false;
+            updateState('isInitialRender', false);
         }
     }
 

@@ -44,11 +44,43 @@ export const elements = {
  * @returns {boolean} - Whether the update was successful
  */
 export function updateState(key, value) {
-    if (key in this && key !== 'updateState') {
-        this[key] = value;
-        return true;
+    switch (key) {
+        case 'placesMap':
+            placesMap = value;
+            return true;
+        case 'allPlaces':
+            allPlaces = value;
+            return true;
+        case 'markers':
+            markers = value;
+            return true;
+        case 'activeFilters':
+            activeFilters = value;
+            return true;
+        case 'searchTerm':
+            searchTerm = value;
+            return true;
+        case 'filterByViewport':
+            filterByViewport = value;
+            return true;
+        case 'isPanelVisible':
+            isPanelVisible = value;
+            return true;
+        case 'isInitialRender':
+            isInitialRender = value;
+            return true;
+        case 'currentPlaceId':
+            currentPlaceId = value;
+            return true;
+        case 'currentLightboxIndex':
+            currentLightboxIndex = value;
+            return true;
+        case 'lightboxImages':
+            lightboxImages = value;
+            return true;
+        default:
+            return false;
     }
-    return false;
 }
 
 /**

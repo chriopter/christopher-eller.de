@@ -8,25 +8,23 @@
  * @param {boolean} shouldPushState - Whether to push or replace state
  */
 export function updateURL(place, shouldPushState = true) {
-    if (!place) {
-        // List view
-        if (shouldPushState) {
-            history.pushState({type: 'list'}, '', '/places/');
-        } else {
-            history.replaceState({type: 'list'}, '', '/places/');
-        }
-    } else {
-        // Detail view
-        const state = {
-            type: 'place',
-            permalink: place.permalink
+    const baseURL = '/places/';
+    let url = baseURL;
+    let state = { type: 'list' };
+
+    if (place) {
+        // Add place as query parameter but keep list view
+        url = `${baseURL}?place=${encodeURIComponent(place.permalink)}`;
+        state = {
+            type: 'list',
+            placePermalink: place.permalink
         };
-        
-        if (shouldPushState) {
-            history.pushState(state, '', place.permalink);
-        } else {
-            history.replaceState(state, '', place.permalink);
-        }
+    }
+    
+    if (shouldPushState) {
+        history.pushState(state, '', url);
+    } else {
+        history.replaceState(state, '', url);
     }
 }
 
@@ -44,38 +42,51 @@ export function setupHistoryHandling() {
  */
 function handleHistoryNavigation(event) {
     const state = event.state;
-    if (!state) return;
-
-    if (state.type === 'place') {
-        // Find the place data
-        const place = window.allPlaces.find(p => p.permalink === state.permalink);
-        if (place) {
-            window.showPlaceDetails(place, false); // false = don't update history again
+    if (!state) {
+        // Check URL parameters if state is missing
+        const urlParams = new URLSearchParams(window.location.search);
+        const placeParam = urlParams.get('place');
+        if (placeParam) {
+            const place = window.allPlaces.find(p => p.permalink === placeParam);
+            if (place) {
+                window.showPlaceDetails(place, false);
+                return;
+            }
         }
-    } else if (state.type === 'list') {
-        window.backToListView(false); // false = don't update history again
+        window.backToListView(false);
+        return;
+    }
+
+    if (state.placePermalink) {
+        const place = window.allPlaces.find(p => p.permalink === state.placePermalink);
+        if (place) {
+            window.showPlaceDetails(place, false);
+        }
+    } else {
+        window.backToListView(false);
     }
 }
 
 /**
- * Get current view type from URL
- * @returns {string} 'list' or 'detail'
+ * Get current place from URL if any
+ * @returns {string|null} The place permalink or null if none specified
  */
-export function getCurrentViewType() {
-    const pathParts = window.location.pathname.split('/');
-    const isListPage = pathParts.filter(Boolean).length === 1 && 
-                      pathParts.filter(Boolean)[0] === 'places';
-    return isListPage ? 'list' : 'detail';
+export function getPlaceFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('place');
 }
 
 /**
- * Get place permalink from current URL
- * @returns {string|null} The place permalink or null if on list view
+ * Initialize view based on URL
+ * Called when the page first loads
  */
-export function getPlacePermalinkFromURL() {
-    const pathParts = window.location.pathname.split('/');
-    if (pathParts.filter(Boolean).length > 1) {
-        return window.location.pathname;
+export function initializeFromURL() {
+    const placePermalink = getPlaceFromURL();
+    if (placePermalink) {
+        // Find the place and show its details
+        const place = window.allPlaces.find(p => p.permalink === placePermalink);
+        if (place) {
+            window.showPlaceDetails(place, false);
+        }
     }
-    return null;
 }
