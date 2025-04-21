@@ -125,8 +125,9 @@
                     "lng": {{ .Params.lng }},
                     "tags": {{ .Params.tags | jsonify }},
                     "urls": {{ .Params.urls | jsonify }},
-                    "permalink": "{{ .RelPermalink }}",
-                    "images": [
+        "permalink": "{{ .RelPermalink }}",
+        "content": {{ .Content | jsonify }},
+        "images": [
                         {{ $first := true }}
                         {{ range .Resources.ByType "image" }}
                             {{ if $first }}{{ $first = false }}{{ else }},{{ end }}
@@ -151,6 +152,7 @@
             "tags": {{ .Params.tags | jsonify }},
             "urls": {{ .Params.urls | jsonify }},
             "permalink": "{{ .RelPermalink }}",
+            "content": {{ .Content | jsonify }},
             "images": [
                 {{ $first := true }}
                 {{ range .Resources.ByType "image" }}

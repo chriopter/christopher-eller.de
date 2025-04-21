@@ -730,8 +730,21 @@ function showPlaceDetails(place, updateHistory = true, doZoom = false) {
         if (placesMap) placesMap.invalidateSize();
     }
     
-    // Fetch additional details via AJAX if needed
-    fetchPlaceContent(place.permalink);
+    // Display the pre-rendered content if available
+    if (place.content) {
+        // Create a container for the content
+        const contentContainer = document.createElement('div');
+        contentContainer.className = 'place-content';
+        
+        // Decode JSON escaped HTML before inserting
+        contentContainer.innerHTML = decodeJSONHTML(place.content);
+        
+        // Add the content to the place detail
+        const placeDetail = placeDetailContent.querySelector('.place-detail');
+        if (placeDetail) {
+            placeDetail.appendChild(contentContainer);
+        }
+    }
 }
 
 // Zoom the map to a specific place
@@ -753,92 +766,11 @@ function zoomToPlace(place) {
     }
 }
 
-// Fetch additional place content via AJAX
+// Simplified placeholder function - kept for backwards compatibility
 function fetchPlaceContent(permalink, marker = null) {
-    if (!permalink) return;
-    
-    // Make a fetch request to the place page
-    fetch(permalink)
-        .then(response => response.text())
-        .then(html => {
-            // Create a temporary element to parse the HTML
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            
-            // If we're updating the sidebar
-            if (placeDetailContent && !marker) {
-                const placeDetail = placeDetailContent.querySelector('.place-detail');
-                if (placeDetail) {
-                    console.log('Adding content to place detail');
-                    
-                    // Get the article content directly
-                    const mainContent = doc.querySelector('main article');
-                    if (mainContent) {
-                        console.log('Found main content');
-                        
-                        // First, let's get all content elements
-                        const contentElements = mainContent.querySelectorAll('p, h2, h3, h4, h5, h6, ul, ol, blockquote, pre, figure');
-                        
-                        // Initialize sections container
-                        let currentSection = null;
-                        let hasContent = false;
-                        
-                        // Process content elements
-                        contentElements.forEach(element => {
-                            // Skip elements in the header and the description paragraph
-                            const isInHeader = element.closest('header');
-                            const isDescription = element.classList.contains('place-description');
-                            
-                            if (!isInHeader && !isDescription && element.textContent.trim()) {
-                                // If this is a heading, start a new section
-                                if (element.tagName.match(/^H[2-6]$/)) {
-                                    // If we have a current section with content, add it
-                                    if (currentSection && currentSection.childNodes.length > 1) {
-                                        placeDetail.appendChild(currentSection);
-                                    }
-                                    
-                                    // Create a new section with this heading
-                                    currentSection = document.createElement('div');
-                                    currentSection.className = 'place-content';
-                                    currentSection.appendChild(element.cloneNode(true));
-                                    hasContent = true;
-                                } 
-                                // If not a heading but we have a current section, add to it
-                                else if (currentSection) {
-                                    currentSection.appendChild(element.cloneNode(true));
-                                }
-                                // If no current section exists yet, create "About this place" section
-                                else {
-                                    currentSection = document.createElement('div');
-                                    currentSection.className = 'place-content';
-                                    currentSection.innerHTML = '<h2>About this place</h2>';
-                                    currentSection.appendChild(element.cloneNode(true));
-                                    hasContent = true;
-                                }
-                            }
-                        });
-                        
-                        // Add the final section if we have one
-                        if (currentSection && currentSection.childNodes.length > 1) {
-                            placeDetail.appendChild(currentSection);
-                            console.log('Content section added to detail view');
-                        } else if (!hasContent) {
-                            console.log('No content found to add');
-                        }
-                    }
-                    
-                    // Add URLs section if found
-                    const urlsSection = doc.querySelector('.place-urls');
-                    if (urlsSection) {
-                        placeDetail.appendChild(urlsSection.cloneNode(true));
-                        console.log('URLs section added');
-                    }
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching place content:', error);
-        });
+    // This function is no longer needed as we now use pre-rendered content from Hugo
+    // Kept as a placeholder for any code that might still call it
+    console.log('fetchPlaceContent is deprecated - using pre-rendered content instead');
 }
 
 // Return to the list view
@@ -1149,3 +1081,17 @@ const observer = new MutationObserver(mutations => {
 });
 
 observer.observe(htmlElement, { attributes: true });
+
+// Helper function to decode JSON escaped HTML
+function decodeJSONHTML(html) {
+    if (!html) return '';
+    
+    // Create a textarea element which handles HTML entity decoding
+    const textarea = document.createElement('textarea');
+    
+    // Set its value to the escaped HTML string
+    textarea.innerHTML = html;
+    
+    // Return the decoded value
+    return textarea.value;
+}
