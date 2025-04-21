@@ -135,10 +135,3 @@ function handleResize() {
         }
     }
 }
-
-// Initialize on DOM load
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('places-map')) {
-        initPlacesMap();
-    }
-});
