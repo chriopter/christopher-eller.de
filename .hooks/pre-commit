@@ -32,11 +32,11 @@ fi
 echo "All staged files:"
 git diff --cached --name-only --diff-filter=d
 
-# Get list of all image files in content/photos and import directories
-all_images=$(find content/photos import -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.heic" -o -name "*.png" \) | grep -v "/thumbnails/" | grep -v "_thumbnail" | grep -v "/exif/" || true)
+# Get list of all image files in content/photos, content/places, and import directories
+all_images=$(find content/photos content/places import -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.heic" -o -name "*.png" \) | grep -v "/thumbnails/" | grep -v "_thumbnail" | grep -v "/exif/" || true)
 
-# Get list of staged image files in content/photos and import directories
-staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^(content/photos|import)/.*\.(jpg|jpeg|heic|png)$" | grep -v "/thumbnails/" | grep -v "/exif/" || true)
+# Get list of staged image files in content/photos, content/places, and import directories
+staged_images=$(git diff --cached --name-only --diff-filter=d | grep -E "^(content/photos|content/places|import)/.*\.(jpg|jpeg|heic|png)$" | grep -v "/thumbnails/" | grep -v "/exif/" || true)
 
 # Print the filtered images
 echo "Staged images found: $staged_images"
