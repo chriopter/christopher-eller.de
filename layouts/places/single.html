@@ -1,48 +1,136 @@
 {{ define "main" }}
-<article class="place-detail">
-    <header class="place-header">
-        <h1>{{ .Title }}</h1>
-        {{ with .Params.description }}<p class="place-description">{{ . }}</p>{{ end }}
+<div class="places-section">
+    <!-- Menu Pill that expands in place -->
+    <div class="menu-pill" id="menu-pill">
+        <div class="menu-pill-label">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            <span>Menu</span>
+        </div>
+        <div class="menu-pill-content">
+            <!-- Navigation links will be added via JavaScript -->
+        </div>
+    </div>
+    
+    <!-- Full Viewport Map - Use same ID as list view for consistency -->
+    <div class="map-container" id="places-map"></div>
+    
+    <!-- Unified Side Panel with Search, Filters and List -->
+    <div class="side-panel" id="side-panel">
+        <!-- Side panel toggle button -->
+        <div class="panel-hide-toggle" id="panel-hide-toggle" title="Hide Panel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 18l-6-6 6-6"></path>
+            </svg>
+        </div>
+        <header class="side-panel-header">
+            <h1>{{ .Site.GetPage "/places" | title }}</h1>
+            {{ with .Site.GetPage "/places" }}{{ with .Description }}<p>{{ . }}</p>{{ end }}{{ end }}
+        </header>
         
-        <div class="place-meta">
-            <span class="place-coordinates">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                </svg>
-                {{ .Params.lat }}, {{ .Params.lng }}
-            </span>
-            
-            {{ if .Params.tags }}
-            <div class="place-tags">
+        <div class="search-container">
+            <input type="text" id="search-input" class="search-input" placeholder="Search places...">
+        </div>
+        
+        <div class="tag-filters" id="tag-filters">
+            <!-- Add tags directly from Hugo template -->
+            {{ $allPages := (where .Site.RegularPages "Section" "places") }}
+            {{ $allTags := slice }}
+            {{ range $allPages }}
                 {{ range .Params.tags }}
-                <span class="place-tag">{{ . }}</span>
+                    {{ $allTags = $allTags | append . }}
                 {{ end }}
+            {{ end }}
+            
+            {{ $uniqueTags := slice }}
+            {{ range $allTags | uniq }}
+                {{ $tag := . }}
+                {{ if not (in $uniqueTags $tag) }}
+                    {{ $uniqueTags = $uniqueTags | append $tag }}
+                    <span class="tag-filter" data-tag="{{ $tag }}">{{ $tag }}</span>
+                {{ end }}
+            {{ end }}
+        </div>
+        
+        <div class="places-list" id="places-list">
+            <!-- Places list will be dynamically generated -->
+        </div>
+        
+        <!-- Place Detail Container (initially hidden) -->
+        <div class="place-detail-container" id="place-detail-container" style="display: none;">
+            <div class="place-detail-header">
+                <button class="back-button" id="back-to-list">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5"></path>
+                        <path d="M12 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to list
+                </button>
             </div>
-            {{ end }}
+            <div class="place-detail-content" id="place-detail-content">
+                <!-- Place details will be dynamically loaded here -->
+            </div>
         </div>
-    </header>
+        
+        <div class="view-controls">
+            <span id="map-view" class="view-control active" title="Map View">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                    <line x1="8" y1="2" x2="8" y2="18"></line>
+                    <line x1="16" y1="6" x2="16" y2="22"></line>
+                </svg>
+            </span>
+            <span id="list-view" class="view-control" title="List View">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+            </span>
+        </div>
+    </div>
+    
+    <!-- Mobile Toggle Button -->
+    <div class="panel-toggle" id="panel-toggle">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </div>
+    
+    <!-- Show Panel Button (visible when panel is hidden) -->
+    <div class="panel-show-toggle hidden" id="panel-show-toggle" title="Show Panel">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6"></path>
+        </svg>
+    </div>
 
-    <div class="map-container" id="single-place-map"></div>
-    
-    {{ if .Params.urls }}
-    <div class="place-urls">
-        <h3>Related Links</h3>
-        <div class="url-list">
-            {{ range .Params.urls }}
-            <a href="{{ .url }}" class="url-item" {{ if not (hasPrefix .url "/") }}target="_blank" rel="noopener noreferrer"{{ end }}>
-                {{ .title }}
-            </a>
+    <!-- Hidden data container for JavaScript - Load all places for list view -->
+    <script type="application/json" id="places-data">
+        [
+            {{ $first := true }}
+            {{ range (where .Site.RegularPages "Section" "places") }}
+                {{ if $first }}{{ $first = false }}{{ else }},{{ end }}
+                {
+                    "title": {{ .Title | jsonify }},
+                    "description": {{ .Params.description | jsonify }},
+                    "lat": {{ .Params.lat }},
+                    "lng": {{ .Params.lng }},
+                    "tags": {{ .Params.tags | jsonify }},
+                    "permalink": "{{ .RelPermalink }}"
+                }
             {{ end }}
-        </div>
-    </div>
-    {{ end }}
+        ]
+    </script>
     
-    <div class="place-content">
-        {{ .Content }}
-    </div>
-    
-    <!-- Hidden data container for JavaScript -->
+    <!-- Current place data for direct access -->
     <script type="application/json" id="place-data">
         {
             "title": {{ .Title | jsonify }},
@@ -53,11 +141,121 @@
             "permalink": "{{ .RelPermalink }}"
         }
     </script>
-</article>
+
+    <!-- Debugging -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("SINGLE PAGE PLACES DATA DUMP:");
+            const placesData = document.getElementById('places-data');
+            const placeData = document.getElementById('place-data');
+            if (placesData) {
+                try {
+                    const data = JSON.parse(placesData.textContent);
+                    console.log("All places:", data);
+                } catch (e) {
+                    console.error('Error parsing places data:', e);
+                }
+            }
+            if (placeData) {
+                try {
+                    const data = JSON.parse(placeData.textContent);
+                    console.log("Current place:", data);
+                } catch (e) {
+                    console.error('Error parsing place data:', e);
+                }
+            }
+        });
+    </script>
+</div>
 
 <!-- Load CSS and JavaScript -->
 <link rel="stylesheet" href="/places/node_modules/leaflet/dist/leaflet.css">
 <link rel="stylesheet" href="/places/css/places.css">
 <script src="/places/node_modules/leaflet/dist/leaflet.js"></script>
 <script src="/places/js/places.js"></script>
+
+<!-- Menu Pill Script - Same as in list.html -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuPill = document.getElementById('menu-pill');
+        const menuContent = menuPill.querySelector('.menu-pill-content');
+        const siteHeader = document.querySelector('header');
+        
+        // Clone navigation elements from the site header
+        if (siteHeader) {
+            // Clone the site title and navigation elements
+            const siteTitle = siteHeader.querySelector('.site-title').cloneNode(true);
+            const navLinks = siteHeader.querySelector('.nav-links').cloneNode(true);
+            
+            // Add cloned elements to the menu pill content
+            menuContent.appendChild(siteTitle);
+            menuContent.appendChild(navLinks);
+            
+            // Hide the original header
+            siteHeader.style.display = 'none';
+        }
+        
+        // Toggle expanded state on click with smooth content transition
+        menuPill.addEventListener('click', function() {
+            if (menuPill.classList.contains('expanded')) {
+                // First hide content
+                menuPill.classList.remove('content-visible');
+                // Then after a short delay, collapse the pill width
+                setTimeout(() => {
+                    menuPill.classList.remove('expanded');
+                }, 150);
+            } else {
+                // First expand the pill width
+                menuPill.classList.add('expanded');
+                // Then after the width transition completes, show content
+                setTimeout(() => {
+                    menuPill.classList.add('content-visible');
+                }, 250);
+            }
+        });
+        
+        // Expand on hover with the same approach
+        menuPill.addEventListener('mouseenter', function() {
+            menuPill.classList.add('expanded');
+            // Delay showing content until width transition is nearly complete
+            setTimeout(() => {
+                menuPill.classList.add('content-visible');
+            }, 250);
+        });
+        
+        // Collapse on mouse leave
+        menuPill.addEventListener('mouseleave', function() {
+            // First hide content
+            menuPill.classList.remove('content-visible');
+            // Then collapse after a short delay
+            setTimeout(() => {
+                menuPill.classList.remove('expanded');
+            }, 150);
+        });
+        
+        // Close when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!menuPill.contains(e.target)) {
+                // First hide content
+                menuPill.classList.remove('content-visible');
+                // Then collapse after a short delay
+                setTimeout(() => {
+                    menuPill.classList.remove('expanded');
+                }, 150);
+            }
+        });
+        
+        // Set up the dropdown if present
+        const dropdown = menuContent.querySelector('#bitsDropdown');
+        if (dropdown) {
+            const trigger = dropdown.querySelector('.dropdown-trigger');
+            if (trigger) {
+                trigger.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent the pill from collapsing
+                    dropdown.classList.toggle('active');
+                });
+            }
+        }
+    });
+</script>
 {{ end }}

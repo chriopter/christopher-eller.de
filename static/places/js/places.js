@@ -33,6 +33,10 @@ function initPlacesMap() {
     mapContainer = document.getElementById('places-map');
     if (!mapContainer) return;
 
+    // Check if we're on a single place page or list page
+    const pathParts = window.location.pathname.split('/');
+    const isListPage = pathParts.filter(Boolean).length === 1 && pathParts.filter(Boolean)[0] === 'places';
+    
     // Add immersive map class to body
     document.body.classList.add('map-view');
 
@@ -40,6 +44,9 @@ function initPlacesMap() {
     placesMap = L.map(mapContainer, {
         zoomControl: false // We'll add zoom control in a better position
     }).setView([20, 0], 2);
+
+    // Setup popstate event to handle browser navigation
+    window.addEventListener('popstate', handleHistoryNavigation);
 
     // Add OpenStreetMap tile layer
     L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -78,7 +85,14 @@ function initPlacesMap() {
     
     // Set up back button functionality
     if (backToListButton) {
-        backToListButton.addEventListener('click', backToListView);
+        backToListButton.addEventListener('click', () => {
+            backToListView(true); // true indicates we should update history
+        });
+    }
+    
+    // Check if we're on a single place page and handle it accordingly
+    if (!isListPage) {
+        handleSinglePlaceView();
     }
     
     // Set up panel toggling functionality
@@ -511,11 +525,16 @@ function setupPanelToggling() {
 }
 
 // Show place details in sidebar
-function showPlaceDetails(place) {
+function showPlaceDetails(place, updateHistory = true) {
     if (!placeDetailContainer || !placeDetailContent || !place) return;
     
     // Store current place
     currentPlaceId = place.permalink;
+    
+    // Update URL
+    if (updateHistory) {
+        updateURL(place);
+    }
     
     // Create detail HTML - simplified to just show title and description
     const detailHTML = `
@@ -666,7 +685,7 @@ function fetchPlaceContent(permalink, marker = null) {
 }
 
 // Return to the list view
-function backToListView() {
+function backToListView(updateHistory = true) {
     if (!placesList || !placeDetailContainer) return;
     
     // Clear current place
@@ -678,6 +697,74 @@ function backToListView() {
     
     // Reset map to show all places with explicit bounds update
     renderPlaces(true);
+    
+    // Update URL
+    if (updateHistory) {
+        updateURL(null);
+    }
+}
+
+// Handle browser history navigation
+function handleHistoryNavigation(event) {
+    // Get the state from history API
+    const state = event.state;
+    
+    if (!state) return;
+    
+    if (state.type === 'place') {
+        // Find the place data
+        const place = allPlaces.find(p => p.permalink === state.permalink);
+        if (place) {
+            showPlaceDetails(place, false); // false = don't update history again
+        }
+    } else if (state.type === 'list') {
+        backToListView(false); // false = don't update history again
+    }
+}
+
+// Update URL without page reload
+function updateURL(place, shouldPushState = true) {
+    if (!place) {
+        // List view
+        if (shouldPushState) {
+            history.pushState({type: 'list'}, '', '/places/');
+        }
+    } else {
+        // Detail view
+        if (shouldPushState) {
+            history.pushState({
+                type: 'place',
+                permalink: place.permalink
+            }, '', place.permalink);
+        }
+    }
+}
+
+// Handle single place view when directly accessing a place URL
+function handleSinglePlaceView() {
+    // Get place data from the single page
+    const placeData = document.getElementById('place-data');
+    if (!placeData) return;
+    
+    try {
+        const singlePlace = JSON.parse(placeData.textContent);
+        
+        // Add this place to allPlaces array if not already there
+        if (!allPlaces.some(p => p.permalink === singlePlace.permalink)) {
+            allPlaces.push(singlePlace);
+        }
+        
+        // Show the place details in the sidebar
+        setTimeout(() => {
+            // Find the place object in allPlaces
+            const place = allPlaces.find(p => p.permalink === singlePlace.permalink);
+            if (place) {
+                showPlaceDetails(place, false); // Don't update history
+            }
+        }, 500); // Short delay to allow map to initialize
+    } catch (e) {
+        console.error('Error parsing single place data:', e);
+    }
 }
 
 // Initialize on DOM load
