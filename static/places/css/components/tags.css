@@ -1,21 +1,32 @@
-/* Tag Filters */
-.tag-filters {
-  padding: var(--space-md) var(--space-md) var(--space-sm);
-  margin-bottom: var(--space-sm);
+/* Tag Groups */
+.tag-filters,
+.place-tags {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-sm);
 }
 
-.tag-filter {
-  display: inline-block;
-  font-size: 0.9rem;
-  padding: var(--space-xs) 0.75rem;
+.tag-filters {
+  padding: var(--space-md) var(--space-md) var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+/* Tag Styles */
+.tag-filter,
+.place-tag {
   border-radius: var(--radius-pill);
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.9rem;
+}
+
+/* Interactive Tags */
+.tag-filter {
   background-color: rgba(var(--color-light-rgb), 0.1);
   color: var(--color-text);
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: transform var(--transition-base), 
+              box-shadow var(--transition-base),
+              border-color var(--transition-base);
   border: 1px solid transparent;
   font-weight: 500;
 }
@@ -29,29 +40,22 @@
 .tag-filter.active {
   background-color: var(--color-primary);
   color: white;
-  box-shadow: 0 2px 5px rgba(25, 118, 210, 0.3);
+  box-shadow: 0 2px 5px rgba(var(--color-primary-rgb), 0.3);
   font-weight: 600;
 }
 
+/* Static Tags */
+.place-tag {
+  font-size: 0.8rem;
+  background-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+/* Dark Mode */
 .dark-mode .tag-filter {
   background-color: rgba(var(--color-dark-rgb), 0.3);
 }
 
 .dark-mode .tag-filter:hover {
   border-color: rgba(var(--color-light-rgb), 0.1);
-}
-
-/* Place Tags */
-.place-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-sm);
-}
-
-.place-tag {
-  font-size: 0.8rem;
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-pill);
-  background-color: var(--color-border);
-  color: var(--color-text-secondary);
 }

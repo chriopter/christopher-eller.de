@@ -9,8 +9,9 @@
   --color-text-dark-rgb: 238, 238, 238;
 
   /* Theme Colors */
-  --color-primary: #1976d2;
-  --color-primary-light: rgba(25, 118, 210, 0.1);
+  --color-primary-rgb: 25, 118, 210;
+  --color-primary: rgb(var(--color-primary-rgb));
+  --color-primary-light: rgba(var(--color-primary-rgb), 0.1);
   --color-success: #43a047;
 
   /* Semantic Colors */

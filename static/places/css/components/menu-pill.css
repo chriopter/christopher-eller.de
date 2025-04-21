@@ -94,10 +94,8 @@
 
 /* Navigation */
 .menu-pill .nav-links {
-  gap: 1.5rem;
+  gap: var(--space-lg);
   flex: 1;
-  display: flex;
-  align-items: center;
   justify-content: flex-end;
 }
 
@@ -105,15 +103,6 @@
 .menu-pill .nav-links .dropdown-trigger {
   text-decoration: none;
   color: var(--color-text);
-  display: flex;
-  align-items: center;
-  transition: transform var(--transition-base);
-}
-
-.menu-pill .nav-links a:hover,
-.menu-pill .nav-links .dropdown-trigger:hover {
-  transform: scale(1.05);
-  color: var(--color-text-secondary);
 }
 
 .menu-pill .nav-links svg {
