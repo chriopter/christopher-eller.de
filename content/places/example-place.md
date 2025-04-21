@@ -4,10 +4,7 @@ lat = 48.8566
 lng = 2.3522
 tags = ["example"]
 description = "An example place to demonstrate the Places feature"
-urls = [
-  {title = "Wikipedia", url = "https://en.wikipedia.org/wiki/Paris"},
-  {title = "Official Website", url = "https://www.paris.fr/"}
-]
+urls = "https://example.com/berlin-coffee"
 +++
 
 This is an example place entry to demonstrate how the Places feature works. This content area can contain any markdown content including text, images, and other media.

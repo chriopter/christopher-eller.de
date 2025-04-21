@@ -4,10 +4,7 @@ lat = 52.5200
 lng = 13.4050
 tags = ["cuisine"]
 description = "A wonderful little coffee shop in Berlin with excellent pastries"
-urls = [
-  {title = "Official Website", url = "https://example.com/berlin-coffee"},
-  {title = "My Berlin Trip", url = "/posts/berlin-trip"}
-]
+urls = "https://example.com/berlin-coffee"
 +++
 
 This cozy coffee shop in Berlin offers some of the best espresso in the city. Located in a quiet neighborhood away from the typical tourist areas, it's a perfect spot to relax and watch the locals go about their day.

@@ -124,7 +124,17 @@
                     "lat": {{ .Params.lat }},
                     "lng": {{ .Params.lng }},
                     "tags": {{ .Params.tags | jsonify }},
-                    "permalink": "{{ .RelPermalink }}"
+                    "permalink": "{{ .RelPermalink }}",
+                    "images": [
+                        {{ $first := true }}
+                        {{ range .Resources.ByType "image" }}
+                            {{ if $first }}{{ $first = false }}{{ else }},{{ end }}
+                            {
+                                "path": "{{ .RelPermalink }}",
+                                "name": "{{ .Name }}"
+                            }
+                        {{ end }}
+                    ]
                 }
             {{ end }}
         ]
@@ -138,7 +148,17 @@
             "lat": {{ .Params.lat }},
             "lng": {{ .Params.lng }},
             "tags": {{ .Params.tags | jsonify }},
-            "permalink": "{{ .RelPermalink }}"
+            "permalink": "{{ .RelPermalink }}",
+            "images": [
+                {{ $first := true }}
+                {{ range .Resources.ByType "image" }}
+                    {{ if $first }}{{ $first = false }}{{ else }},{{ end }}
+                    {
+                        "path": "{{ .RelPermalink }}",
+                        "name": "{{ .Name }}"
+                    }
+                {{ end }}
+            ]
         }
     </script>
 

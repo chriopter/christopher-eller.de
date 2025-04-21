@@ -124,7 +124,17 @@
                     "lng": {{ .Params.lng }},
                     "tags": {{ .Params.tags | jsonify }},
                     "permalink": "{{ .RelPermalink }}",
-                    "_debug_tags": "{{ .Params.tags }}"
+                    "_debug_tags": "{{ .Params.tags }}",
+                    "images": [
+                        {{ $first := true }}
+                        {{ range .Resources.ByType "image" }}
+                            {{ if $first }}{{ $first = false }}{{ else }},{{ end }}
+                            {
+                                "path": "{{ .RelPermalink }}",
+                                "name": "{{ .Name }}"
+                            }
+                        {{ end }}
+                    ]
                 }
             {{ end }}
         ]

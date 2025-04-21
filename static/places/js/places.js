@@ -200,26 +200,15 @@ function renderPlaces(shouldUpdateBounds = false) {
 }
 
 // Get photo gallery HTML for a place
-function getPhotoGalleryHTML(placeSlug, isPopup = false) {
-    // Get images for this place
-    const photoExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+function getPhotoGalleryHTML(place, isPopup = false) {
+    // Images array to hold all gallery images
     const galleryImages = [];
     
     try {
-        // We have two identified screenshots for the Dortmund Coffee Shop
-        if (placeSlug === 'dortmund-coffee-shop') {
-            const image1 = 'Bildschirmfoto 2025-04-21 um 18.17.43.png';
-            const image2 = 'Bildschirmfoto 2025-04-21 um 18.18.03.png';
-            
-            galleryImages.push({
-                path: `/places/${placeSlug}/${image1}`,
-                name: image1
-            });
-            
-            galleryImages.push({
-                path: `/places/${placeSlug}/${image2}`,
-                name: image2
-            });
+        // Check if the place has images from Hugo
+        if (place.images && Array.isArray(place.images) && place.images.length > 0) {
+            // Use images provided by Hugo
+            galleryImages.push(...place.images);
         }
     } catch (e) {
         console.error('Error getting gallery images:', e);
@@ -230,8 +219,23 @@ function getPhotoGalleryHTML(placeSlug, isPopup = false) {
         return '';
     }
     
+    // For non-popup view, limit visible images and show +N indicator
+    let visibleImages = galleryImages;
+    let moreIndicator = '';
+    
+    if (!isPopup) {
+        // Determine how many images to show based on container
+        const maxVisibleImages = 3; // Show max of 3 images
+        const hiddenCount = galleryImages.length - maxVisibleImages;
+        
+        if (hiddenCount > 0) {
+            visibleImages = galleryImages.slice(0, maxVisibleImages);
+            moreIndicator = `<div class="more-photos-indicator">+${hiddenCount}</div>`;
+        }
+    }
+    
     // Create gallery HTML
-    const imageHTML = galleryImages.map(img => `
+    const imageHTML = visibleImages.map(img => `
         <div class="${isPopup ? 'popup-gallery-image' : 'gallery-image'}">
             <img src="${img.path}" alt="${img.name}">
         </div>
@@ -250,6 +254,7 @@ function getPhotoGalleryHTML(placeSlug, isPopup = false) {
                 <h2>Photos</h2>
                 <div class="photo-gallery">
                     ${imageHTML}
+                    ${moreIndicator}
                 </div>
             </div>
         `;
@@ -267,7 +272,7 @@ function addPlaceMarker(place) {
     const placeSlug = permalinkParts[permalinkParts.length - 2] || '';
     
     // Get photo gallery HTML if available for this place
-    const photoGalleryHTML = getPhotoGalleryHTML(placeSlug, true);
+    const photoGalleryHTML = getPhotoGalleryHTML(place, true);
     
     // Create a popup with title, description, and photos if available
     const initialPopupContent = `
@@ -544,12 +549,8 @@ function initSinglePlaceMap() {
             tagsToDisplay = place.tags;
         }
         
-        // Extract place slug from permalink for photos
-        const permalinkParts = place.permalink.split('/');
-        const placeSlug = permalinkParts[permalinkParts.length - 2] || '';
-        
         // Get photo gallery HTML if available for this place
-        const photoGalleryHTML = getPhotoGalleryHTML(placeSlug, true);
+        const photoGalleryHTML = getPhotoGalleryHTML(place, true);
         
         // Add popup with title, description, and photos if available
         const popupContent = `
@@ -625,7 +626,7 @@ function showPlaceDetails(place, updateHistory = true, doZoom = false) {
     const placeSlug = permalinkParts[permalinkParts.length - 2] || '';
     
     // Get photo gallery HTML if available for this place
-    const photoGalleryHTML = getPhotoGalleryHTML(placeSlug, false);
+    const photoGalleryHTML = getPhotoGalleryHTML(place, false);
     
     // For Dortmund Coffee Shop, directly insert the content from markdown
     let contentHTML = '';
@@ -647,6 +648,21 @@ function showPlaceDetails(place, updateHistory = true, doZoom = false) {
         `;
     }
     
+    // Process the website URL from front matter
+    let websiteBtn = '';
+    if (place.urls) {
+        websiteBtn = `
+            <a href="${place.urls}" class="place-action-btn" target="_blank" rel="noopener noreferrer" title="Visit website">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+                Website
+            </a>
+        `;
+    }
+
     // Create detail HTML with title, description, photos, and content
     const detailHTML = `
         <article class="place-detail">
@@ -671,6 +687,7 @@ function showPlaceDetails(place, updateHistory = true, doZoom = false) {
                     </svg>
                     Copy
                 </button>
+                ${websiteBtn}
             </div>
             ${photoGalleryHTML}
             ${contentHTML}
@@ -897,6 +914,10 @@ function handleSinglePlaceView() {
     }
 }
 
+// Global variables for lightbox
+let currentLightboxIndex = 0;
+let lightboxImages = [];
+
 // Lightbox functionality
 function createLightbox() {
     // Create lightbox elements if they don't exist
@@ -905,6 +926,8 @@ function createLightbox() {
             <div class="lightbox-overlay">
                 <div class="lightbox-container">
                     <button class="lightbox-close">&times;</button>
+                    <button class="lightbox-nav lightbox-prev">&#10094;</button>
+                    <button class="lightbox-nav lightbox-next">&#10095;</button>
                     <img class="lightbox-image" src="" alt="Fullsize image">
                 </div>
             </div>
@@ -938,22 +961,93 @@ function createLightbox() {
         });
     }
     
-    // Add click handler to all gallery images
-    document.addEventListener('click', (e) => {
-        const galleryImage = e.target.closest('.gallery-image img');
-        if (galleryImage) {
-            const lightbox = document.querySelector('.lightbox-overlay');
-            const lightboxImage = document.querySelector('.lightbox-image');
+    // Add navigation handlers
+    const prevBtn = document.querySelector('.lightbox-prev');
+    const nextBtn = document.querySelector('.lightbox-next');
+    
+    if (prevBtn && nextBtn) {
+        prevBtn.addEventListener('click', showPrevImage);
+        nextBtn.addEventListener('click', showNextImage);
+        
+        // Also handle keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (!document.querySelector('.lightbox-overlay.active')) return;
             
-            if (lightbox && lightboxImage) {
-                // Set the image source
-                lightboxImage.src = galleryImage.src;
+            if (e.key === 'ArrowLeft') {
+                showPrevImage();
+            } else if (e.key === 'ArrowRight') {
+                showNextImage();
+            }
+        });
+    }
+    
+    // Add click handler to all gallery and popup gallery images
+    document.addEventListener('click', (e) => {
+        const galleryImage = e.target.closest('.gallery-image img') || e.target.closest('.popup-gallery-image img');
+        if (galleryImage) {
+            // Find all images in the current context (gallery or popup)
+            const isPopup = e.target.closest('.popup-gallery-image') !== null;
+            const container = isPopup ? 
+                e.target.closest('.popup-photo-gallery') : 
+                e.target.closest('.photo-gallery');
                 
-                // Show the lightbox
-                lightbox.classList.add('active');
+            if (container) {
+                // Get all images in this gallery
+                lightboxImages = Array.from(container.querySelectorAll('img')).map(img => img.src);
+                
+                // Find the index of the clicked image
+                currentLightboxIndex = lightboxImages.findIndex(src => src === galleryImage.src);
+                
+                const lightbox = document.querySelector('.lightbox-overlay');
+                const lightboxImage = document.querySelector('.lightbox-image');
+                
+                if (lightbox && lightboxImage) {
+                    // Set the image source
+                    lightboxImage.src = galleryImage.src;
+                    
+                    // Show the lightbox
+                    lightbox.classList.add('active');
+                    
+                    // Show/hide navigation based on image count
+                    toggleNavigationButtons();
+                }
             }
         }
     });
+}
+
+// Helper functions for lightbox navigation
+function showPrevImage() {
+    if (lightboxImages.length <= 1) return;
+    
+    currentLightboxIndex = (currentLightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
+    updateLightboxImage();
+}
+
+function showNextImage() {
+    if (lightboxImages.length <= 1) return;
+    
+    currentLightboxIndex = (currentLightboxIndex + 1) % lightboxImages.length;
+    updateLightboxImage();
+}
+
+function updateLightboxImage() {
+    const lightboxImage = document.querySelector('.lightbox-image');
+    if (lightboxImage && lightboxImages[currentLightboxIndex]) {
+        lightboxImage.src = lightboxImages[currentLightboxIndex];
+    }
+}
+
+function toggleNavigationButtons() {
+    const prevBtn = document.querySelector('.lightbox-prev');
+    const nextBtn = document.querySelector('.lightbox-next');
+    
+    if (prevBtn && nextBtn) {
+        // Only show navigation if we have more than one image
+        const display = lightboxImages.length > 1 ? 'flex' : 'none';
+        prevBtn.style.display = display;
+        nextBtn.style.display = display;
+    }
 }
 
 // Initialize on DOM load
