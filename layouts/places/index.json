@@ -1,0 +1,14 @@
+[
+    {{ $first := true }}
+    {{ range .Pages }}
+        {{ if $first }}{{ $first = false }}{{ else }},{{ end }}
+        {
+            "title": {{ .Title | jsonify }},
+            "description": {{ .Params.description | jsonify }},
+            "lat": {{ .Params.lat }},
+            "lng": {{ .Params.lng }},
+            "tags": {{ .Params.tags | jsonify }},
+            "permalink": "{{ .RelPermalink }}"
+        }
+    {{ end }}
+]

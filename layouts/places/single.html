@@ -1,0 +1,63 @@
+{{ define "main" }}
+<article class="place-detail">
+    <header class="place-header">
+        <h1>{{ .Title }}</h1>
+        {{ with .Params.description }}<p class="place-description">{{ . }}</p>{{ end }}
+        
+        <div class="place-meta">
+            <span class="place-coordinates">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                {{ .Params.lat }}, {{ .Params.lng }}
+            </span>
+            
+            {{ if .Params.tags }}
+            <div class="place-tags">
+                {{ range .Params.tags }}
+                <span class="place-tag">{{ . }}</span>
+                {{ end }}
+            </div>
+            {{ end }}
+        </div>
+    </header>
+
+    <div class="map-container" id="single-place-map"></div>
+    
+    {{ if .Params.urls }}
+    <div class="place-urls">
+        <h3>Related Links</h3>
+        <div class="url-list">
+            {{ range .Params.urls }}
+            <a href="{{ .url }}" class="url-item" {{ if not (hasPrefix .url "/") }}target="_blank" rel="noopener noreferrer"{{ end }}>
+                {{ .title }}
+            </a>
+            {{ end }}
+        </div>
+    </div>
+    {{ end }}
+    
+    <div class="place-content">
+        {{ .Content }}
+    </div>
+    
+    <!-- Hidden data container for JavaScript -->
+    <script type="application/json" id="place-data">
+        {
+            "title": {{ .Title | jsonify }},
+            "description": {{ .Params.description | jsonify }},
+            "lat": {{ .Params.lat }},
+            "lng": {{ .Params.lng }},
+            "tags": {{ .Params.tags | jsonify }},
+            "permalink": "{{ .RelPermalink }}"
+        }
+    </script>
+</article>
+
+<!-- Load CSS and JavaScript -->
+<link rel="stylesheet" href="/places/leaflet.css">
+<link rel="stylesheet" href="/places/css/places.css">
+<script src="/places/leaflet.js"></script>
+<script src="/places/js/places.js"></script>
+{{ end }}

@@ -1,0 +1,82 @@
+{{/* Places Map Shortcode 
+  Embeds an interactive map of places
+  
+  Parameters:
+  - height: Height of the map (default: 500px)
+  - zoom: Initial zoom level (default: 2)
+  - center-lat: Latitude to center map on (default: 20)
+  - center-lng: Longitude to center map on (default: 0)
+  - tag: Filter places by tag (optional)
+*/}}
+
+{{ $height := default "500px" (.Get "height") }}
+{{ $zoom := default 2 (.Get "zoom") }}
+{{ $centerLat := default 20 (.Get "center-lat") }}
+{{ $centerLng := default 0 (.Get "center-lng") }}
+{{ $filterTag := .Get "tag" }}
+
+<div class="embedded-map-container" style="width: 100%; height: {{ $height }}; margin-bottom: 2rem;">
+    <div id="embedded-map-{{ .Ordinal }}" class="embedded-map" style="width: 100%; height: 100%;"></div>
+</div>
+
+<link rel="stylesheet" href="/places/leaflet.css">
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize map
+    const map = L.map('embedded-map-{{ .Ordinal }}').setView([{{ $centerLat }}, {{ $centerLng }}], {{ $zoom }});
+    
+    // Add OpenStreetMap tile layer
+    L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+    }).addTo(map);
+    
+    // Fetch places data
+    fetch('/places/index.json')
+        .then(response => response.json())
+        .then(places => {
+            // Filter by tag if specified
+            {{ if $filterTag }}
+            places = places.filter(place => place.tags && place.tags.includes('{{ $filterTag }}'));
+            {{ end }}
+            
+            // Add markers for each place
+            if (places.length > 0) {
+                const bounds = [];
+                
+                places.forEach(place => {
+                    // Create marker
+                    const marker = L.marker([place.lat, place.lng], {
+                        title: place.title
+                    }).addTo(map);
+                    
+                    // Create popup content
+                    const popupContent = `
+                        <div style="padding: 10px;">
+                            <h3 style="margin: 0 0 5px 0;">${place.title}</h3>
+                            <p style="margin: 0 0 8px 0; font-size: 0.9rem;">${place.description || ''}</p>
+                            <a href="${place.permalink}" style="font-size: 0.8rem; color: #1976d2;">View details</a>
+                        </div>
+                    `;
+                    
+                    // Add popup to marker
+                    marker.bindPopup(popupContent, {
+                        maxWidth: 300
+                    });
+                    
+                    // Add to bounds
+                    bounds.push([place.lat, place.lng]);
+                });
+                
+                // Fit map to bounds of markers
+                if (bounds.length > 0) {
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                }
+            }
+        })
+        .catch(error => console.error('Error loading places data:', error));
+});
+</script>
+
+<script src="/places/leaflet.js"></script>
