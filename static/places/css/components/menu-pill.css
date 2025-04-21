@@ -35,6 +35,42 @@
 /* Adjust navigation in menu pill */
 .menu-pill .nav-links {
   gap: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Style navigation icons */
+.menu-pill .nav-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  transition: transform var(--transition-base), opacity var(--transition-base);
+}
+
+.menu-pill .nav-links a:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+.menu-pill .nav-links svg {
+  stroke-width: 1.5;
+  transition: stroke var(--transition-base);
+}
+
+/* Style dropdown trigger */
+.menu-pill .dropdown-trigger {
+  color: var(--color-primary);
+  transition: transform var(--transition-base), opacity var(--transition-base);
+}
+
+.menu-pill .dropdown-trigger:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+.menu-pill .dropdown-trigger svg {
+  stroke-width: 1.5;
 }
 
 /* Responsive adjustments */

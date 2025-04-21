@@ -13,8 +13,8 @@ export const mapConfig = {
 
 // Control settings
 export const controlConfig = {
-    zoomPosition: 'topright',
-    viewportFilterPosition: 'topright'
+    zoomPosition: 'bottomright',
+    viewportFilterPosition: 'none'
 };
 
 // Panel configuration

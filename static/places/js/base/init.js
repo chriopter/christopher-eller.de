@@ -19,67 +19,106 @@ import { renderPlaces } from '../components/markers.js';
  * Initialize the Places map and all related functionality
  */
 export function initPlacesMap() {
-    // Initialize DOM elements
-    initializeElements();
-    if (!elements.mapContainer) return;
-
-    // Add immersive map class to body
-    document.body.classList.add('map-view');
-
-    // Get places data first
-    const placesData = document.getElementById('places-data');
-    if (!placesData) {
-        console.error('Places data element not found');
-        return;
-    }
-
-    try {
-        // Reset any existing state
-        resetState();
-        
-        console.log('Parsing places data...');
-        const places = JSON.parse(placesData.textContent);
-        console.log('Successfully parsed places data:', places);
-        
-        if (!Array.isArray(places)) {
-            throw new Error('Places data is not an array');
+    return new Promise((resolve, reject) => {
+        // Initialize DOM elements
+        initializeElements();
+        if (!elements.mapContainer) {
+            reject(new Error('Map container not found'));
+            return;
         }
-        
-        if (places.length === 0) {
-            console.warn('No places found in data');
+
+        // Add immersive map class to body
+        document.body.classList.add('map-view');
+
+        // Get places data first
+        const placesData = document.getElementById('places-data');
+        if (!placesData) {
+            reject(new Error('Places data element not found'));
+            return;
         }
+
+        try {
+            // Reset any existing state
+            console.log('Resetting application state...');
+            resetState();
+            
+            // Parse and validate places data
+            console.log('Parsing places data...');
+            let places;
+            try {
+                places = JSON.parse(placesData.textContent);
+            } catch (parseError) {
+                throw new Error(`Failed to parse places data: ${parseError.message}`);
+            }
         
-        // Initialize empty markers object first
-        updateState('markers', {});
-        
-        // Update state with places data
-        updateState('allPlaces', places);
-        
-        // Initialize map after places data is loaded
-        console.log('Initializing map...');
-        const map = initMap();
-        
-        // Ensure map is initialized before proceeding
-        if (!map) {
-            throw new Error('Failed to initialize map');
-        }
-        
-        // Initialize components in order
-        console.log('Initializing components...');
-        initFilters();
-        initSearch();
-        setupPanelToggling();
-        initThemeHandling();
-        initMenuTheme();
-        initLightbox();
-        initBackButton();
-        setupHistoryHandling();
-        initializeFromURL();
-        
-        // Wait for next tick to ensure all initialization is complete
-        setTimeout(() => {
+            // Validate data structure
+            if (!Array.isArray(places)) {
+                throw new Error('Invalid places data: Expected an array but received ' + typeof places);
+            }
+            
+            if (places.length === 0) {
+                console.warn('Warning: No places found in data');
+            } else {
+                console.log(`Found ${places.length} places in data`);
+            }
+            
+            // Validate required fields and normalize permalinks
+            const invalidPlaces = [];
+            places = places.map(place => {
+                if (!place.title || !place.lat || !place.lng || 
+                    typeof place.lat !== 'number' || typeof place.lng !== 'number') {
+                    invalidPlaces.push(place.title || 'Untitled');
+                    return place;
+                }
+                
+                // Normalize permalink format
+                if (place.permalink) {
+                    place.permalink = `/places/${place.permalink.replace(/^\/places\//, '').replace(/\/$/, '')}`;
+                }
+                return place;
+            });
+            
+            if (invalidPlaces.length > 0) {
+                console.error('Warning: Some places have invalid or missing required fields:', invalidPlaces);
+            }
+            
+            // Initialize state
+            console.log('Initializing application state...');
+            updateState('markers', {});
+            updateState('allPlaces', places);
+            
+            // Initialize map
+            console.log('Initializing map...');
+            const map = initMap();
+            if (!map) {
+                throw new Error('Map initialization failed - map instance is null');
+            }
+            
+            // Initialize components in order
+            console.log('Initializing components...');
+            initFilters();
+            initSearch();
+            setupPanelToggling();
+            initLightbox();
+            initBackButton();
+            
+            // Render places and setup history handling
             console.log('Rendering places...');
             renderPlaces(true);
+            
+            // Log data state before history handling
+            console.log('Places data state:', {
+                placesCount: allPlaces.length,
+                placesData: allPlaces,
+                mapInitialized: !!map
+            });
+            
+            // Setup history handling after places are loaded
+            setupHistoryHandling();
+            
+            // Initialize from URL after everything is ready
+            console.log('Initializing from URL...');
+            initializeFromURL();
             
             // Log final state
             console.log('Initialization complete:', {
@@ -87,25 +126,29 @@ export function initPlacesMap() {
                 mapInitialized: !!map,
                 markersCount: Object.keys(markers).length
             });
-        }, 0);
-    } catch (e) {
-        console.error('Error parsing places data:', e);
-        console.error('Raw places data:', placesData.textContent);
-        
-        // Show error in the places list
-        const placesList = document.getElementById('places-list');
-        if (placesList) {
-            placesList.innerHTML = '<p class="error-message">Error loading places. Please try refreshing the page.</p>';
+            
+            // Handle resize events
+            window.addEventListener('resize', handleResize);
+            
+            // Trigger initial resize
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+            }, 100);
+            
+            resolve();
+        } catch (e) {
+            console.error('Error parsing places data:', e);
+            console.error('Raw places data:', placesData.textContent);
+            
+            // Show error in the places list
+            const placesList = document.getElementById('places-list');
+            if (placesList) {
+                placesList.innerHTML = '<p class="error-message">Error loading places. Please try refreshing the page.</p>';
+            }
+            
+            reject(e);
         }
-    }
-
-    // Handle resize events
-    window.addEventListener('resize', handleResize);
-    
-    // Trigger initial resize
-    setTimeout(() => {
-        window.dispatchEvent(new Event('resize'));
-    }, 100);
+    });
 }
 
 /**

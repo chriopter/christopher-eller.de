@@ -1,200 +1,91 @@
-/* Place Detail */
-.place-detail-container {
-  padding: var(--space-sm) var(--space-md);
-  overflow-y: auto;
-  height: 100%;
+.place-detail {
+    padding: var(--space-sm);
 }
 
-.place-detail,
+#back-to-list {
+    margin-bottom: var(--space-sm);
+}
+
 .place-header {
-  text-align: left;
-  width: 100%;
-  margin: 0;
+    margin-bottom: calc(var(--space-xs) / 2);
 }
 
 .place-header h1 {
-  font-size: 1.4rem;
-  margin: var(--space-md) 0;
-  line-height: 1.3;
-  color: var(--color-text);
+    margin: 0 0 calc(var(--space-xs) / 2) 0;
+    font-size: 1.4rem;
 }
 
-.place-header .place-description {
-  font-size: 0.9rem;
-  margin: var(--space-sm) 0 var(--space-lg) 0;
-  line-height: 1.5;
-  color: var(--color-text-secondary);
+.place-description {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.4;
 }
 
-.place-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-md);
-  margin-top: var(--space-md);
-  font-size: 0.9rem;
-  color: var(--color-text-secondary);
-}
-
-/* Action buttons */
-.place-action-buttons {
-  display: flex;
-  gap: var(--space-sm);
-  margin: var(--space-sm) 0 var(--space-md);
-  flex-wrap: wrap;
+.place-content {
+    margin-bottom: var(--space-sm);
+    font-size: 0.95rem;
+    line-height: 1.5;
 }
 
 .place-action-btn {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-sm) var(--space-md);
-  background-color: var(--color-overlay);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  color: var(--color-text);
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all var(--transition-base);
-  text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: calc(var(--space-xs) / 2) var(--space-sm);
+    background: var(--color-bg);
+    color: var(--color-text);
+    border-radius: 100px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
+}
+
+.place-action-buttons a.place-action-btn,
+.place-action-buttons a.place-action-btn:link,
+.place-action-buttons a.place-action-btn:visited {
+    text-decoration: none !important;
+    color: var(--color-text);
+}
+
+.place-action-buttons a.place-action-btn:hover,
+.place-action-buttons a.place-action-btn:focus,
+.place-action-buttons a.place-action-btn:active {
+    text-decoration: none !important;
+    color: var(--color-bg);
 }
 
 .place-action-btn:hover {
-  background-color: var(--color-primary-light);
-  color: var(--color-primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
-}
-
-.place-action-btn svg {
-  stroke: currentColor;
+    background: var(--color-primary);
+    color: var(--color-bg);
+    border-color: var(--color-primary);
+    transform: scale(1.05);
 }
 
 .place-action-btn.success {
-  background-color: rgba(67, 160, 71, 0.1);
-  color: var(--color-success);
-  border-color: rgba(67, 160, 71, 0.2);
+    background: var(--color-success);
+    color: var(--color-text-inverse);
 }
 
-.back-button {
-  display: flex;
-  align-items: center;
-  background: none;
-  border: 1px solid var(--color-border);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-pill);
-  cursor: pointer;
-  transition: all var(--transition-base);
+.place-action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: var(--space-sm);
 }
 
-.back-button:hover {
-  background-color: rgba(var(--color-light-rgb), 0.05);
-  transform: translateX(-2px);
+.photo-gallery {
+    margin-top: var(--space-sm);
 }
 
-.back-button svg {
-  margin-right: var(--space-sm);
+.photo-gallery img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    margin-bottom: calc(var(--space-xs) / 2);
 }
 
-/* URLs */
-.place-urls {
-  margin-top: var(--space-lg);
-}
-
-.place-urls h3 {
-  margin-bottom: var(--space-sm);
-  font-size: 1.1rem;
-  color: var(--color-text);
-}
-
-.url-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-md);
-}
-
-.url-item {
-  padding: var(--space-sm) var(--space-md);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  text-decoration: none;
-  color: var(--color-primary);
-  transition: all var(--transition-base);
-}
-
-.url-item:hover {
-  background-color: var(--color-primary-light);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-/* Place Content */
-.place-content {
-  margin: 2.5rem 0;
-  line-height: 1.6;
-  font-size: 1rem;
-  color: var(--color-text);
-}
-
-.place-content h2 {
-  font-size: 1.3rem;
-  margin: 2.5rem 0 1rem 0;
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: var(--space-sm);
-  color: var(--color-text);
-}
-
-.place-content h3 {
-  font-size: 1.1rem;
-  margin: var(--space-lg) 0 var(--space-sm) 0;
-  color: var(--color-text);
-}
-
-.place-content p {
-  margin: var(--space-sm) 0;
-  color: var(--color-text);
-}
-
-.place-content ul, 
-.place-content ol {
-  margin: var(--space-sm) 0 var(--space-sm) 1.5rem;
-  padding-left: var(--space-sm);
-}
-
-.place-content li {
-  margin-bottom: var(--space-xs);
-}
-
-/* View full page */
-.view-full-page {
-  margin-top: var(--space-lg);
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--color-border);
-}
-
-.full-page-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  text-decoration: none;
-  color: var(--color-text);
-  transition: all var(--transition-base);
-}
-
-.full-page-link:hover {
-  background-color: var(--color-primary-light);
-  color: var(--color-primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
-}
-
-.full-page-link svg {
-  stroke: currentColor;
-}
-
-.dark-mode .place-action-btn:hover,
-.dark-mode .back-button:hover {
-  background-color: rgba(var(--color-dark-rgb), 0.2);
+.photo-gallery img:last-child {
+    margin-bottom: 0;
 }

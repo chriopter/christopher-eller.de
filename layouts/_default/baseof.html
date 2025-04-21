@@ -11,10 +11,8 @@
         // Apply theme to document
         if (shouldBeDark) {
             document.documentElement.classList.add('dark-mode');
+            document.body.classList.add('dark-mode');
         }
-        
-        // Set initial moon state
-        document.documentElement.dataset.moonState = shouldBeDark ? '🌑' : '🌕';
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#ffffff" id="theme-color">
@@ -59,7 +57,7 @@
             -moz-user-select: none;
             -ms-user-select: none;
             transition: transform 0.3s ease, opacity 0.3s ease;
-            pointer-events: none;
+            pointer-events: auto;
         }
 
         .moon-toggle:hover {

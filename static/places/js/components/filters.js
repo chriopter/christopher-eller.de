@@ -2,7 +2,7 @@
  * Filter functionality for places
  */
 
-import { activeFilters, searchTerm, filterByViewport, placesMap, allPlaces } from '../base/state.js';
+import { activeFilters, searchTerm, filterByViewport, placesMap, allPlaces, updateState } from '../base/state.js';
 import { controlConfig } from '../base/config.js';
 import { renderPlaces } from './markers.js';
 
@@ -26,9 +26,9 @@ export function initFilters() {
             
             // Update active filters
             if (filterBtn.classList.contains('active')) {
-                activeFilters.push(tag);
+                updateState('activeFilters', [...activeFilters, tag]);
             } else {
-                activeFilters = activeFilters.filter(t => t !== tag);
+                updateState('activeFilters', activeFilters.filter(t => t !== tag));
             }
             
             renderPlaces();
@@ -41,43 +41,40 @@ export function initFilters() {
  * @param {Object} map - The Leaflet map instance
  */
 export function addViewportToggleControl(map) {
-    const ViewportToggleControl = L.Control.extend({
-        options: {
-            position: controlConfig.viewportFilterPosition
-        },
-        
-        onAdd: function(map) {
-            const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-            const button = L.DomUtil.create('a', 'viewport-filter-toggle', container);
-            button.href = '#';
-            button.title = 'Toggle viewport filtering';
-            button.role = 'button';
-            button.setAttribute('aria-label', 'Toggle viewport filtering');
-            button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>';
-            
-            // Set initial state
-            updateViewportToggleState(button);
-            
-            L.DomEvent.on(button, 'click', function(e) {
-                L.DomEvent.stop(e);
-                filterByViewport = !filterByViewport;
-                updateViewportToggleState(button);
-                
-                // Update sidebar toggle if it exists
-                const sidebarToggle = document.getElementById('viewport-toggle-checkbox');
-                if (sidebarToggle) {
-                    sidebarToggle.checked = filterByViewport;
-                }
-                
-                renderPlaces(false);
-            });
-            
-            return container;
+    // Create viewport filter button
+    const tagFilters = document.getElementById('tag-filters');
+    if (!tagFilters) return;
+
+    const viewportFilter = document.createElement('button');
+    viewportFilter.className = 'viewport-filter';
+    viewportFilter.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="9"/>
+            <line x1="12" y1="3" x2="12" y2="7"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+            <line x1="3" y1="12" x2="7" y2="12"/>
+            <line x1="17" y1="12" x2="21" y2="12"/>
+        </svg>
+    `;
+    viewportFilter.title = 'Filter places by current map view';
+    tagFilters.appendChild(viewportFilter);
+
+    // Update initial state
+    updateViewportToggleState(viewportFilter);
+
+    // Add click handler
+    viewportFilter.addEventListener('click', () => {
+        updateState('filterByViewport', !filterByViewport);
+        updateViewportToggleState(viewportFilter);
+        renderPlaces();
+    });
+
+    // Add map move handlers
+    map.on('moveend zoomend', () => {
+        if (filterByViewport) {
+            renderPlaces();
         }
     });
-    
-    // Add the viewport toggle control to the map
-    new ViewportToggleControl().addTo(map);
 }
 
 /**

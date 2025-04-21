@@ -54,10 +54,10 @@ export function showPlaceDetails(place, updateHistory = true, doZoom = true) {
                     Copy
                 </button>
             </div>
-            ${photoGalleryHTML}
             <div class="place-content">
                 ${place.content || '<div class="error-content">No content available.</div>'}
             </div>
+            ${photoGalleryHTML}
         </article>
     `;
     
@@ -141,7 +141,7 @@ function setupActionButtons(place) {
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
-                        Link copied!
+                        Copied!
                     `;
                     copyBtn.classList.add('success');
                     

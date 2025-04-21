@@ -181,10 +181,6 @@ export function renderPlacesList(places = null) {
         }
         
         placeItem.innerHTML = `
-            ${place.images && place.images.length > 0 ? `
-            <div class="place-thumbnail">
-                <img src="${place.images[0].path}" alt="Image of ${place.title}">
-            </div>` : ''}
             <div class="place-content">
                 <h3 class="place-title">${place.title}</h3>
                 <p class="place-description">${place.description || ''}</p>
@@ -193,6 +189,10 @@ export function renderPlacesList(places = null) {
                     ${tagsToDisplay.map(tag => `<span class="place-tag">${tag}</span>`).join('')}
                 </div>` : ''}
             </div>
+            ${place.images && place.images.length > 0 ? `
+            <div class="place-thumbnail">
+                <img src="${place.images[0].path}" alt="Image of ${place.title}">
+            </div>` : ''}
         `;
         
         // Add click handler

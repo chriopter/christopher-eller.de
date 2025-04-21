@@ -12,6 +12,17 @@ import { renderPlaces } from './markers.js';
  */
 export function initMap() {
     try {
+        // Check if map is already initialized
+        if (placesMap) {
+            console.warn('Map is already initialized, returning existing instance');
+            return placesMap;
+        }
+
+        const mapContainer = document.getElementById('places-map');
+        if (!mapContainer) {
+            throw new Error('Map container element not found');
+        }
+
         console.log('Creating map instance...');
         const map = L.map('places-map', {
             zoomControl: false
