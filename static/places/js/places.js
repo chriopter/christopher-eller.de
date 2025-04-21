@@ -67,6 +67,14 @@ function initPlacesMap() {
             renderPlaces();
             initFilters();
             initSearch();
+            
+            // Add event listener for map movement to update places based on viewport
+            placesMap.on('moveend', function() {
+                // Only update the places list without changing map bounds
+                if (placesList) {
+                    renderPlacesList(filterPlaces());
+                }
+            });
         } catch (e) {
             console.error('Error parsing places data:', e);
         }
@@ -375,12 +383,15 @@ function initSearch() {
     }
 }
 
-// Filter places based on active filters and search
+// Filter places based on active filters, search, and map viewport
 function filterPlaces() {
     // Normalize all active filters to lowercase for case-insensitive matching
     const normalizedActiveFilters = activeFilters.map(f => f.toLowerCase());
     
     console.log("Filtering with normalized active filters:", normalizedActiveFilters);
+    
+    // Get current map bounds if map is initialized
+    const mapBounds = placesMap ? placesMap.getBounds() : null;
     
     return allPlaces.filter(place => {
         // Filter by tags
@@ -436,6 +447,14 @@ function filterPlaces() {
             if (!title.includes(searchTerm) && 
                 !description.includes(searchTerm) && 
                 !tagsString.includes(searchTerm)) {
+                return false;
+            }
+        }
+        
+        // Filter by map viewport - only show places that are within the current map view
+        if (mapBounds) {
+            const placeLatLng = L.latLng(place.lat, place.lng);
+            if (!mapBounds.contains(placeLatLng)) {
                 return false;
             }
         }
@@ -797,8 +816,21 @@ function backToListView(updateHistory = true) {
     placesList.style.display = 'block';
     placeDetailContainer.style.display = 'none';
     
-    // Reset map to show all places with explicit bounds update
-    renderPlaces(true);
+    // Update the places list without changing map bounds
+    if (placesMap) {
+        // Clear existing markers and re-add them without changing viewport
+        Object.values(markers).forEach(marker => placesMap.removeLayer(marker));
+        markers = {};
+        
+        // Filter and add markers for places
+        const filteredPlaces = filterPlaces();
+        filteredPlaces.forEach(place => {
+            addPlaceMarker(place);
+        });
+        
+        // Update places list
+        renderPlacesList(filteredPlaces);
+    }
     
     // Update URL
     if (updateHistory) {
@@ -1086,12 +1118,36 @@ observer.observe(htmlElement, { attributes: true });
 function decodeJSONHTML(html) {
     if (!html) return '';
     
+    // Step 1: Handle Unicode escape sequences (\u003c, \u003e, etc.)
+    // Parse and stringify to convert unicode escape sequences
+    try {
+        // If the html is already a string with escape sequences like \u003c
+        // JSON.parse would fail, so we need to add quotes around it
+        if (typeof html === 'string') {
+            // First try with the string directly (might already be JSON)
+            try {
+                html = JSON.parse(`"${html.replace(/"/g, '\\"')}"`);
+            } catch (e) {
+                // If that fails, try parsing it as is (might already be JSON)
+                try {
+                    html = JSON.parse(html);
+                } catch (innerE) {
+                    // If both approaches fail, keep the original string
+                    console.log('Unicode decoding fallback to original string');
+                }
+            }
+        }
+    } catch (e) {
+        console.error('Error decoding unicode sequences:', e);
+    }
+    
+    // Step 2: Handle HTML entity references
     // Create a textarea element which handles HTML entity decoding
     const textarea = document.createElement('textarea');
     
-    // Set its value to the escaped HTML string
+    // Set its value to the string with decoded Unicode escapes
     textarea.innerHTML = html;
     
-    // Return the decoded value
+    // Return the fully decoded value
     return textarea.value;
 }
