@@ -648,29 +648,20 @@ function showPlaceDetails(place, updateHistory = true, doZoom = false) {
         `;
     }
     
-    // Process the website URL from front matter
+    // Process the website URL from front matter - will add dynamically after rendering
     let websiteBtn = '';
-    if (place.urls) {
-        websiteBtn = `
-            <a href="${place.urls}" class="place-action-btn" target="_blank" rel="noopener noreferrer" title="Visit website">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="2" y1="12" x2="22" y2="12"></line>
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                </svg>
-                Website
-            </a>
-        `;
-    }
+    console.log("Place object:", JSON.stringify(place));
+    console.log("URLs value:", place.urls);
 
     // Create detail HTML with title, description, photos, and content
+    // Using a div with specific styles for better alignment control
     const detailHTML = `
         <article class="place-detail">
-            <header class="place-header">
-                <h1>${place.title}</h1>
-                ${place.description ? `<p class="place-description">${place.description}</p>` : ''}
+            <header class="place-header" style="text-align: left; width: 100%; display: block;">
+                <h1 style="text-align: left; margin-left: 0; padding-left: 0; display: block; width: 100%;">${place.title}</h1>
+                ${place.description ? `<p class="place-description" style="text-align: left; margin-left: 0; padding-left: 0; display: block; width: 100%;">${place.description}</p>` : ''}
             </header>
-            <div class="place-action-buttons">
+            <div class="place-action-buttons" style="margin: 1.5rem 0 2rem 0;" id="place-action-buttons">
                 <button class="place-action-btn zoom-to-place" title="Zoom to this place">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
@@ -687,7 +678,6 @@ function showPlaceDetails(place, updateHistory = true, doZoom = false) {
                     </svg>
                     Copy
                 </button>
-                ${websiteBtn}
             </div>
             ${photoGalleryHTML}
             ${contentHTML}
@@ -696,6 +686,30 @@ function showPlaceDetails(place, updateHistory = true, doZoom = false) {
     
     // Update content
     placeDetailContent.innerHTML = detailHTML;
+    
+    // Add web button dynamically after rendering
+    if (place.urls) {
+        // Add the Web button dynamically to avoid string interpolation issues
+        const actionButtonsContainer = document.getElementById('place-action-buttons');
+        if (actionButtonsContainer) {
+            const webButton = document.createElement('a');
+            webButton.href = place.urls; // Set URL directly
+            webButton.className = 'place-action-btn';
+            webButton.target = '_blank';
+            webButton.rel = 'noopener noreferrer';
+            webButton.title = 'Visit website';
+            webButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+                Web
+            `;
+            actionButtonsContainer.appendChild(webButton);
+            console.log("Web button added dynamically with URL:", place.urls);
+        }
+    }
     
     // Hide search, tag filters, places list, and header content in single view
     if (searchInput && searchInput.parentElement) {

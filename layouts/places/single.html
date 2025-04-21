@@ -124,6 +124,7 @@
                     "lat": {{ .Params.lat }},
                     "lng": {{ .Params.lng }},
                     "tags": {{ .Params.tags | jsonify }},
+                    "urls": {{ .Params.urls | jsonify }},
                     "permalink": "{{ .RelPermalink }}",
                     "images": [
                         {{ $first := true }}
@@ -148,6 +149,7 @@
             "lat": {{ .Params.lat }},
             "lng": {{ .Params.lng }},
             "tags": {{ .Params.tags | jsonify }},
+            "urls": {{ .Params.urls | jsonify }},
             "permalink": "{{ .RelPermalink }}",
             "images": [
                 {{ $first := true }}
