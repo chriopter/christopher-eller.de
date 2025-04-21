@@ -177,17 +177,17 @@ function renderPlaces(shouldUpdateBounds = false) {
     if ((isInitialRender || shouldUpdateBounds) && filteredPlaces.length > 0) {
         const bounds = L.latLngBounds(filteredPlaces.map(place => [place.lat, place.lng]));
         
-        // Calculate padding based on sidebar visibility
-        let leftPadding = 50;
-        if (isPanelVisible && window.innerWidth >= 768) {
-            // Add sidebar width (350px) plus some margin
-            leftPadding = 350 + 70;
-        }
-        
-        // Use asymmetric padding [top, right, bottom, left]
-        placesMap.fitBounds(bounds, { 
-            padding: [50, 50, 50, leftPadding]
-        });
+    // Calculate padding based on sidebar visibility
+    let leftPadding = 50;
+    if (isPanelVisible && window.innerWidth >= 768) {
+        // Add sidebar width (350px) plus a larger margin to ensure pins are visible right of sidebar
+        leftPadding = 350 + 120; // Increased margin from 70px to 120px
+    }
+    
+    // Use asymmetric padding [top, right, bottom, left]
+    placesMap.fitBounds(bounds, { 
+        padding: [50, 70, 50, leftPadding] // Also increased right padding to 70px
+    });
         
         // Set initial render to false after first render
         if (isInitialRender) isInitialRender = false;
@@ -628,25 +628,8 @@ function showPlaceDetails(place, updateHistory = true, doZoom = false) {
     // Get photo gallery HTML if available for this place
     const photoGalleryHTML = getPhotoGalleryHTML(place, false);
     
-    // For Dortmund Coffee Shop, directly insert the content from markdown
-    let contentHTML = '';
-    if (placeSlug === 'dortmund-coffee-shop') {
-        contentHTML = `
-        <div class="place-content">
-            <h2>About this place</h2>
-            <p>This cozy coffee shop in Berlin offers some of the best espresso in the city. Located in a quiet neighborhood away from the typical tourist areas, it's a perfect spot to relax and watch the locals go about their day.</p>
-            
-            <h2>The Coffee</h2>
-            <p>Their house blend is sourced from small farms in Ethiopia and Colombia, roasted on-site weekly. The baristas are highly skilled and take pride in their latte art.</p>
-            
-            <h2>What to Try</h2>
-            <p>Don't miss their signature cardamom bun - it pairs perfectly with a flat white.</p>
-            
-            <h2>When to Visit</h2>
-            <p>Weekday mornings are quiet and perfect for working or reading. Weekend afternoons tend to be busy with locals.</p>
-        </div>
-        `;
-    }
+    // No hardcoded content - all content will be loaded dynamically
+    const contentHTML = '';
     
     // Process the website URL from front matter - will add dynamically after rendering
     let websiteBtn = '';
@@ -788,41 +771,58 @@ function fetchPlaceContent(permalink, marker = null) {
                 if (placeDetail) {
                     console.log('Adding content to place detail');
                     
-                    // Create content section for the markdown content
-                    const contentSection = document.createElement('div');
-                    contentSection.className = 'place-content';
-                    
-                    // Add a heading for the content section
-                    contentSection.innerHTML = '<h2>About this place</h2>';
-                    
                     // Get the article content directly
                     const mainContent = doc.querySelector('main article');
                     if (mainContent) {
                         console.log('Found main content');
                         
-                        // Get all paragraphs from the content
-                        // This will collect all the markdown content that has been rendered
-                        const contentElements = mainContent.querySelectorAll('p, h2, h3, ul, ol, blockquote, pre, figure');
+                        // First, let's get all content elements
+                        const contentElements = mainContent.querySelectorAll('p, h2, h3, h4, h5, h6, ul, ol, blockquote, pre, figure');
+                        
+                        // Initialize sections container
+                        let currentSection = null;
                         let hasContent = false;
                         
-                        // Filter out elements that are part of the header or description
+                        // Process content elements
                         contentElements.forEach(element => {
                             // Skip elements in the header and the description paragraph
                             const isInHeader = element.closest('header');
                             const isDescription = element.classList.contains('place-description');
                             
                             if (!isInHeader && !isDescription && element.textContent.trim()) {
-                                console.log('Adding content element:', element.tagName, element.textContent.substring(0, 30));
-                                contentSection.appendChild(element.cloneNode(true));
-                                hasContent = true;
+                                // If this is a heading, start a new section
+                                if (element.tagName.match(/^H[2-6]$/)) {
+                                    // If we have a current section with content, add it
+                                    if (currentSection && currentSection.childNodes.length > 1) {
+                                        placeDetail.appendChild(currentSection);
+                                    }
+                                    
+                                    // Create a new section with this heading
+                                    currentSection = document.createElement('div');
+                                    currentSection.className = 'place-content';
+                                    currentSection.appendChild(element.cloneNode(true));
+                                    hasContent = true;
+                                } 
+                                // If not a heading but we have a current section, add to it
+                                else if (currentSection) {
+                                    currentSection.appendChild(element.cloneNode(true));
+                                }
+                                // If no current section exists yet, create "About this place" section
+                                else {
+                                    currentSection = document.createElement('div');
+                                    currentSection.className = 'place-content';
+                                    currentSection.innerHTML = '<h2>About this place</h2>';
+                                    currentSection.appendChild(element.cloneNode(true));
+                                    hasContent = true;
+                                }
                             }
                         });
                         
-                        // Only add the section if we actually found content
-                        if (hasContent) {
-                            placeDetail.appendChild(contentSection);
+                        // Add the final section if we have one
+                        if (currentSection && currentSection.childNodes.length > 1) {
+                            placeDetail.appendChild(currentSection);
                             console.log('Content section added to detail view');
-                        } else {
+                        } else if (!hasContent) {
                             console.log('No content found to add');
                         }
                     }

@@ -847,6 +847,7 @@ body:has(.places-section) footer {
     font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    text-decoration: none; /* Remove underlining from buttons, especially when they're anchor tags */
 }
 
 .place-action-btn:hover {
