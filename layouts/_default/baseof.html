@@ -162,16 +162,24 @@ header .header-content {
 
         .nav-links {
             display: flex;
-            gap: 1rem; /* Reduced from 2rem to 1rem to decrease horizontal whitespace */
+            gap: 1.5rem; /* Increased spacing between icons */
             align-items: center;
+            justify-content: center; /* Center the icons horizontally */
         }
 
-        .nav-links a {
+        .nav-links a, 
+        .nav-links .dropdown-trigger {
             text-decoration: none;
             color: var(--text-color);
-            font-size: 1rem;
-            padding: 0.25rem 0;
-            transition: color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links .dropdown-trigger:hover {
+            transform: scale(1.1);
         }
 
         .nav-links a:hover {
@@ -184,8 +192,9 @@ header .header-content {
             cursor: pointer;
         }
 
+        /* We don't need underline for icon-only dropdown trigger */
         .nav-links .dropdown .dropdown-trigger:hover {
-            text-decoration: underline !important;
+            text-decoration: none !important;
         }
 
         /* Nav separator */
@@ -204,13 +213,16 @@ header .header-content {
             display: none;
             position: absolute;
             top: 100%;
-            left: 0;
+            left: 50%;
+            transform: translateX(-50%);
             background-color: var(--bg-color);
             min-width: 160px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             border: 1px solid var(--border-color);
             border-radius: 4px;
             z-index: 1000;
+            margin-top: 0.5rem;
+            text-align: center;
         }
 
         .dropdown-content a {
@@ -377,26 +389,32 @@ header .header-content {
             </div>
             <nav class="nav-links">
                 <a href="/photos" title="Photos">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: text-bottom;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                         <circle cx="12" cy="13" r="4"></circle>
                     </svg>
-                    Photos
                 </a>
                 <a href="/places" title="Places">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: text-bottom;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                         <circle cx="12" cy="10" r="3"></circle>
                     </svg>
-                    Places
+                </a>
+                <a href="/texts" title="Texts">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
                 </a>
                 <div class="dropdown" id="bitsDropdown">
                     <a class="dropdown-trigger" title="Bits">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px; vertical-align: text-bottom;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="16 18 22 12 16 6"></polyline>
                             <polyline points="8 6 2 12 8 18"></polyline>
                         </svg>
-                        Bits
                     </a>
                     <div class="dropdown-content">
                     {{ $files := readDir "static/bits" }}
@@ -407,16 +425,6 @@ header .header-content {
                     {{ end }}
                     </div>
                 </div>
-                <a href="/texts" title="Texts">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px; vertical-align: text-bottom;">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                        <polyline points="10 9 9 9 8 9"></polyline>
-                    </svg>
-                    Texts
-                </a>
             </nav>
         </div>
     </header>

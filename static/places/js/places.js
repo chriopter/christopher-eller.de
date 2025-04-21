@@ -9,11 +9,16 @@ let allPlaces = [];
 let markers = {};
 let activeFilters = [];
 let searchTerm = '';
+let isPanelVisible = true;
 
 // DOM elements
 let mapContainer = null;
 let searchInput = null;
 let placesList = null;
+let sidePanel = null;
+let panelToggle = null;
+let panelHideToggle = null;
+let panelShowToggle = null;
 
 // Initialize the map and places
 function initPlacesMap() {
@@ -21,13 +26,23 @@ function initPlacesMap() {
     mapContainer = document.getElementById('places-map');
     if (!mapContainer) return;
 
+    // Add immersive map class to body
+    document.body.classList.add('map-view');
+
     // Initialize Leaflet map
-    placesMap = L.map(mapContainer).setView([20, 0], 2);
+    placesMap = L.map(mapContainer, {
+        zoomControl: false // We'll add zoom control in a better position
+    }).setView([20, 0], 2);
 
     // Add OpenStreetMap tile layer
     L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19
+    }).addTo(placesMap);
+
+    // Add zoom control to the right
+    L.control.zoom({
+        position: 'topright'
     }).addTo(placesMap);
 
     // Get places data
@@ -43,6 +58,15 @@ function initPlacesMap() {
         }
     }
 
+    // Initialize side panel and toggle buttons
+    sidePanel = document.getElementById('side-panel');
+    panelToggle = document.getElementById('panel-toggle');
+    panelHideToggle = document.getElementById('panel-hide-toggle');
+    panelShowToggle = document.getElementById('panel-show-toggle');
+    
+    // Set up panel toggling functionality
+    setupPanelToggling();
+
     // Initialize places list if exists
     placesList = document.getElementById('places-list');
     if (placesList) {
@@ -55,25 +79,54 @@ function initPlacesMap() {
     
     if (mapViewBtn && listViewBtn) {
         mapViewBtn.addEventListener('click', () => {
-            document.body.classList.remove('list-view');
-            document.body.classList.add('map-view');
             mapViewBtn.classList.add('active');
             listViewBtn.classList.remove('active');
+            
+            // Ensure map is properly sized
             placesMap.invalidateSize();
+            
+            // Focus the view on the places
+            if (Object.keys(markers).length > 0) {
+                const bounds = L.latLngBounds(Object.values(markers).map(marker => marker.getLatLng()));
+                placesMap.fitBounds(bounds, { padding: [50, 50] });
+            }
         });
         
         listViewBtn.addEventListener('click', () => {
-            document.body.classList.remove('map-view');
-            document.body.classList.add('list-view');
             listViewBtn.classList.add('active');
             mapViewBtn.classList.remove('active');
+            
+            // Scroll to top of places list
+            if (placesList) {
+                placesList.scrollTop = 0;
+            }
         });
     }
 
     // Handle resize events
     window.addEventListener('resize', () => {
         placesMap.invalidateSize();
+        
+        // Show/hide panel toggle based on screen size
+        if (window.innerWidth < 768) {
+            if (panelToggle) panelToggle.style.display = 'flex';
+            if (sidePanel) sidePanel.classList.add('hidden');
+            if (panelShowToggle) panelShowToggle.classList.remove('hidden');
+            isPanelVisible = false;
+        } else {
+            if (panelToggle) panelToggle.style.display = 'none';
+            // Only restore the panel if it was previously visible before resize
+            if (isPanelVisible) {
+                if (sidePanel) sidePanel.classList.remove('hidden');
+                if (panelShowToggle) panelShowToggle.classList.add('hidden');
+            }
+        }
     });
+    
+    // Trigger resize handler to set initial states
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+    }, 100);
 }
 
 // Render all places on the map
@@ -324,6 +377,42 @@ function initSinglePlaceMap() {
         
     } catch (e) {
         console.error('Error parsing place data:', e);
+    }
+}
+
+// Setup panel toggling functionality
+function setupPanelToggling() {
+    if (!sidePanel || !panelHideToggle || !panelShowToggle) return;
+    
+    // Handle panel hide toggle
+    panelHideToggle.addEventListener('click', () => {
+        // Hide the side panel
+        sidePanel.classList.add('hidden');
+        // Show the show panel button
+        panelShowToggle.classList.remove('hidden');
+        // Update state
+        isPanelVisible = false;
+        // Resize map to ensure proper display
+        if (placesMap) placesMap.invalidateSize();
+    });
+    
+    // Handle panel show toggle
+    panelShowToggle.addEventListener('click', () => {
+        // Show the side panel
+        sidePanel.classList.remove('hidden');
+        // Hide the show panel button
+        panelShowToggle.classList.add('hidden');
+        // Update state
+        isPanelVisible = true;
+        // Resize map to ensure proper display
+        if (placesMap) placesMap.invalidateSize();
+    });
+    
+    // On mobile, use the panel toggle button (hamburger menu)
+    if (panelToggle) {
+        panelToggle.addEventListener('click', () => {
+            sidePanel.classList.toggle('visible');
+        });
     }
 }
 

@@ -1,17 +1,34 @@
 {{ define "main" }}
 <div class="places-section">
-    <header class="places-header">
-        <h1>{{ .Title }}</h1>
-        {{ with .Description }}<p>{{ . }}</p>{{ end }}
-    </header>
-
-    <div class="filter-controls">
+    <!-- Menu indicator for sliding in the header -->
+    <div class="menu-indicator" id="menu-indicator"></div>
+    
+    <!-- Full Viewport Map -->
+    <div class="map-container" id="places-map"></div>
+    
+    <!-- Unified Side Panel with Search, Filters and List -->
+    <div class="side-panel" id="side-panel">
+        <!-- Side panel toggle button -->
+        <div class="panel-hide-toggle" id="panel-hide-toggle" title="Hide Panel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 18l-6-6 6-6"></path>
+            </svg>
+        </div>
+        <header class="side-panel-header">
+            <h1>{{ .Title }}</h1>
+            {{ with .Description }}<p>{{ . }}</p>{{ end }}
+        </header>
+        
         <div class="search-container">
             <input type="text" id="search-input" class="search-input" placeholder="Search places...">
         </div>
         
         <div class="tag-filters" id="tag-filters">
             <!-- Tags will be dynamically added here by JavaScript -->
+        </div>
+        
+        <div class="places-list" id="places-list">
+            <!-- Places list will be dynamically generated -->
         </div>
         
         <div class="view-controls">
@@ -34,11 +51,21 @@
             </span>
         </div>
     </div>
-
-    <div class="map-container map-fullscreen" id="places-map"></div>
     
-    <div class="places-list" id="places-list">
-        <!-- Places list will be dynamically generated -->
+    <!-- Mobile Toggle Button -->
+    <div class="panel-toggle" id="panel-toggle">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </div>
+    
+    <!-- Show Panel Button (visible when panel is hidden) -->
+    <div class="panel-show-toggle hidden" id="panel-show-toggle" title="Show Panel">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6"></path>
+        </svg>
     </div>
 
     <!-- Hidden data container for JavaScript -->
@@ -65,4 +92,30 @@
 <link rel="stylesheet" href="/places/css/places.css">
 <script src="/places/node_modules/leaflet/dist/leaflet.js"></script>
 <script src="/places/js/places.js"></script>
+
+<!-- Header toggle script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const header = document.querySelector('header');
+        const menuIndicator = document.getElementById('menu-indicator');
+        
+        // Toggle menu on indicator click
+        menuIndicator.addEventListener('click', function() {
+            header.classList.toggle('visible');
+        });
+        
+        // Show menu when indicator is hovered
+        menuIndicator.addEventListener('mouseenter', function() {
+            header.classList.add('visible');
+        });
+        
+        // Hide menu when mouse leaves header area
+        header.addEventListener('mouseleave', function(e) {
+            // Only hide if we're not moving to the menu indicator
+            if (!e.relatedTarget || e.relatedTarget.id !== 'menu-indicator') {
+                header.classList.remove('visible');
+            }
+        });
+    });
+</script>
 {{ end }}
