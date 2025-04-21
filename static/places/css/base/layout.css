@@ -1,0 +1,34 @@
+/* Layout */
+.map-container {
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  margin: 0;
+}
+
+body:has(.places-section) > header,
+body:has(.places-section) footer {
+  display: none;
+}
+
+body:has(.places-section) main {
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.places-section {
+  position: relative;
+  min-height: 100vh;
+}
+
+.leaflet-top, .leaflet-bottom {
+  z-index: 9 !important;
+}
+
+.leaflet-top.leaflet-right {
+  margin-top: 10px;
+}

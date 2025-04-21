@@ -1,0 +1,60 @@
+/* Tags */
+.tag-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  padding: 0.75rem 1.25rem 0.5rem;
+}
+
+.tag-filter {
+  display: inline-block;
+  font-size: 0.9rem;
+  padding: var(--spacing-xs) 0.75rem;
+  border-radius: var(--radius-pill);
+  background-color: #f0f0f0;
+  color: #444;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 1px solid transparent;
+  font-weight: 500;
+}
+
+.tag-filter:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+.tag-filter.active {
+  background-color: var(--primary-blue);
+  color: white;
+  box-shadow: 0 2px 5px rgba(25, 118, 210, 0.3);
+  font-weight: 600;
+}
+
+.dark-mode .tag-filter {
+  background-color: #333;
+  color: #eee;
+}
+
+.dark-mode .tag-filter:hover {
+  background-color: #444;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Place Tags */
+.place-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.place-tag {
+  font-size: 0.8rem;
+  background-color: var(--border-color);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-pill);
+  color: var(--secondary-text);
+}

@@ -1,0 +1,45 @@
+/* Base Variables */
+:root {
+  --bg-color-rgb: 255, 255, 255;
+  --border-color-rgb: 230, 230, 230;
+  --text-color-rgb: 51, 51, 51;
+  
+  --border-color: rgba(var(--border-color-rgb), 1);
+  --text-color: rgba(var(--text-color-rgb), 1);
+  --bg-color: rgba(var(--bg-color-rgb), 1);
+  --secondary-text: #666;
+  
+  --pill-bg: rgba(var(--bg-color-rgb), 0.7);
+  --pill-expanded-bg: rgba(var(--bg-color-rgb), 0.85);
+  --panel-bg: rgba(var(--bg-color-rgb), 0.95);
+  
+  --primary-blue: #1976d2;
+  --primary-blue-light: rgba(25, 118, 210, 0.1);
+  --success-green: #43a047;
+  
+  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 3px 15px rgba(0, 0, 0, 0.15);
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 50px;
+  
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  
+  --transition: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}
+
+/* Dark Mode */
+.dark-mode {
+  --bg-color-rgb: 34, 34, 34;
+  --border-color-rgb: 51, 51, 51;
+  --text-color-rgb: 238, 238, 238;
+  --secondary-text: #aaa;
+  --pill-bg: rgba(40, 40, 40, 0.7);
+  --pill-expanded-bg: rgba(40, 40, 40, 0.85);
+}

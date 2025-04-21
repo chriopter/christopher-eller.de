@@ -1,0 +1,36 @@
+/* Responsive Design */
+@media (max-width: 768px) {
+  .side-panel {
+    width: 85%;
+    left: 0;
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    transform: translateX(-100%);
+  }
+  
+  .side-panel.visible {
+    transform: translateX(0);
+  }
+  
+  .panel-toggle {
+    display: flex;
+  }
+  
+  .menu-pill.expanded {
+    width: calc(100% - 20px);
+    margin: 0 10px;
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .menu-pill.expanded.content-visible .menu-pill-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .menu-pill .nav-links {
+    width: 100%;
+    justify-content: center;
+    gap: 1rem;
+  }
+}
