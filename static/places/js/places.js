@@ -116,7 +116,7 @@ function addPlaceMarker(place) {
             <div class="popup-header">
                 <h3 class="popup-title">${place.title}</h3>
                 <p class="popup-description">${place.description || ''}</p>
-                ${place.tags && place.tags.length ? `
+                ${place.tags && Array.isArray(place.tags) && place.tags.length ? `
                 <div class="popup-tags">
                     ${place.tags.map(tag => `<span class="popup-tag">${tag}</span>`).join('')}
                 </div>` : ''}
@@ -165,7 +165,7 @@ function addPlaceMarker(place) {
 // Initialize tag filters
 function initFilters() {
     // Get all unique tags
-    const allTags = [...new Set(allPlaces.flatMap(place => place.tags || []))];
+    const allTags = [...new Set(allPlaces.flatMap(place => Array.isArray(place.tags) ? place.tags : []))];
     
     // Create tag filters
     const tagFilters = document.getElementById('tag-filters');
@@ -215,7 +215,7 @@ function filterPlaces() {
     return allPlaces.filter(place => {
         // Filter by tags
         if (activeFilters.length > 0) {
-            const placeTags = place.tags || [];
+            const placeTags = Array.isArray(place.tags) ? place.tags : [];
             if (!activeFilters.some(tag => placeTags.includes(tag))) {
                 return false;
             }
@@ -225,7 +225,7 @@ function filterPlaces() {
         if (searchTerm) {
             const title = place.title.toLowerCase();
             const description = (place.description || '').toLowerCase();
-            const tags = (place.tags || []).join(' ').toLowerCase();
+            const tags = (Array.isArray(place.tags) ? place.tags : []).join(' ').toLowerCase();
             
             if (!title.includes(searchTerm) && 
                 !description.includes(searchTerm) && 
@@ -263,7 +263,7 @@ function renderPlacesList(places = null) {
         placeItem.innerHTML = `
             <h3 class="place-title">${place.title}</h3>
             <p class="place-description">${place.description || ''}</p>
-            ${place.tags && place.tags.length ? `
+            ${place.tags && Array.isArray(place.tags) && place.tags.length ? `
             <div class="place-tags">
                 ${place.tags.map(tag => `<span class="place-tag">${tag}</span>`).join('')}
             </div>` : ''}
@@ -306,8 +306,21 @@ function initSinglePlaceMap() {
             title: place.title
         }).addTo(singleMap);
         
-        // Add popup
-        marker.bindPopup(`<b>${place.title}</b><br>${place.description || ''}`).openPopup();
+        // Add popup with better formatting
+        const popupContent = `
+            <div class="popup-content">
+                <h3 class="popup-title">${place.title}</h3>
+                <p class="popup-description">${place.description || ''}</p>
+                ${place.tags && Array.isArray(place.tags) && place.tags.length ? `
+                <div class="popup-tags">
+                    ${place.tags.map(tag => `<span class="popup-tag">${tag}</span>`).join('')}
+                </div>` : ''}
+            </div>
+        `;
+        marker.bindPopup(popupContent, {
+            className: 'custom-popup',
+            maxWidth: 300
+        }).openPopup();
         
     } catch (e) {
         console.error('Error parsing place data:', e);
@@ -335,14 +348,14 @@ function updateMapForDarkMode(isDark) {
 }
 
 // Connect to theme toggle
-const html = document.documentElement;
+const htmlElement = document.documentElement;
 const observer = new MutationObserver(mutations => {
     mutations.forEach(mutation => {
         if (mutation.attributeName === 'class') {
-            const isDark = html.classList.contains('dark-mode');
+            const isDark = htmlElement.classList.contains('dark-mode');
             updateMapForDarkMode(isDark);
         }
     });
 });
 
-observer.observe(html, { attributes: true });
+observer.observe(htmlElement, { attributes: true });
