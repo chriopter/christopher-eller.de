@@ -693,7 +693,16 @@ function showPlaceDetails(place, updateHistory = true, doZoom = false) {
         const actionButtonsContainer = document.getElementById('place-action-buttons');
         if (actionButtonsContainer) {
             const webButton = document.createElement('a');
-            webButton.href = place.urls; // Set URL directly
+            // Clean up URL if it contains escaped quotes or other encoding issues
+            let cleanUrl = place.urls;
+            if (typeof cleanUrl === 'string') {
+                // Remove any quotes that might be surrounding the URL
+                cleanUrl = cleanUrl.replace(/^["'](.*)["']$/, '$1');
+                // Replace any encoded quotes
+                cleanUrl = cleanUrl.replace(/%22/g, '');
+                cleanUrl = cleanUrl.replace(/%2522/g, '');
+            }
+            webButton.href = cleanUrl; // Set cleaned URL
             webButton.className = 'place-action-btn';
             webButton.target = '_blank';
             webButton.rel = 'noopener noreferrer';
