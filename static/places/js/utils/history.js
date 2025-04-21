@@ -8,15 +8,14 @@
  * @param {boolean} shouldPushState - Whether to push or replace state
  */
 export function updateURL(place, shouldPushState = true) {
-    const baseURL = '/places/';
-    let url = baseURL;
+    let url = '/places';
     let state = { type: 'list' };
 
     if (place) {
-        // Add place as query parameter but keep list view
-        url = `${baseURL}?place=${encodeURIComponent(place.permalink)}`;
+        // Use path-based URL for places (permalink already includes /places/)
+        url = place.permalink;
         state = {
-            type: 'list',
+            type: 'single',
             placePermalink: place.permalink
         };
     }
@@ -43,11 +42,10 @@ export function setupHistoryHandling() {
 function handleHistoryNavigation(event) {
     const state = event.state;
     if (!state) {
-        // Check URL parameters if state is missing
-        const urlParams = new URLSearchParams(window.location.search);
-        const placeParam = urlParams.get('place');
-        if (placeParam) {
-            const place = window.allPlaces.find(p => p.permalink === placeParam);
+        // Check path if state is missing
+        const placePermalink = getPlaceFromURL();
+        if (placePermalink) {
+            const place = window.allPlaces.find(p => p.permalink === placePermalink);
             if (place) {
                 window.showPlaceDetails(place, false);
                 return;
@@ -72,8 +70,9 @@ function handleHistoryNavigation(event) {
  * @returns {string|null} The place permalink or null if none specified
  */
 export function getPlaceFromURL() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('place');
+    const path = window.location.pathname;
+    const match = path.match(/^\/places\/([^/]+)\/$/);
+    return match ? decodeURIComponent(match[1]) : null;
 }
 
 /**

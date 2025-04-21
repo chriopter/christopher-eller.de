@@ -34,7 +34,8 @@ export const elements = {
     panelShowToggle: null,
     placeDetailContainer: null,
     placeDetailContent: null,
-    backToListButton: null
+    backToListButton: null,
+    menuPill: null
 };
 
 /**
@@ -97,6 +98,7 @@ export function initializeElements() {
     elements.placeDetailContainer = document.getElementById('place-detail-container');
     elements.placeDetailContent = document.getElementById('place-detail-content');
     elements.backToListButton = document.getElementById('back-to-list');
+    elements.menuPill = document.getElementById('menu-pill');
 }
 
 /**

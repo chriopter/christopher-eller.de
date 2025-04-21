@@ -3,7 +3,7 @@
  */
 
 import { mapConfig, controlConfig } from '../base/config.js';
-import { updateState, placesMap } from '../base/state.js';
+import { updateState, placesMap, markers } from '../base/state.js';
 import { addViewportToggleControl } from './filters.js';
 import { renderPlaces } from './markers.js';
 
@@ -11,85 +11,43 @@ import { renderPlaces } from './markers.js';
  * Initialize the map
  */
 export function initMap() {
-    const map = L.map('places-map', {
-        zoomControl: true
-    }).setView(mapConfig.defaultView, mapConfig.defaultZoom);
-
-    // Add tile layer
-    L.tileLayer(mapConfig.tileLayer, {
-        attribution: mapConfig.attribution,
-        maxZoom: mapConfig.maxZoom
-    }).addTo(map);
-
-    // Add zoom control
-    L.control.zoom({
-        position: controlConfig.zoomPosition
-    }).addTo(map);
-
-    // Add viewport filter toggle
-    addViewportToggleControl(map);
-
-    // Update global map reference
-    updateState('placesMap', map);
-
-    // Add event listener for map movement
-    map.on('moveend', () => {
-        // Only update the places list without changing map bounds
-        renderPlaces(false);
-    });
-
-    return map;
-}
-
-/**
- * Initialize a single place map
- */
-export function initSinglePlaceMap() {
-    const singleMapContainer = document.getElementById('single-place-map');
-    if (!singleMapContainer) return;
-
-    const placeData = document.getElementById('place-data');
-    if (!placeData) return;
-
     try {
-        const place = JSON.parse(placeData.textContent);
+        console.log('Creating map instance...');
+        const map = L.map('places-map', {
+            zoomControl: false
+        }).setView(mapConfig.defaultView, mapConfig.defaultZoom);
 
-        // Initialize map
-        const singleMap = L.map(singleMapContainer).setView([place.lat, place.lng], 13);
-
+        console.log('Adding tile layer...');
         // Add tile layer
         L.tileLayer(mapConfig.tileLayer, {
             attribution: mapConfig.attribution,
             maxZoom: mapConfig.maxZoom
-        }).addTo(singleMap);
+        }).addTo(map);
 
-        // Add marker
-        const marker = L.marker([place.lat, place.lng], {
-            title: place.title
-        }).addTo(singleMap);
+        console.log('Adding controls...');
+        // Add zoom control
+        L.control.zoom({
+            position: controlConfig.zoomPosition
+        }).addTo(map);
 
-        // Get photo gallery HTML
-        const photoGalleryHTML = getPhotoGalleryHTML(place, true);
+        // Add viewport filter toggle
+        addViewportToggleControl(map);
 
-        // Add popup
-        const popupContent = `
-            <div class="popup-content">
-                <div class="popup-header">
-                    <h3 class="popup-title">${place.title}</h3>
-                    <p class="popup-description">${place.description || ''}</p>
-                </div>
-                ${photoGalleryHTML}
-            </div>
-        `;
+        console.log('Updating map reference...');
+        // Update global map reference
+        updateState('placesMap', map);
 
-        marker.bindPopup(popupContent, {
-            className: 'custom-popup simple-popup',
-            maxWidth: 500,
-            minWidth: 320
-        }).openPopup();
+        // Add event listener for map movement
+        map.on('moveend', () => {
+            // Update places list without changing map bounds
+            renderPlaces(false);
+        });
 
-    } catch (e) {
-        console.error('Error parsing place data:', e);
+        console.log('Map initialization complete');
+        return map;
+    } catch (error) {
+        console.error('Error initializing map:', error);
+        return null;
     }
 }
 

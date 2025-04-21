@@ -8,162 +8,50 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-md);
-  transition: width var(--transition-slow), background-color var(--transition-base);
-  overflow: hidden;
-  width: 90px;
-  height: 38px;
-  padding: var(--space-sm) 15px;
-  box-sizing: content-box;
+  padding: var(--space-sm) var(--space-lg);
   background-color: var(--color-overlay);
   backdrop-filter: blur(10px);
-}
-
-.menu-pill:not(.expanded) {
-  cursor: pointer;
-}
-
-.menu-pill.expanded {
   width: 800px;
-  padding: var(--space-sm) 2rem;
-  background-color: var(--color-overlay-strong);
+  box-sizing: border-box;
 }
 
-/* Label */
-.menu-pill-label {
-  height: 100%;
-  width: 100%;
-  color: var(--color-text);
-  transition: opacity var(--transition-base);
-  gap: var(--space-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Override header styles when inside menu pill */
+.menu-pill .header-content {
+  max-width: none;
+  margin: 0;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
-.menu-pill-label svg {
-  stroke: var(--color-text);
-  transition: transform var(--transition-base);
-  margin: 0 auto;
-}
-
-.menu-pill:hover .menu-pill-label svg {
-  transform: scale(1.05);
-}
-
-.menu-pill.expanded .menu-pill-label {
-  display: none;
-  opacity: 0;
-}
-
-/* Content */
-.menu-pill-content {
-  width: 100%;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity var(--transition-base);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.menu-pill.expanded.content-visible .menu-pill-content {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  min-height: 38px;
-}
-
-/* Site Title */
+/* Adjust site title in menu pill */
 .menu-pill .site-title {
   font-size: 1.2rem;
-  font-weight: 600;
-  text-decoration: none;
-  color: var(--color-text);
-  gap: 0.75rem;
-  flex: 1;
-  display: flex;
+}
+
+.menu-pill .site-title > div {
   align-items: center;
 }
 
-.menu-pill .site-title > div > div:nth-child(2) {
-  margin-top: 0;
-  font-size: 0.7rem;
-  color: var(--color-text-secondary);
-}
-
-/* Navigation */
+/* Adjust navigation in menu pill */
 .menu-pill .nav-links {
-  gap: var(--space-lg);
-  flex: 1;
-  justify-content: flex-end;
+  gap: 1.5rem;
 }
 
-.menu-pill .nav-links a, 
-.menu-pill .nav-links .dropdown-trigger {
-  text-decoration: none;
-  color: var(--color-text);
-}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .menu-pill {
+    width: calc(100% - 2rem);
+    margin: 0 1rem;
+  }
 
-.menu-pill .nav-links svg {
-  width: 20px;
-  height: 20px;
-}
+  .menu-pill .header-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
 
-/* Dropdown */
-.menu-pill #bitsDropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.menu-pill #bitsDropdown .dropdown-content {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 160px;
-  margin-top: var(--space-sm);
-  padding: var(--space-sm) 0;
-  z-index: calc(var(--z-popup) + 1);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background-color: var(--color-overlay-stronger);
-  backdrop-filter: blur(10px);
-  transition: box-shadow var(--transition-base);
-}
-
-.menu-pill #bitsDropdown .dropdown-content:hover {
-  box-shadow: var(--shadow-md);
-}
-
-.menu-pill #bitsDropdown.active .dropdown-content {
-  display: block;
-}
-
-.menu-pill #bitsDropdown .dropdown-content::before {
-  content: "";
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 8px solid var(--color-bg);
-}
-
-.menu-pill #bitsDropdown .dropdown-content a {
-  display: block;
-  padding: var(--space-sm) 1.5rem;
-  white-space: nowrap;
-  text-align: left;
-  transition: background-color var(--transition-base);
-}
-
-.menu-pill #bitsDropdown .dropdown-content a:hover {
-  background-color: rgba(var(--color-light-rgb), 0.05);
-}
-
-.dark-mode .menu-pill #bitsDropdown .dropdown-content a:hover {
-  background-color: rgba(var(--color-dark-rgb), 0.05);
+  .menu-pill .nav-links {
+    width: 100%;
+    justify-content: center;
+    gap: 1rem;
+  }
 }

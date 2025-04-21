@@ -11,66 +11,78 @@ import { filterPlaces } from './filters.js';
 /**
  * Add a marker for a place
  * @param {Object} place - The place object to create a marker for
- * @returns {Object} The created marker
+ * @returns {Object|null} The created marker or null if creation failed
  */
 export function addPlaceMarker(place) {
-    const marker = L.marker([place.lat, place.lng], {
-        title: place.title
-    });
-
-    const photoGalleryHTML = getPhotoGalleryHTML(place, true);
-
-    // Create popup content
-    const popupContent = `
-        <div class="popup-content">
-            <div class="popup-header">
-                <h3 class="popup-title">${place.title}</h3>
-                <p class="popup-description">${place.description || ''}</p>
-            </div>
-            ${photoGalleryHTML}
-        </div>
-    `;
-
-    // Create popup with custom styling
-    const popup = L.popup({
-        className: 'custom-popup simple-popup',
-        maxWidth: 500,
-        minWidth: 320
-    }).setContent(popupContent);
-
-    marker.bindPopup(popup);
-    
-    // Add click event
-    marker.on('click', () => {
-        // Highlight the place in the list if available
-        if (document.getElementById('places-list')) {
-            const placeItem = document.querySelector(`.place-item[data-url="${place.permalink}"]`);
-            if (placeItem) {
-                // Remove active class from all places
-                document.querySelectorAll('.place-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-                
-                // Add active class to clicked place
-                placeItem.classList.add('active');
-                
-                // Scroll to place item
-                placeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
+    try {
+        if (!place || typeof place.lat !== 'number' || typeof place.lng !== 'number') {
+            console.error('Invalid place data:', place);
+            return null;
         }
+
+        console.log(`Creating marker for place: ${place.title} at [${place.lat}, ${place.lng}]`);
         
-        // Show place details without zooming
-        showPlaceDetails(place, true, false);
-    });
+        const marker = L.marker([place.lat, place.lng], {
+            title: place.title
+        });
 
-    // Add marker to map
-    marker.addTo(placesMap);
-    
-    // Store marker reference
-    const updatedMarkers = { ...markers, [place.permalink]: marker };
-    updateState('markers', updatedMarkers);
+        const photoGalleryHTML = getPhotoGalleryHTML(place, true);
 
-    return marker;
+        // Create popup content
+        const popupContent = `
+            <div class="popup-content">
+                <div class="popup-header">
+                    <h3 class="popup-title">${place.title}</h3>
+                    <p class="popup-description">${place.description || ''}</p>
+                </div>
+                ${photoGalleryHTML}
+            </div>
+        `;
+
+        // Create popup with custom styling
+        const popup = L.popup({
+            className: 'custom-popup simple-popup',
+            maxWidth: 500,
+            minWidth: 320
+        }).setContent(popupContent);
+
+        marker.bindPopup(popup);
+        
+        // Add click event
+        marker.on('click', () => {
+            // Highlight the place in the list if available
+            if (document.getElementById('places-list')) {
+                const placeItem = document.querySelector(`.place-item[data-url="${place.permalink}"]`);
+                if (placeItem) {
+                    // Remove active class from all places
+                    document.querySelectorAll('.place-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked place
+                    placeItem.classList.add('active');
+                    
+                    // Scroll to place item
+                    placeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+            
+            // Show place details without zooming
+            showPlaceDetails(place, true, false);
+        });
+
+        // Add marker to map
+        marker.addTo(placesMap);
+        
+        // Store marker reference
+        const updatedMarkers = { ...markers, [place.permalink]: marker };
+        updateState('markers', updatedMarkers);
+
+        return marker;
+    } catch (error) {
+        console.error(`Error creating marker for place ${place?.title}:`, error);
+        return null;
+    }
 }
 
 /**
@@ -78,19 +90,29 @@ export function addPlaceMarker(place) {
  * @param {boolean} shouldUpdateBounds - Whether to update map bounds
  */
 export function renderPlaces(shouldUpdateBounds = false) {
-    // Clear existing markers
-    if (placesMap) {
-        Object.values(markers).forEach(marker => placesMap.removeLayer(marker));
-        updateState('markers', {});
+    console.log('Starting renderPlaces...');
+    
+    if (!placesMap) {
+        console.error('Map not initialized');
+        return;
     }
+
+    // Clear existing markers
+    console.log('Clearing existing markers...');
+    Object.values(markers).forEach(marker => placesMap.removeLayer(marker));
+    updateState('markers', {});
 
     // Filter places
     const filteredPlaces = filterPlaces();
+    console.log(`Found ${filteredPlaces.length} places after filtering`);
 
     // Add markers for filtered places
+    let successfulMarkers = 0;
     filteredPlaces.forEach(place => {
-        addPlaceMarker(place);
+        const marker = addPlaceMarker(place);
+        if (marker) successfulMarkers++;
     });
+    console.log(`Successfully added ${successfulMarkers} markers out of ${filteredPlaces.length} places`);
 
     // Update bounds only if this is the initial render or explicitly requested
     if ((isInitialRender || shouldUpdateBounds) && filteredPlaces.length > 0) {

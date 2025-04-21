@@ -6,7 +6,7 @@
 export const mapConfig = {
     defaultView: [20, 0],
     defaultZoom: 2,
-    tileLayer: '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    tileLayer: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19
 };

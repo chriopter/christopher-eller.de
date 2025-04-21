@@ -5,7 +5,6 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1;
   margin: 0;
 }
 
@@ -26,7 +25,7 @@ body:has(.places-section) main {
 }
 
 .leaflet-top, .leaflet-bottom {
-  z-index: 9 !important;
+  z-index: 500 !important;
 }
 
 .leaflet-top.leaflet-right {

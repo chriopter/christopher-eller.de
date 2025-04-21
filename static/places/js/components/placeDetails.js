@@ -133,7 +133,7 @@ function setupActionButtons(place) {
     const copyBtn = document.querySelector('.copy-link');
     if (copyBtn) {
         copyBtn.addEventListener('click', () => {
-            const fullUrl = `${window.location.origin}/places/?place=${encodeURIComponent(place.permalink)}`;
+            const fullUrl = `${window.location.origin}${place.permalink}`;
             navigator.clipboard.writeText(fullUrl)
                 .then(() => {
                     const originalText = copyBtn.innerHTML;
@@ -161,6 +161,18 @@ function setupActionButtons(place) {
  * Return to the list view
  * @param {boolean} updateHistory - Whether to update browser history
  */
+/**
+ * Initialize back button functionality
+ */
+export function initBackButton() {
+    const backButton = document.getElementById('back-to-list');
+    if (backButton) {
+        backButton.addEventListener('click', () => {
+            backToListView();
+        });
+    }
+}
+
 export function backToListView(updateHistory = true) {
     const { placeDetailContainer } = elements;
     if (!placeDetailContainer) return;

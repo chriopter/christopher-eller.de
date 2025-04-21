@@ -2,7 +2,7 @@
  * Filter functionality for places
  */
 
-import { activeFilters, searchTerm, filterByViewport, placesMap } from '../base/state.js';
+import { activeFilters, searchTerm, filterByViewport, placesMap, allPlaces } from '../base/state.js';
 import { controlConfig } from '../base/config.js';
 import { renderPlaces } from './markers.js';
 
@@ -99,13 +99,25 @@ function updateViewportToggleState(button) {
  * @returns {Array} Filtered places array
  */
 export function filterPlaces() {
+    console.log('Filtering places...', { 
+        totalPlaces: allPlaces.length,
+        activeFilters,
+        searchTerm,
+        filterByViewport
+    });
+
+    if (!Array.isArray(allPlaces)) {
+        console.error('allPlaces is not an array:', allPlaces);
+        return [];
+    }
+
     // Normalize all active filters to lowercase for case-insensitive matching
     const normalizedActiveFilters = activeFilters.map(f => f.toLowerCase());
     
     // Get current map bounds if map is initialized
     const mapBounds = placesMap ? placesMap.getBounds() : null;
     
-    return allPlaces.filter(place => {
+    const filteredPlaces = allPlaces.filter(place => {
         // Filter by tags
         if (normalizedActiveFilters.length > 0) {
             // Parse and normalize place tags to lowercase
@@ -161,6 +173,13 @@ export function filterPlaces() {
             }
         }
         
-        return true;
+            return true;
     });
+
+    console.log('Filtering complete:', {
+        filteredCount: filteredPlaces.length,
+        originalCount: allPlaces.length
+    });
+
+    return filteredPlaces;
 }

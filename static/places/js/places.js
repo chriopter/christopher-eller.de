@@ -5,18 +5,41 @@
 
 import { initPlacesMap } from './base/init.js';
 import { showPlaceDetails, backToListView } from './components/placeDetails.js';
-import { allPlaces, updateState } from './base/state.js';
+import { allPlaces, updateState, markers } from './base/state.js';
 
-// Make necessary functions and data globally accessible
-const exports = {
+// Wait for Leaflet to be available
+function initializeWhenReady() {
+    if (typeof L === 'undefined') {
+        console.log('Waiting for Leaflet to load...');
+        setTimeout(initializeWhenReady, 100);
+        return;
+    }
+
+    console.log('Leaflet loaded, initializing places...');
+
+    // Make necessary functions and data globally accessible
+    window.showPlaceDetails = showPlaceDetails;
+    window.backToListView = backToListView;
+    window.allPlaces = allPlaces;
+    window.updateState = updateState;
+    window.initPlacesMap = initPlacesMap;
+    window.markers = markers;
+
+    // Initialize places map
+    if (document.getElementById('places-map')) {
+        initPlacesMap();
+    }
+}
+
+// Start initialization process
+initializeWhenReady();
+
+// Export module for use in other files
+export {
     showPlaceDetails,
     backToListView,
     allPlaces,
     updateState,
-    initPlacesMap
+    initPlacesMap,
+    markers
 };
-
-Object.assign(window, exports);
-
-// Export module for use in other files
-export default exports;
