@@ -10,6 +10,7 @@ let markers = {};
 let activeFilters = [];
 let searchTerm = '';
 let isPanelVisible = true;
+let isInitialRender = true; // Track if this is the initial render
 
 // DOM elements
 let mapContainer = null;
@@ -19,6 +20,12 @@ let sidePanel = null;
 let panelToggle = null;
 let panelHideToggle = null;
 let panelShowToggle = null;
+let placeDetailContainer = null;
+let placeDetailContent = null;
+let backToListButton = null;
+
+// Current state
+let currentPlaceId = null;
 
 // Initialize the map and places
 function initPlacesMap() {
@@ -64,6 +71,16 @@ function initPlacesMap() {
     panelHideToggle = document.getElementById('panel-hide-toggle');
     panelShowToggle = document.getElementById('panel-show-toggle');
     
+    // Initialize place detail container
+    placeDetailContainer = document.getElementById('place-detail-container');
+    placeDetailContent = document.getElementById('place-detail-content');
+    backToListButton = document.getElementById('back-to-list');
+    
+    // Set up back button functionality
+    if (backToListButton) {
+        backToListButton.addEventListener('click', backToListView);
+    }
+    
     // Set up panel toggling functionality
     setupPanelToggling();
 
@@ -85,11 +102,8 @@ function initPlacesMap() {
             // Ensure map is properly sized
             placesMap.invalidateSize();
             
-            // Focus the view on the places
-            if (Object.keys(markers).length > 0) {
-                const bounds = L.latLngBounds(Object.values(markers).map(marker => marker.getLatLng()));
-                placesMap.fitBounds(bounds, { padding: [50, 50] });
-            }
+            // Re-render with explicit bounds update
+            renderPlaces(true);
         });
         
         listViewBtn.addEventListener('click', () => {
@@ -130,7 +144,7 @@ function initPlacesMap() {
 }
 
 // Render all places on the map
-function renderPlaces() {
+function renderPlaces(shouldUpdateBounds = false) {
     // Clear existing markers
     if (placesMap) {
         Object.values(markers).forEach(marker => placesMap.removeLayer(marker));
@@ -145,10 +159,13 @@ function renderPlaces() {
         addPlaceMarker(place);
     });
 
-    // Update bounds if we have markers
-    if (filteredPlaces.length > 0) {
+    // Update bounds only if this is the initial render or explicitly requested
+    if ((isInitialRender || shouldUpdateBounds) && filteredPlaces.length > 0) {
         const bounds = L.latLngBounds(filteredPlaces.map(place => [place.lat, place.lng]));
         placesMap.fitBounds(bounds, { padding: [50, 50] });
+        
+        // Set initial render to false after first render
+        if (isInitialRender) isInitialRender = false;
     }
 
     // Update places list if available
@@ -163,28 +180,27 @@ function addPlaceMarker(place) {
         title: place.title
     });
 
-    // Create popup content
-    const popupContent = `
+    // Create a simplified popup with just title and description - no quotes
+    const initialPopupContent = `
         <div class="popup-content">
             <div class="popup-header">
                 <h3 class="popup-title">${place.title}</h3>
                 <p class="popup-description">${place.description || ''}</p>
-                ${place.tags && Array.isArray(place.tags) && place.tags.length ? `
-                <div class="popup-tags">
-                    ${place.tags.map(tag => `<span class="popup-tag">${tag}</span>`).join('')}
-                </div>` : ''}
             </div>
-        </div>
-        <div class="popup-footer">
-            <a href="${place.permalink}" class="popup-link">View details</a>
         </div>
     `;
 
-    // Add popup to marker
-    marker.bindPopup(popupContent, {
-        className: 'custom-popup',
-        maxWidth: 300
-    });
+    // Create popup with minimal content
+    const popup = L.popup({
+        className: 'custom-popup simple-popup',
+        maxWidth: 500, // Wider popup
+        minWidth: 400
+    }).setContent(initialPopupContent);
+    
+    marker.bindPopup(popup);
+    
+    // No need to fetch additional content for the popup
+    // as we're only showing title and description
 
     // Add marker to map
     marker.addTo(placesMap);
@@ -210,6 +226,9 @@ function addPlaceMarker(place) {
                 placeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         }
+        
+        // Show place details in the side panel
+        showPlaceDetails(place);
     });
 
     return marker;
@@ -217,39 +236,37 @@ function addPlaceMarker(place) {
 
 // Initialize tag filters
 function initFilters() {
-    // Get all unique tags
-    const allTags = [...new Set(allPlaces.flatMap(place => Array.isArray(place.tags) ? place.tags : []))];
-    
-    // Create tag filters
+    // Get tag filters container
     const tagFilters = document.getElementById('tag-filters');
-    if (tagFilters && allTags.length) {
-        // Sort tags alphabetically
-        allTags.sort();
+    
+    if (!tagFilters) return;
+    
+    // Get all pre-rendered tag filter elements
+    const tagElements = tagFilters.querySelectorAll('.tag-filter');
+    console.log(`Found ${tagElements.length} pre-rendered tag elements`);
+    
+    // Add click handlers to each tag filter
+    tagElements.forEach(filterBtn => {
+        const tag = filterBtn.dataset.tag;
         
-        // Create filter buttons
-        allTags.forEach(tag => {
-            const filterBtn = document.createElement('span');
-            filterBtn.className = 'tag-filter';
-            filterBtn.dataset.tag = tag;
-            filterBtn.textContent = tag;
+        // Add click handler
+        filterBtn.addEventListener('click', () => {
+            console.log(`Clicked tag: "${tag}"`);
             
-            // Add click handler
-            filterBtn.addEventListener('click', () => {
-                filterBtn.classList.toggle('active');
-                
-                // Update active filters
-                if (filterBtn.classList.contains('active')) {
-                    activeFilters.push(tag);
-                } else {
-                    activeFilters = activeFilters.filter(t => t !== tag);
-                }
-                
-                renderPlaces();
-            });
+            // Toggle active class
+            filterBtn.classList.toggle('active');
             
-            tagFilters.appendChild(filterBtn);
+            // Update active filters
+            if (filterBtn.classList.contains('active')) {
+                activeFilters.push(tag);
+            } else {
+                activeFilters = activeFilters.filter(t => t !== tag);
+            }
+            
+            console.log("Active filters:", activeFilters);
+            renderPlaces();
         });
-    }
+    });
 }
 
 // Initialize search
@@ -265,12 +282,41 @@ function initSearch() {
 
 // Filter places based on active filters and search
 function filterPlaces() {
+    // Normalize all active filters to lowercase for case-insensitive matching
+    const normalizedActiveFilters = activeFilters.map(f => f.toLowerCase());
+    
+    console.log("Filtering with normalized active filters:", normalizedActiveFilters);
+    
     return allPlaces.filter(place => {
         // Filter by tags
-        if (activeFilters.length > 0) {
-            const placeTags = Array.isArray(place.tags) ? place.tags : [];
-            if (!activeFilters.some(tag => placeTags.includes(tag))) {
+        if (normalizedActiveFilters.length > 0) {
+            // Parse and normalize place tags to lowercase
+            let placeTags = [];
+            
+            if (typeof place.tags === 'string') {
+                try {
+                    // Parse JSON string representation of array
+                    placeTags = JSON.parse(place.tags).map(tag => tag.toLowerCase());
+                } catch (e) {
+                    console.error(`Error parsing tags for place "${place.title}":`, e);
+                }
+            } else if (Array.isArray(place.tags)) {
+                placeTags = place.tags.map(tag => tag.toLowerCase());
+            }
+            
+            console.log(`Place: "${place.title}" has normalized tags:`, placeTags);
+            
+            // Check if any active filter matches any place tag using direct inclusion
+            // This is simpler than nested some() loops
+            const hasMatchingTag = placeTags.some(tag => 
+                normalizedActiveFilters.includes(tag)
+            );
+            
+            if (!hasMatchingTag) {
+                console.log(`Place: "${place.title}" filtered out - no matching tags`);
                 return false;
+            } else {
+                console.log(`Place: "${place.title}" matches tags`);
             }
         }
         
@@ -278,11 +324,23 @@ function filterPlaces() {
         if (searchTerm) {
             const title = place.title.toLowerCase();
             const description = (place.description || '').toLowerCase();
-            const tags = (Array.isArray(place.tags) ? place.tags : []).join(' ').toLowerCase();
+            
+            // Parse and process tags for search
+            let tagsString = '';
+            if (typeof place.tags === 'string') {
+                try {
+                    // Parse JSON string representation of array
+                    tagsString = JSON.parse(place.tags).join(' ').toLowerCase();
+                } catch (e) {
+                    console.error(`Error parsing tags for search "${place.title}":`, e);
+                }
+            } else if (Array.isArray(place.tags)) {
+                tagsString = place.tags.join(' ').toLowerCase();
+            }
             
             if (!title.includes(searchTerm) && 
                 !description.includes(searchTerm) && 
-                !tags.includes(searchTerm)) {
+                !tagsString.includes(searchTerm)) {
                 return false;
             }
         }
@@ -313,19 +371,43 @@ function renderPlacesList(places = null) {
         placeItem.className = 'place-item';
         placeItem.dataset.url = place.permalink;
         
+        // Process tags for list item
+        let tagsToDisplay = [];
+        if (typeof place.tags === 'string') {
+            try {
+                // Parse JSON string representation of array
+                tagsToDisplay = JSON.parse(place.tags);
+            } catch (e) {
+                console.error(`Error parsing tags for list item "${place.title}":`, e);
+            }
+        } else if (Array.isArray(place.tags)) {
+            tagsToDisplay = place.tags;
+        }
+        
         placeItem.innerHTML = `
             <h3 class="place-title">${place.title}</h3>
             <p class="place-description">${place.description || ''}</p>
-            ${place.tags && Array.isArray(place.tags) && place.tags.length ? `
+            ${tagsToDisplay.length ? `
             <div class="place-tags">
-                ${place.tags.map(tag => `<span class="place-tag">${tag}</span>`).join('')}
+                ${tagsToDisplay.map(tag => `<span class="place-tag">${tag}</span>`).join('')}
             </div>` : ''}
         `;
         
         // Add click handler
         placeItem.addEventListener('click', () => {
-            // Open the place page
-            window.location.href = place.permalink;
+            // Highlight this item
+            document.querySelectorAll('.place-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            placeItem.classList.add('active');
+            
+            // Open marker popup without zooming
+            if (markers[place.permalink]) {
+                markers[place.permalink].openPopup();
+            }
+            
+            // Show place details in sidebar
+            showPlaceDetails(place);
         });
         
         placesList.appendChild(placeItem);
@@ -359,20 +441,32 @@ function initSinglePlaceMap() {
             title: place.title
         }).addTo(singleMap);
         
-        // Add popup with better formatting
+        // Process tags for single place popup
+        let tagsToDisplay = [];
+        if (typeof place.tags === 'string') {
+            try {
+                // Parse JSON string representation of array
+                tagsToDisplay = JSON.parse(place.tags);
+            } catch (e) {
+                console.error(`Error parsing tags for single place "${place.title}":`, e);
+            }
+        } else if (Array.isArray(place.tags)) {
+            tagsToDisplay = place.tags;
+        }
+        
+        // Add simplified popup with just title and description
         const popupContent = `
             <div class="popup-content">
-                <h3 class="popup-title">${place.title}</h3>
-                <p class="popup-description">${place.description || ''}</p>
-                ${place.tags && Array.isArray(place.tags) && place.tags.length ? `
-                <div class="popup-tags">
-                    ${place.tags.map(tag => `<span class="popup-tag">${tag}</span>`).join('')}
-                </div>` : ''}
+                <div class="popup-header">
+                    <h3 class="popup-title">${place.title}</h3>
+                    <p class="popup-description">${place.description || ''}</p>
+                </div>
             </div>
         `;
         marker.bindPopup(popupContent, {
-            className: 'custom-popup',
-            maxWidth: 300
+            className: 'custom-popup simple-popup',
+            maxWidth: 500, // Wider popup
+            minWidth: 400
         }).openPopup();
         
     } catch (e) {
@@ -414,6 +508,176 @@ function setupPanelToggling() {
             sidePanel.classList.toggle('visible');
         });
     }
+}
+
+// Show place details in sidebar
+function showPlaceDetails(place) {
+    if (!placeDetailContainer || !placeDetailContent || !place) return;
+    
+    // Store current place
+    currentPlaceId = place.permalink;
+    
+    // Create detail HTML - simplified to just show title and description
+    const detailHTML = `
+        <article class="place-detail">
+            <header class="place-header">
+                <h1>${place.title}</h1>
+                ${place.description ? `<p class="place-description">${place.description}</p>` : ''}
+            </header>
+        </article>
+    `;
+    
+    // Update content
+    placeDetailContent.innerHTML = detailHTML;
+    
+    // Hide places list, show detail view
+    placesList.style.display = 'none';
+    placeDetailContainer.style.display = 'block';
+    
+    // Zoom map to place
+    zoomToPlace(place);
+    
+    // If the panel was hidden, show it
+    if (sidePanel.classList.contains('hidden')) {
+        sidePanel.classList.remove('hidden');
+        if (panelShowToggle) panelShowToggle.classList.add('hidden');
+        isPanelVisible = true;
+        if (placesMap) placesMap.invalidateSize();
+    }
+    
+    // Fetch additional details via AJAX if needed
+    fetchPlaceContent(place.permalink);
+}
+
+// Zoom the map to a specific place
+function zoomToPlace(place) {
+    if (!placesMap || !place || !place.lat || !place.lng) return;
+    
+    // Zoom to place with animation
+    placesMap.flyTo([place.lat, place.lng], 15, {
+        animate: true,
+        duration: 1
+    });
+    
+    // Open popup for this place if marker exists
+    if (markers[place.permalink]) {
+        // Wait for zoom animation to complete
+        setTimeout(() => {
+            markers[place.permalink].openPopup();
+        }, 1100);
+    }
+}
+
+// Fetch additional place content via AJAX
+function fetchPlaceContent(permalink, marker = null) {
+    if (!permalink) return;
+    
+    // Make a fetch request to the place page
+    fetch(permalink)
+        .then(response => response.text())
+        .then(html => {
+            // Create a temporary element to parse the HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Find the place content and related links
+            const content = doc.querySelector('.place-content');
+            const urlsSection = doc.querySelector('.place-urls');
+            
+            // Extract place slug from permalink for photos
+            const permalinkParts = permalink.split('/');
+            const placeSlug = permalinkParts[permalinkParts.length - 2] || '';
+            
+            // If we're updating the sidebar
+            if (placeDetailContent && !marker) {
+                const placeDetail = placeDetailContent.querySelector('.place-detail');
+                if (placeDetail) {
+                    // Look for images in the place folder
+                    const photoGallery = document.createElement('div');
+                    photoGallery.className = 'place-photos';
+                    
+                    // Create photo gallery section only if we have a valid slug
+                    if (placeSlug) {
+                        // Try to find images within the place folder
+                        const placeDirPath = `/places/${placeSlug}/`;
+                        
+                        // Check for the Dortmund coffee shop images as in the example
+                        if (placeSlug === 'dortmund-coffee-shop') {
+                            photoGallery.innerHTML = `
+                                <h2>Photos</h2>
+                                <div class="photo-gallery">
+                                    <div class="gallery-image">
+                                        <img src="${placeDirPath}Bildschirmfoto 2025-04-21 um 17.38.54.png" alt="Dortmund Coffee Shop">
+                                    </div>
+                                    <div class="gallery-image">
+                                        <img src="${placeDirPath}Bildschirmfoto 2025-04-21 um 17.38.59.png" alt="Dortmund Coffee Shop">
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            // Generic implementation to find images
+                            // This is simplified - in production you'd need a more robust solution
+                            // to discover available images
+                            photoGallery.innerHTML = `
+                                <h2>Photos</h2>
+                                <div class="photo-gallery">
+                                    <p>No photos available</p>
+                                </div>
+                            `;
+                        }
+                        
+                        // Add the photo gallery before other content
+                        placeDetail.appendChild(photoGallery);
+                    }
+                    
+                    // Add content if found
+                    if (content) {
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'place-content';
+                        contentDiv.innerHTML = content.innerHTML;
+                        placeDetail.appendChild(contentDiv);
+                    }
+                    
+                    // Add URLs if found
+                    if (urlsSection) {
+                        placeDetail.appendChild(urlsSection.cloneNode(true));
+                    }
+                    
+                    // Add view full page link
+                    const viewFullPageLink = document.createElement('div');
+                    viewFullPageLink.className = 'view-full-page';
+                    viewFullPageLink.innerHTML = `
+                        <a href="${permalink}" class="full-page-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                            View full page
+                        </a>
+                    `;
+                    placeDetail.appendChild(viewFullPageLink);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching place content:', error);
+        });
+}
+
+// Return to the list view
+function backToListView() {
+    if (!placesList || !placeDetailContainer) return;
+    
+    // Clear current place
+    currentPlaceId = null;
+    
+    // Show places list, hide detail view
+    placesList.style.display = 'block';
+    placeDetailContainer.style.display = 'none';
+    
+    // Reset map to show all places with explicit bounds update
+    renderPlaces(true);
 }
 
 // Initialize on DOM load

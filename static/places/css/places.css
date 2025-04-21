@@ -12,151 +12,153 @@
     border-radius: 0;
 }
 
-/* Make site header a floating pill that's hidden by default */
+/* Hide the original header in places page */
 body:has(.places-section) > header {
-    position: absolute;
-    z-index: 30;
-    left: 50%;
-    transform: translateX(-50%) translateY(-150%); /* Start off-screen above */
-    width: 800px; /* Fixed at 800px to match the normal header */
-    background-color: rgba(var(--bg-color-rgb), 0.7);
-    backdrop-filter: blur(10px);
-    margin: 10px 0 0 0; /* Restore top margin for spacing */
-    height: auto;
-    border-radius: 50px; /* Keep full pill shape */
-    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.15);
-    border: 1px solid var(--border-color);
-    /* Make the pill much slimmer with minimal vertical padding */
-    padding: 0.5rem 2rem;
-    transition: transform 0.3s ease; /* Smooth transition for sliding */
+    display: none;
 }
 
-/* Header shown state */
-body:has(.places-section) > header.visible {
-    transform: translateX(-50%) translateY(0); /* Slide down to original position */
-}
-
-/* Menu indicator tab */
-.menu-indicator {
-    position: fixed; /* Fixed to viewport */
-    top: 10px; /* Position to match where header will appear */
+/* Menu Pill Styles */
+.menu-pill {
+    position: fixed;
+    top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    width: 80px; /* Wider for better visibility */
-    height: 26px; /* Slightly taller for better clickability */
-    background-color: rgba(var(--bg-color-rgb), 0.8);
+    z-index: 1000;
+    background-color: rgba(var(--bg-color-rgb), 0.7);
     backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
-    border-radius: 20px; /* Full round shape */
-    z-index: 31; /* Above header */
+    border-radius: 50px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.15);
+    transition: width 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), 
+                background-color 0.3s ease;
+    overflow: hidden;
     cursor: pointer;
+    width: 90px; /* Wider to accommodate "Menu" text */
+    height: 38px; /* Fixed height for both collapsed and expanded states */
     display: flex;
-    justify-content: center;
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease;
+    justify-content: center;
+    padding: 0.5rem 15px; /* Consistent padding */
+    transform-origin: center;
+    box-sizing: content-box; /* Ensure padding doesn't affect fixed height */
 }
 
-/* Position adjustment for when header is visible */
-body:has(.places-section) > header.visible + .menu-indicator {
-    top: 50px; /* Move down when header is visible */
+/* Expanded state for the menu pill */
+.menu-pill.expanded {
+    width: 800px; /* Same width as the normal header */
+    height: 38px; /* Maintain consistent height throughout transition */
+    padding: 0.5rem 2rem;
+    background-color: rgba(var(--bg-color-rgb), 0.85);
 }
 
-.menu-indicator::after {
-    content: "Menu ↓";
-    font-size: 11px;
-    color: var(--text-color);
-    font-weight: 500;
-}
-
-body:has(.places-section) > header.visible + .menu-indicator::after {
-    content: "Menu ↑";
-}
-
-.menu-indicator:hover {
-    background-color: rgba(var(--bg-color-rgb), 0.95);
-    transform: translateX(-50%) scale(1.05); /* Subtle grow on hover */
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Dark mode adjust for menu indicator */
-.dark-mode .menu-indicator {
-    background-color: rgba(40, 40, 40, 0.8);
-}
-
-.dark-mode .menu-indicator:hover {
-    background-color: rgba(50, 50, 50, 0.95);
-}
-
-/* Make the site title smaller in the pill header */
-body:has(.places-section) > header .site-title {
-    font-size: 1.2rem; /* Slightly smaller than normal */
-}
-
-/* Make the small links below title more compact */
-body:has(.places-section) > header .site-title > div > div:nth-child(2) {
-    margin-top: 0;
-}
-
-body:has(.places-section) > header .header-content {
-    border-bottom: none; /* Keep this to remove the bottom border */
-    padding-bottom: 0; /* Remove the bottom padding normally used for the border */
-    max-width: none;
-    width: 100%;
-    /* Use the regular header spacing and alignment */
+/* Label shown in collapsed state */
+.menu-pill-label {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-sizing: border-box;
-    /* Remove extra padding that was used in the pill design */
-    padding: 0;
-}
-
-/* Use the normal nav-links styling from the main site */
-body:has(.places-section) > header .nav-links {
-    position: relative; /* Keep position context */
-    display: flex;
-    gap: 1.5rem; /* Use same gap as main site */
-    align-items: center;
-    justify-content: center;
-    /* Remove custom padding */
-    padding-right: 0;
-    height: auto;
-}
-
-/* Use normal icon styling but keep them neat */
-body:has(.places-section) > header .nav-links a,
-body:has(.places-section) > header .nav-links .dropdown-trigger {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    height: 100%;
+    width: 100%;
     color: var(--text-color);
-    transition: color 0.2s ease, transform 0.2s ease;
-    /* Remove fixed dimensions to match main site */
-    width: auto;
-    height: auto;
+    transition: opacity 0.2s ease;
+    opacity: 1;
+    padding: 0; /* Remove any potential padding */
+    margin: 0; /* Remove any margins */
+    gap: 8px; /* Space between icon and text */
 }
 
-body:has(.places-section) > header .nav-links a:hover,
-body:has(.places-section) > header .nav-links .dropdown-trigger:hover {
+.menu-pill-label svg {
+    stroke: var(--text-color);
+    transition: transform 0.2s ease;
+    display: block; /* Ensure proper display */
+    margin: 0 auto; /* Center the icon horizontally */
+    position: static; /* Reset position to default */
+}
+
+.menu-pill:hover .menu-pill-label svg {
+    transform: scale(1.1);
+}
+
+.menu-pill.expanded .menu-pill-label {
+    display: none;
+    opacity: 0;
+}
+
+/* Content shown in expanded state */
+.menu-pill-content {
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* Revert to space-between for proper layout */
+    align-items: center;
+    opacity: 0;
+    overflow: hidden;
+    /* Focus transition only on opacity */
+    transition: opacity 0.2s ease;
+    visibility: hidden; /* Hide content completely during transition */
+    pointer-events: none; /* Prevent interaction until visible */
+}
+
+.menu-pill.expanded .menu-pill-content {
+    opacity: 0; /* Keep invisible during width transition */
+}
+
+.menu-pill.expanded.content-visible .menu-pill-content {
+    opacity: 1; /* Show only when specifically made visible */
+    visibility: visible;
+    pointer-events: auto; /* Re-enable interactions */
+    min-height: 38px; /* Allow content to expand if needed but maintain minimum height */
+}
+
+/* Styling for menu content */
+.menu-pill .site-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1; /* Allow to take available space */
+    justify-content: flex-start; /* Align content to the left */
+}
+
+.menu-pill .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    justify-content: flex-end; /* Align content to the right */
+    flex: 1; /* Allow to take available space */
+}
+
+.menu-pill .nav-links a, 
+.menu-pill .nav-links .dropdown-trigger {
+    text-decoration: none;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.menu-pill .nav-links a:hover,
+.menu-pill .nav-links .dropdown-trigger:hover {
     transform: scale(1.1);
     color: var(--secondary-text);
 }
 
-/* Make SVG styles slightly smaller to match slimmer header */
-body:has(.places-section) > header .nav-links svg {
+/* Make SVG styles slightly smaller */
+.menu-pill .nav-links svg {
     width: 20px;
     height: 20px;
 }
 
-/* Style the Bits dropdown to match the main site */
-body:has(.places-section) > header #bitsDropdown {
+/* Style the Bits dropdown */
+.menu-pill #bitsDropdown {
     position: relative;
-    display: inline-block; /* Match main site dropdown display */
+    display: inline-block;
 }
 
-/* Style the dropdown trigger to match main site */
-body:has(.places-section) > header #bitsDropdown .dropdown-trigger {
+/* Style the dropdown trigger */
+.menu-pill #bitsDropdown .dropdown-trigger {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -164,12 +166,12 @@ body:has(.places-section) > header #bitsDropdown .dropdown-trigger {
     transition: color 0.2s ease, transform 0.2s ease;
 }
 
-body:has(.places-section) > header #bitsDropdown .dropdown-trigger:hover {
+.menu-pill #bitsDropdown .dropdown-trigger:hover {
     transform: scale(1.1);
 }
 
-/* Position the dropdown content to work with the normal site positioning but inside the pill */
-body:has(.places-section) > header #bitsDropdown .dropdown-content {
+/* Position the dropdown content */
+.menu-pill #bitsDropdown .dropdown-content {
     display: none;
     position: absolute;
     top: 100%;
@@ -190,12 +192,12 @@ body:has(.places-section) > header #bitsDropdown .dropdown-content {
 }
 
 /* Specifically target the active state */
-body:has(.places-section) > header #bitsDropdown.active .dropdown-content {
+.menu-pill #bitsDropdown.active .dropdown-content {
     display: block;
 }
 
 /* Small triangle to connect dropdown to pill */
-body:has(.places-section) > header #bitsDropdown .dropdown-content::before {
+.menu-pill #bitsDropdown .dropdown-content::before {
     content: "";
     position: absolute;
     top: -8px;
@@ -210,7 +212,7 @@ body:has(.places-section) > header #bitsDropdown .dropdown-content::before {
 }
 
 /* Style the dropdown links consistently */
-body:has(.places-section) > header #bitsDropdown .dropdown-content a {
+.menu-pill #bitsDropdown .dropdown-content a {
     display: block;
     padding: 0.5rem 1.5rem;
     white-space: nowrap;
@@ -219,12 +221,28 @@ body:has(.places-section) > header #bitsDropdown .dropdown-content a {
     transition: background-color 0.2s ease;
 }
 
-body:has(.places-section) > header #bitsDropdown .dropdown-content a:hover {
+.menu-pill #bitsDropdown .dropdown-content a:hover {
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-body.dark-mode:has(.places-section) > header #bitsDropdown .dropdown-content a:hover {
+.dark-mode .menu-pill #bitsDropdown .dropdown-content a:hover {
     background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Make the small links below title more compact */
+.menu-pill .site-title > div > div:nth-child(2) {
+    margin-top: 0;
+    font-size: 0.7rem;
+    color: var(--secondary-text);
+}
+
+/* Dark mode adjustments for menu pill */
+.dark-mode .menu-pill {
+    background-color: rgba(40, 40, 40, 0.7);
+}
+
+.dark-mode .menu-pill.expanded {
+    background-color: rgba(40, 40, 40, 0.85);
 }
 
 
@@ -249,10 +267,11 @@ body:has(.places-section) footer {
 /* Unified Side Panel */
 .side-panel {
     position: fixed;
-    top: 70px; /* Reduced to match slimmer header */
-    left: 30px; /* Increased for more horizontal spacing from header */
+    top: 50px; /* Set to 50px spacing from top as requested */
+    left: 30px; /* Maintain side spacing */
+    bottom: 50px; /* Set to 50px spacing from bottom as requested */
     width: 350px;
-    height: 80vh; /* Fixed height regardless of entries */
+    height: auto; /* Height determined by top and bottom positioning */
     background-color: rgba(var(--bg-color-rgb), 0.95);
     backdrop-filter: blur(10px);
     z-index: 25;
@@ -274,7 +293,7 @@ body:has(.places-section) footer {
 /* Side panel header */
 .side-panel-header {
     padding: 1.25rem 1.5rem 0.75rem;
-    border-bottom: 1px solid var(--border-color);
+    /* Removed border-bottom as requested */
 }
 
 .side-panel-header h1 {
@@ -293,7 +312,7 @@ body:has(.places-section) footer {
     padding: 0.75rem 1.25rem;
     overflow-y: auto;
     flex-grow: 1;
-    height: calc(100% - 220px); /* Fixed height calculation based on other elements */
+    /* No fixed height needed since container has fixed top and bottom */
 }
 
 /* Panel toggle buttons */
@@ -361,7 +380,7 @@ body:has(.places-section) footer {
     transition: all 0.2s ease;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem; /* Reduced gap to fix double line issue */
     border-radius: 12px;
 }
 
@@ -384,7 +403,7 @@ body:has(.places-section) footer {
 
 .place-description {
     color: var(--secondary-text);
-    margin: 0.5rem 0;
+    margin: 0.25rem 0; /* Reduced margin to fix double line issue */
 }
 
 .place-tags {
@@ -403,11 +422,11 @@ body:has(.places-section) footer {
 
 /* Tag filters in side panel */
 .tag-filters {
-    padding: 0.75rem 1.25rem;
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0.5rem;
+    padding: 0.75rem 1.25rem 0.5rem;
 }
 
 .tag-filter {
@@ -415,19 +434,36 @@ body:has(.places-section) footer {
     font-size: 0.9rem;
     padding: 0.25rem 0.75rem;
     border-radius: 2rem;
-    background-color: var(--border-color);
-    color: var(--secondary-text);
+    background-color: #f0f0f0;
+    color: #444;
     cursor: pointer;
     transition: all 0.2s ease;
+    border: 1px solid transparent;
+    font-weight: 500;
 }
 
 .tag-filter:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: #e0e0e0;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.05);
 }
 
 .tag-filter.active {
     background-color: #1976d2;
     color: white;
+    box-shadow: 0 2px 5px rgba(25, 118, 210, 0.3);
+    font-weight: 600;
+}
+
+.dark-mode .tag-filter {
+    background-color: #333;
+    color: #eee;
+}
+
+.dark-mode .tag-filter:hover {
+    background-color: #444;
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Search box */
@@ -435,7 +471,7 @@ body:has(.places-section) footer {
     padding: 0.75rem 1.25rem;
     display: flex;
     gap: 0.5rem;
-    border-bottom: 1px solid var(--border-color);
+    /* Removed border-bottom as requested */
 }
 
 .search-input {
@@ -514,7 +550,61 @@ body:has(.places-section) footer {
 
 .custom-popup .leaflet-popup-content {
     margin: 0;
-    width: 250px !important;
+    width: auto !important;
+    max-width: 500px; /* Increased width for popup */
+    min-width: 400px; /* Ensure minimum width */
+}
+
+/* Loading indicator in popup */
+.popup-loading {
+    padding: 10px 15px;
+    font-style: italic;
+    color: var(--secondary-text);
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* Full content in popup */
+.popup-full-content {
+    padding: 10px 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.popup-full-content h2 {
+    font-size: 1.2rem;
+    margin: 1rem 0 0.5rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.popup-full-content p {
+    margin: 0.5rem 0;
+}
+
+.popup-full-content ul, 
+.popup-full-content ol {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.popup-urls {
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.popup-urls h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.popup-urls .url-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .popup-content {
@@ -597,8 +687,6 @@ body:has(.places-section) footer {
     background-color: #333;
 }
 
-/* Remove duplicated declarations as they've been incorporated above */
-
 /* Responsive design */
 @media (max-width: 768px) {
     .side-panel {
@@ -616,26 +704,23 @@ body:has(.places-section) footer {
         display: flex;
     }
     
-    /* Adjust pill header for mobile */
-    body:has(.places-section) > header {
+    /* Adjust menu pill for mobile */
+    .menu-pill.expanded {
         width: calc(100% - 20px);
-        padding: 0.5rem 1rem; /* Keep consistent with the slimmer header */
-    }
-    
-    /* Adjust menu indicator for mobile */
-    .menu-indicator {
-        width: 70px;
+        margin: 0 10px;
+        padding: 0.5rem 1rem;
     }
 }
 
 /* Additional responsive styles for very small screens */
 @media (max-width: 600px) {
-    body:has(.places-section) > header .header-content {
+    .menu-pill.expanded.content-visible .menu-pill-content {
         flex-direction: column;
         gap: 1rem;
+        max-height: 300px; /* Allow more room for stacked layout */
     }
     
-    body:has(.places-section) > header .nav-links {
+    .menu-pill .nav-links {
         width: 100%;
         justify-content: center;
         gap: 1rem;
@@ -655,6 +740,181 @@ body:has(.places-section) footer {
 .side-panel-header h1, 
 .side-panel-header p {
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Place Detail Container Styles */
+.place-detail-container {
+    padding: 0.75rem 1.25rem;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.place-detail-header {
+    margin-bottom: 1rem;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 0.75rem;
+    border-radius: 2rem;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.back-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    transform: translateX(-2px);
+}
+
+.back-button svg {
+    margin-right: 0.5rem;
+}
+
+.dark-mode .back-button:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Styles for place detail content */
+.place-detail-content .place-detail {
+    margin-top: 0;
+}
+
+.place-detail-content .place-header h1 {
+    font-size: 1.5rem;
+    margin: 0.5rem 0;
+}
+
+.place-detail-content .place-description {
+    color: var(--secondary-text);
+    margin: 0.5rem 0 1rem 0;
+}
+
+.place-detail-content .place-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--secondary-text);
+}
+
+.place-detail-content .place-coordinates {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.place-detail-content .place-content {
+    margin-top: 1.5rem;
+    line-height: 1.6;
+}
+
+.place-detail-content .place-content h2 {
+    font-size: 1.3rem;
+    margin: 1.5rem 0 0.75rem 0;
+}
+
+.place-detail-content .place-content p {
+    margin: 0.75rem 0;
+}
+
+/* Transition between list and detail views */
+.places-list, .place-detail-container {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* View full page link */
+.view-full-page {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.full-page-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: rgba(var(--bg-color-rgb), 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: 2rem;
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.full-page-link:hover {
+    background-color: rgba(25, 118, 210, 0.1);
+    color: #1976d2;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.full-page-link svg {
+    stroke: currentColor;
+}
+
+.dark-mode .full-page-link:hover {
+    background-color: rgba(66, 165, 245, 0.15);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Photo Gallery for Place Detail */
+.place-photos {
+    margin: 1.5rem 0;
+}
+
+.photo-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.gallery-image {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.gallery-image:hover {
+    transform: scale(1.02);
+}
+
+.gallery-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Simplified popup */
+.simple-popup .popup-content {
+    padding: 15px;
+}
+
+.simple-popup .popup-header {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.simple-popup .popup-title {
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin: 0 0 8px 0;
+}
+
+.simple-popup .popup-description {
+    font-size: 1rem;
+    margin: 0;
+    color: var(--secondary-text);
 }
 
 /* CSS variables for RGB colors (for rgba usage) */
