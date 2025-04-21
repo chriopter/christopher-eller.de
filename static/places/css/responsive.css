@@ -1,5 +1,8 @@
 /* Responsive Design */
+
+/* Tablet and below */
 @media (max-width: 768px) {
+  /* Side Panel */
   .side-panel {
     width: 85%;
     left: 0;
@@ -15,22 +18,94 @@
     display: flex;
   }
   
+  /* Menu Pill */
   .menu-pill.expanded {
-    width: calc(100% - 20px);
-    margin: 0 10px;
-    padding: 0.5rem 1rem;
+    width: calc(100% - var(--space-lg));
+    margin: 0 var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  /* Place Detail */
+  .place-action-buttons {
+    flex-wrap: wrap;
+  }
+
+  .place-action-btn {
+    flex: 1;
+    justify-content: center;
+    min-width: 120px;
+  }
+
+  /* Gallery */
+  .gallery-image {
+    width: 120px;
+    height: 90px;
   }
 }
 
+/* Mobile */
 @media (max-width: 600px) {
+  /* Menu Pill */
   .menu-pill.expanded.content-visible .menu-pill-content {
     flex-direction: column;
-    gap: 1rem;
+    gap: var(--space-md);
   }
   
   .menu-pill .nav-links {
     width: 100%;
     justify-content: center;
-    gap: 1rem;
+    gap: var(--space-md);
+  }
+
+  /* Side Panel */
+  .side-panel {
+    width: 100%;
+    left: 0;
+    right: 0;
+    border-radius: 0;
+  }
+
+  /* Place Detail */
+  .place-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .place-content h2 {
+    font-size: 1.1rem;
+  }
+
+  /* Gallery */
+  .gallery-image {
+    width: 100px;
+    height: 75px;
+  }
+
+  /* Lightbox */
+  .lightbox-nav {
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  .lightbox-prev {
+    left: var(--space-sm);
+  }
+
+  .lightbox-next {
+    right: var(--space-sm);
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 400px) {
+  .menu-pill.expanded {
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  .place-action-btn {
+    min-width: 100%;
+  }
+
+  .gallery-image {
+    width: 90px;
+    height: 70px;
   }
 }

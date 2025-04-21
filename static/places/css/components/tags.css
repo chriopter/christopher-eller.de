@@ -1,60 +1,57 @@
-/* Tags */
+/* Tag Filters */
 .tag-filters {
+  padding: var(--space-md) var(--space-md) var(--space-sm);
+  margin-bottom: var(--space-sm);
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-sm);
-  padding: 0.75rem 1.25rem 0.5rem;
+  gap: var(--space-sm);
 }
 
 .tag-filter {
   display: inline-block;
   font-size: 0.9rem;
-  padding: var(--spacing-xs) 0.75rem;
+  padding: var(--space-xs) 0.75rem;
   border-radius: var(--radius-pill);
-  background-color: #f0f0f0;
-  color: #444;
+  background-color: rgba(var(--color-light-rgb), 0.1);
+  color: var(--color-text);
   cursor: pointer;
-  transition: all var(--transition);
+  transition: all var(--transition-base);
   border: 1px solid transparent;
   font-weight: 500;
 }
 
 .tag-filter:hover {
-  background-color: #e0e0e0;
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
-  border-color: rgba(0, 0, 0, 0.05);
+  border-color: var(--color-border);
 }
 
 .tag-filter.active {
-  background-color: var(--primary-blue);
+  background-color: var(--color-primary);
   color: white;
   box-shadow: 0 2px 5px rgba(25, 118, 210, 0.3);
   font-weight: 600;
 }
 
 .dark-mode .tag-filter {
-  background-color: #333;
-  color: #eee;
+  background-color: rgba(var(--color-dark-rgb), 0.3);
 }
 
 .dark-mode .tag-filter:hover {
-  background-color: #444;
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(var(--color-light-rgb), 0.1);
 }
 
 /* Place Tags */
 .place-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-sm);
+  gap: var(--space-sm);
 }
 
 .place-tag {
   font-size: 0.8rem;
-  background-color: var(--border-color);
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-pill);
-  color: var(--secondary-text);
+  background-color: var(--color-border);
+  color: var(--color-text-secondary);
 }

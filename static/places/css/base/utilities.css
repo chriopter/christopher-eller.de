@@ -1,0 +1,111 @@
+/* Utility Classes */
+
+/* Backdrop Blur */
+.backdrop-blur {
+  backdrop-filter: blur(10px);
+  background-color: var(--color-overlay);
+}
+
+.backdrop-blur-strong {
+  backdrop-filter: blur(10px);
+  background-color: var(--color-overlay-strong);
+}
+
+.backdrop-blur-stronger {
+  backdrop-filter: blur(10px);
+  background-color: var(--color-overlay-stronger);
+}
+
+/* Hover Effects */
+.hover-scale {
+  transition: transform var(--transition-base);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.hover-lift {
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Flex Utilities */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Common Tag Styles */
+.tag {
+  font-size: 0.8rem;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.tag-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+/* Interactive Elements */
+.interactive {
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.interactive:hover {
+  opacity: 0.9;
+}
+
+/* Text Truncation */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Shadows */
+.shadow-hover {
+  transition: box-shadow var(--transition-base);
+}
+
+.shadow-hover:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Overlays */
+.overlay-gradient {
+  background: linear-gradient(90deg, 
+    rgba(var(--color-light-rgb), 0) 0%, 
+    rgba(var(--color-light-rgb), 0.7) 40%, 
+    rgba(var(--color-light-rgb), 0.9) 100%
+  );
+}
+
+.dark-mode .overlay-gradient {
+  background: linear-gradient(90deg, 
+    rgba(var(--color-dark-rgb), 0) 0%, 
+    rgba(var(--color-dark-rgb), 0.7) 40%, 
+    rgba(var(--color-dark-rgb), 0.9) 100%
+  );
+}

@@ -2,6 +2,7 @@
 
 /* Base */
 @import 'base/variables.css';
+@import 'base/utilities.css';
 @import 'base/layout.css';
 
 /* Components */
