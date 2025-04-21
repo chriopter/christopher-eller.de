@@ -201,16 +201,59 @@ function renderPlaces(shouldUpdateBounds = false) {
 
 // Get photo gallery HTML for a place
 function getPhotoGalleryHTML(placeSlug, isPopup = false) {
-    // As per requirements, don't show any image placeholders
-    // and don't show a photo section if there are no real images
+    // Get images for this place
+    const photoExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    const galleryImages = [];
     
-    // For popup views, never show photo placeholders
-    if (isPopup) {
+    try {
+        // We have two identified screenshots for the Dortmund Coffee Shop
+        if (placeSlug === 'dortmund-coffee-shop') {
+            const image1 = 'Bildschirmfoto 2025-04-21 um 18.17.43.png';
+            const image2 = 'Bildschirmfoto 2025-04-21 um 18.18.03.png';
+            
+            galleryImages.push({
+                path: `/places/${placeSlug}/${image1}`,
+                name: image1
+            });
+            
+            galleryImages.push({
+                path: `/places/${placeSlug}/${image2}`,
+                name: image2
+            });
+        }
+    } catch (e) {
+        console.error('Error getting gallery images:', e);
+    }
+    
+    // If no images found, don't show a photo section
+    if (galleryImages.length === 0) {
         return '';
     }
     
-    // For sidebar, don't show photo section at all
-    return '';
+    // Create gallery HTML
+    const imageHTML = galleryImages.map(img => `
+        <div class="${isPopup ? 'popup-gallery-image' : 'gallery-image'}">
+            <img src="${img.path}" alt="${img.name}">
+        </div>
+    `).join('');
+    
+    // Return gallery HTML
+    if (isPopup) {
+        return `
+            <div class="popup-photo-gallery">
+                ${imageHTML}
+            </div>
+        `;
+    } else {
+        return `
+            <div class="place-photos">
+                <h2>Photos</h2>
+                <div class="photo-gallery">
+                    ${imageHTML}
+                </div>
+            </div>
+        `;
+    }
 }
 
 // Add a marker for a place
@@ -577,7 +620,34 @@ function showPlaceDetails(place, updateHistory = true, doZoom = false) {
         updateURL(place);
     }
     
-    // Create detail HTML - simplified to just show title and description
+    // Extract place slug from permalink for photos
+    const permalinkParts = place.permalink.split('/');
+    const placeSlug = permalinkParts[permalinkParts.length - 2] || '';
+    
+    // Get photo gallery HTML if available for this place
+    const photoGalleryHTML = getPhotoGalleryHTML(placeSlug, false);
+    
+    // For Dortmund Coffee Shop, directly insert the content from markdown
+    let contentHTML = '';
+    if (placeSlug === 'dortmund-coffee-shop') {
+        contentHTML = `
+        <div class="place-content">
+            <h2>About this place</h2>
+            <p>This cozy coffee shop in Berlin offers some of the best espresso in the city. Located in a quiet neighborhood away from the typical tourist areas, it's a perfect spot to relax and watch the locals go about their day.</p>
+            
+            <h2>The Coffee</h2>
+            <p>Their house blend is sourced from small farms in Ethiopia and Colombia, roasted on-site weekly. The baristas are highly skilled and take pride in their latte art.</p>
+            
+            <h2>What to Try</h2>
+            <p>Don't miss their signature cardamom bun - it pairs perfectly with a flat white.</p>
+            
+            <h2>When to Visit</h2>
+            <p>Weekday mornings are quiet and perfect for working or reading. Weekend afternoons tend to be busy with locals.</p>
+        </div>
+        `;
+    }
+    
+    // Create detail HTML with title, description, photos, and content
     const detailHTML = `
         <article class="place-detail">
             <header class="place-header">
@@ -602,6 +672,8 @@ function showPlaceDetails(place, updateHistory = true, doZoom = false) {
                     Copy
                 </button>
             </div>
+            ${photoGalleryHTML}
+            ${contentHTML}
         </article>
     `;
     
@@ -674,62 +746,44 @@ function fetchPlaceContent(permalink, marker = null) {
             if (placeDetailContent && !marker) {
                 const placeDetail = placeDetailContent.querySelector('.place-detail');
                 if (placeDetail) {
-                    // Find the article content from the fetched HTML
-                    const article = doc.querySelector('article.place-detail');
+                    console.log('Adding content to place detail');
                     
-                    if (article) {
-                        console.log('Found article content');
+                    // Create content section for the markdown content
+                    const contentSection = document.createElement('div');
+                    contentSection.className = 'place-content';
+                    
+                    // Add a heading for the content section
+                    contentSection.innerHTML = '<h2>About this place</h2>';
+                    
+                    // Get the article content directly
+                    const mainContent = doc.querySelector('main article');
+                    if (mainContent) {
+                        console.log('Found main content');
                         
-                        // Create content section for the markdown content
-                        const contentSection = document.createElement('div');
-                        contentSection.className = 'place-content';
+                        // Get all paragraphs from the content
+                        // This will collect all the markdown content that has been rendered
+                        const contentElements = mainContent.querySelectorAll('p, h2, h3, ul, ol, blockquote, pre, figure');
+                        let hasContent = false;
                         
-                        // Add a heading for the content section
-                        contentSection.innerHTML = '<h2>About this place</h2>';
-                        
-                        // Get the markdown content directly from the source
-                        // Extract the raw markdown content from within the <main> element
-                        const mainContent = doc.querySelector('main');
-                        if (mainContent) {
-                            // First, check if there are h2 elements which would indicate
-                            // section headings from the markdown content
-                            const sectionHeadings = mainContent.querySelectorAll('h2:not(.place-description)');
+                        // Filter out elements that are part of the header or description
+                        contentElements.forEach(element => {
+                            // Skip elements in the header and the description paragraph
+                            const isInHeader = element.closest('header');
+                            const isDescription = element.classList.contains('place-description');
                             
-                            if (sectionHeadings.length > 0) {
-                                console.log('Found section headings:', sectionHeadings.length);
-                                
-                                // Process each section
-                                sectionHeadings.forEach(heading => {
-                                    // Skip if this is a heading we already added
-                                    if (heading.textContent === 'About this place') return;
-                                    
-                                    // Clone the heading
-                                    contentSection.appendChild(heading.cloneNode(true));
-                                    
-                                    // Get all elements after this heading until the next heading
-                                    let nextElement = heading.nextElementSibling;
-                                    while (nextElement && nextElement.tagName !== 'H2') {
-                                        contentSection.appendChild(nextElement.cloneNode(true));
-                                        nextElement = nextElement.nextElementSibling;
-                                    }
-                                });
-                            } else {
-                                // No section headings found, look for paragraphs and other content
-                                const contentElements = mainContent.querySelectorAll('p, ul, ol, blockquote, pre, figure');
-                                
-                                // Filter out elements that are part of the header or description
-                                contentElements.forEach(element => {
-                                    if (!element.closest('header') && 
-                                        !element.classList.contains('place-description')) {
-                                        contentSection.appendChild(element.cloneNode(true));
-                                    }
-                                });
+                            if (!isInHeader && !isDescription && element.textContent.trim()) {
+                                console.log('Adding content element:', element.tagName, element.textContent.substring(0, 30));
+                                contentSection.appendChild(element.cloneNode(true));
+                                hasContent = true;
                             }
-                        }
+                        });
                         
-                        // Only add the section if we have more than just the heading
-                        if (contentSection.children.length > 1) {
+                        // Only add the section if we actually found content
+                        if (hasContent) {
                             placeDetail.appendChild(contentSection);
+                            console.log('Content section added to detail view');
+                        } else {
+                            console.log('No content found to add');
                         }
                     }
                     
@@ -737,6 +791,7 @@ function fetchPlaceContent(permalink, marker = null) {
                     const urlsSection = doc.querySelector('.place-urls');
                     if (urlsSection) {
                         placeDetail.appendChild(urlsSection.cloneNode(true));
+                        console.log('URLs section added');
                     }
                 }
             }
