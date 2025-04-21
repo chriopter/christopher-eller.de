@@ -2,7 +2,7 @@
 title = "Example Place"
 lat = 48.8566
 lng = 2.3522
-tags = ["example", "travel", "europe"]
+tags = ["example"]
 description = "An example place to demonstrate the Places feature"
 urls = [
   {title = "Wikipedia", url = "https://en.wikipedia.org/wiki/Paris"},

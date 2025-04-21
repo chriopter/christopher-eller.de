@@ -27,7 +27,7 @@
             </svg>
         </div>
         <header class="side-panel-header">
-            <h1>{{ .Site.GetPage "/places" | title }}</h1>
+            <h1>Places</h1>
             {{ with .Site.GetPage "/places" }}{{ with .Description }}<p>{{ . }}</p>{{ end }}{{ end }}
         </header>
         
@@ -119,8 +119,8 @@
             {{ range (where .Site.RegularPages "Section" "places") }}
                 {{ if $first }}{{ $first = false }}{{ else }},{{ end }}
                 {
-                    "title": {{ .Title | jsonify }},
-                    "description": {{ .Params.description | jsonify }},
+                    "title": {{ .Title }},
+                    "description": {{ .Params.description }},
                     "lat": {{ .Params.lat }},
                     "lng": {{ .Params.lng }},
                     "tags": {{ .Params.tags | jsonify }},
@@ -133,8 +133,8 @@
     <!-- Current place data for direct access -->
     <script type="application/json" id="place-data">
         {
-            "title": {{ .Title | jsonify }},
-            "description": {{ .Params.description | jsonify }},
+            "title": {{ .Title }},
+            "description": {{ .Params.description }},
             "lat": {{ .Params.lat }},
             "lng": {{ .Params.lng }},
             "tags": {{ .Params.tags | jsonify }},

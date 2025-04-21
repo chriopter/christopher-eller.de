@@ -27,7 +27,7 @@
             </svg>
         </div>
         <header class="side-panel-header">
-            <h1>{{ .Title }}</h1>
+            <h1>Places</h1>
             {{ with .Description }}<p>{{ . }}</p>{{ end }}
         </header>
         
@@ -118,8 +118,8 @@
             {{ range .Pages }}
                 {{ if $first }}{{ $first = false }}{{ else }},{{ end }}
                 {
-                    "title": {{ .Title | jsonify }},
-                    "description": {{ .Params.description | jsonify }},
+                    "title": {{ .Title }},
+                    "description": {{ .Params.description }},
                     "lat": {{ .Params.lat }},
                     "lng": {{ .Params.lng }},
                     "tags": {{ .Params.tags | jsonify }},

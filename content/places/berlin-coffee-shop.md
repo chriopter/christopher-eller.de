@@ -2,7 +2,7 @@
 title = "Berlin Coffee Shop"
 lat = 52.5200
 lng = 13.4050
-tags = ["coffee", "berlin", "germany", "europe"]
+tags = ["coffee", "europe"]
 description = "A wonderful little coffee shop in Berlin with excellent pastries"
 urls = [
   {title = "Official Website", url = "https://example.com/berlin-coffee"},
