@@ -201,32 +201,16 @@ function renderPlaces(shouldUpdateBounds = false) {
 
 // Get photo gallery HTML for a place
 function getPhotoGalleryHTML(placeSlug, isPopup = false) {
-    // Try to find images within the place folder
-    const placeDirPath = `/places/${placeSlug}/`;
-    const galleryClass = isPopup ? 'popup-photo-gallery' : 'photo-gallery';
+    // As per requirements, don't show any image placeholders
+    // and don't show a photo section if there are no real images
     
-    // Check for the Dortmund coffee shop images as in the example
-    if (placeSlug === 'dortmund-coffee-shop') {
-        return `
-            ${!isPopup ? '<h2>Photos</h2>' : ''}
-            <div class="${galleryClass}">
-                <div class="gallery-image ${isPopup ? 'popup-gallery-image' : ''}">
-                    <img src="${placeDirPath}Bildschirmfoto 2025-04-21 um 17.38.54.png" alt="Dortmund Coffee Shop">
-                </div>
-                <div class="gallery-image ${isPopup ? 'popup-gallery-image' : ''}">
-                    <img src="${placeDirPath}Bildschirmfoto 2025-04-21 um 17.38.59.png" alt="Dortmund Coffee Shop">
-                </div>
-            </div>
-        `;
-    } else {
-        // Generic implementation - no photos message only for sidebar, not for popup
-        return isPopup ? '' : `
-            <h2>Photos</h2>
-            <div class="${galleryClass}">
-                <p>No photos available</p>
-            </div>
-        `;
+    // For popup views, never show photo placeholders
+    if (isPopup) {
+        return '';
     }
+    
+    // For sidebar, don't show photo section at all
+    return '';
 }
 
 // Add a marker for a place
@@ -686,77 +670,66 @@ function fetchPlaceContent(permalink, marker = null) {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             
-            // Extract place slug from permalink for photos
-            const permalinkParts = permalink.split('/');
-            const placeSlug = permalinkParts[permalinkParts.length - 2] || '';
-            
             // If we're updating the sidebar
             if (placeDetailContent && !marker) {
                 const placeDetail = placeDetailContent.querySelector('.place-detail');
                 if (placeDetail) {
-                    // First, handle content from the Markdown file
-                    const contentSection = document.createElement('div');
-                    contentSection.className = 'place-content';
-                    
-                    // Find the article element which contains the rendered markdown
-                    const article = doc.querySelector('article');
+                    // Find the article content from the fetched HTML
+                    const article = doc.querySelector('article.place-detail');
                     
                     if (article) {
-                        // Extract the real content (exclude the header that we already display)
-                        // Look specifically for elements inside the article that aren't in the header
-                        const header = article.querySelector('header');
-                        let headerSection = null;
-                        if (header) {
-                            headerSection = header;
+                        console.log('Found article content');
+                        
+                        // Create content section for the markdown content
+                        const contentSection = document.createElement('div');
+                        contentSection.className = 'place-content';
+                        
+                        // Add a heading for the content section
+                        contentSection.innerHTML = '<h2>About this place</h2>';
+                        
+                        // Get the markdown content directly from the source
+                        // Extract the raw markdown content from within the <main> element
+                        const mainContent = doc.querySelector('main');
+                        if (mainContent) {
+                            // First, check if there are h2 elements which would indicate
+                            // section headings from the markdown content
+                            const sectionHeadings = mainContent.querySelectorAll('h2:not(.place-description)');
+                            
+                            if (sectionHeadings.length > 0) {
+                                console.log('Found section headings:', sectionHeadings.length);
+                                
+                                // Process each section
+                                sectionHeadings.forEach(heading => {
+                                    // Skip if this is a heading we already added
+                                    if (heading.textContent === 'About this place') return;
+                                    
+                                    // Clone the heading
+                                    contentSection.appendChild(heading.cloneNode(true));
+                                    
+                                    // Get all elements after this heading until the next heading
+                                    let nextElement = heading.nextElementSibling;
+                                    while (nextElement && nextElement.tagName !== 'H2') {
+                                        contentSection.appendChild(nextElement.cloneNode(true));
+                                        nextElement = nextElement.nextElementSibling;
+                                    }
+                                });
+                            } else {
+                                // No section headings found, look for paragraphs and other content
+                                const contentElements = mainContent.querySelectorAll('p, ul, ol, blockquote, pre, figure');
+                                
+                                // Filter out elements that are part of the header or description
+                                contentElements.forEach(element => {
+                                    if (!element.closest('header') && 
+                                        !element.classList.contains('place-description')) {
+                                        contentSection.appendChild(element.cloneNode(true));
+                                    }
+                                });
+                            }
                         }
                         
-                        // Get all direct children of the article
-                        const articleContent = Array.from(article.children).filter(el => {
-                            // Skip the header and any elements with place-header or place-description classes
-                            return el !== headerSection && 
-                                  !el.classList.contains('place-header') && 
-                                  !el.classList.contains('place-description');
-                        });
-                        
-                        if (articleContent.length > 0) {
-                            // Add a heading for the content section
-                            contentSection.innerHTML = '<h2>About this place</h2>';
-                            
-                            // Add all content elements
-                            articleContent.forEach(element => {
-                                contentSection.appendChild(element.cloneNode(true));
-                            });
-                            
-                            // Add the content section to the place detail
+                        // Only add the section if we have more than just the heading
+                        if (contentSection.children.length > 1) {
                             placeDetail.appendChild(contentSection);
-                        }
-                    }
-                    
-                    // Look for images in the place folder
-                    const photoGallery = document.createElement('div');
-                    photoGallery.className = 'place-photos';
-                    
-                    // Create photo gallery section only if we have a valid slug
-                    if (placeSlug) {
-                        // Use a better placeholder approach for images
-                        // In a real implementation, you would dynamically discover images
-                        
-                        // For Dortmund coffee shop, use actual placeholder images
-                        if (placeSlug === 'dortmund-coffee-shop') {
-                            photoGallery.innerHTML = `
-                                <h2>Photos</h2>
-                                <div class="photo-gallery">
-                                    <div class="gallery-image">
-                                        <img src="https://placehold.co/300x200?text=Coffee+Shop+1" alt="Dortmund Coffee Shop">
-                                    </div>
-                                    <div class="gallery-image">
-                                        <img src="https://placehold.co/300x200?text=Coffee+Shop+2" alt="Dortmund Coffee Shop">
-                                    </div>
-                                </div>
-                            `;
-                            
-                            // Add the photo gallery after the content
-                            placeDetail.appendChild(photoGallery);
                         }
                     }
                     

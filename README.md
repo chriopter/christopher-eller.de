@@ -13,7 +13,7 @@ My Site in Hugo
 
 - **Auto-Update:** Uses https://github.com/chriopter/hugo-autopilot
 
-- **Pre-Commit:** The pre-commit hook Removes GPS EXIF & compare local Hugo version to pinned in .hugoversion
+- **Pre-Commit:** The pre-commit hook Removes GPS EXIF from import, photos and places fodlers & compare local Hugo version to pinned in .hugoversion
 ```bash
 git config --local include.path ../.gitconfig && brew install exiftool
 ```
