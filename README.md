@@ -7,7 +7,7 @@ My Site in Hugo
 
 - **Links:** Create new link posts with `hugo new content/links/title-with-spaces.md`
 
-- **Places:** Create location markers with `hugo new content/places/location-name.md`. View map at `/places/` or embed with shortcode `{{</* places-map height="500px" tag="travel" */>}}`.
+- **Places:** Create location markers with `hugo new content/places/location-name.md`. View map at `/places/`.
 
 ## Technical
 
@@ -18,7 +18,7 @@ My Site in Hugo
 git config --local include.path ../.gitconfig && brew install exiftool
 ```
 
-- **Update Dependencies:** Refresh all npm modules (incl. Leaflet) with:
+- **Update Dependencies:** Refresh all npm modules with:
 ```bash
 find . -name "package.json" -not -path "*/node_modules/*" -execdir sh -c 'echo "Updating in $(pwd)" && npm update' \;
 ```

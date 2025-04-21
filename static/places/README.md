@@ -4,14 +4,13 @@ Interactive map feature for the Hugo site.
 
 ## Structure
 
-- `leaflet.css` and `leaflet.js`: Core Leaflet files (imported from node_modules)
+- `node_modules/leaflet/`: Leaflet dependencies (managed by npm)
 - `css/places.css`: Custom styling for places feature
 - `js/places.js`: Custom JavaScript for places feature
 - `images/`: Map markers and control icons
 
 ## Updating Leaflet
 
-Leaflet files are managed at the project root. To update:
+Leaflet files are managed locally in this directory. To update:
 
-1. Run `npm update` to update the node_modules
-2. Run `./update-leaflet.sh` to copy the updated files to this directory
+1. Run `cd static/places && npm update` to update the local node_modules
