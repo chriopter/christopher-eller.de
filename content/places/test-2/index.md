@@ -1,6 +1,6 @@
 +++
 title = "X Coffee Shop"
-lat = 51.5200
+lat = 25.5200
 lng = 11.4050
 tags = ["cuisine"]
 description = "A wonderful little coffee shop in Berlin with excellent pastries"
