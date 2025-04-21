@@ -22,3 +22,9 @@ git config --local include.path ../.gitconfig && brew install exiftool
 ```bash
 find . -name "package.json" -not -path "*/node_modules/*" -execdir sh -c 'echo "Updating in $(pwd)" && npm update' \;
 ```
+
+
+
+Todo: Fix content visible on single place, maybe remove iframe
+todo: small thumbnails for places images
+todo: fix filter button map and two +/-

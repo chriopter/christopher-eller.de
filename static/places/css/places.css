@@ -379,9 +379,32 @@ body:has(.places-section) footer {
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
-    flex-direction: column;
-    gap: 0.25rem; /* Reduced gap to fix double line issue */
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
     border-radius: 12px;
+}
+
+.place-thumbnail {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.place-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.place-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
 .place-item:hover {

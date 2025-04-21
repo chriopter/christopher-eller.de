@@ -11,6 +11,7 @@ let activeFilters = [];
 let searchTerm = '';
 let isPanelVisible = true;
 let isInitialRender = true; // Track if this is the initial render
+let filterByViewport = true; // Track if viewport filtering is enabled
 
 // DOM elements
 let mapContainer = null;
@@ -40,10 +41,10 @@ function initPlacesMap() {
     // Add immersive map class to body
     document.body.classList.add('map-view');
 
-    // Initialize Leaflet map
-    placesMap = L.map(mapContainer, {
-        zoomControl: false // We'll add zoom control in a better position
-    }).setView([20, 0], 2);
+// Initialize Leaflet map
+placesMap = L.map(mapContainer, {
+    zoomControl: true // Enable default zoom controls
+}).setView([20, 0], 2);
 
     // Setup popstate event to handle browser navigation
     window.addEventListener('popstate', handleHistoryNavigation);
@@ -58,6 +59,56 @@ function initPlacesMap() {
     L.control.zoom({
         position: 'topright'
     }).addTo(placesMap);
+    
+    // Add viewport filter toggle control
+    const viewportToggleControl = L.Control.extend({
+        options: {
+            position: 'topright'
+        },
+        
+        onAdd: function(map) {
+            const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+            const button = L.DomUtil.create('a', 'viewport-filter-toggle', container);
+            button.href = '#';
+            button.title = 'Toggle viewport filtering';
+            button.role = 'button';
+            button.setAttribute('aria-label', 'Toggle viewport filtering');
+            button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>';
+            
+            // Set initial state
+            updateViewportToggleState(button);
+            
+            L.DomEvent.on(button, 'click', function(e) {
+                L.DomEvent.stop(e);
+                filterByViewport = !filterByViewport;
+                updateViewportToggleState(button);
+                
+                // Also update sidebar toggle if it exists
+                const sidebarToggle = document.getElementById('viewport-toggle-checkbox');
+                if (sidebarToggle) {
+                    sidebarToggle.checked = filterByViewport;
+                }
+                
+                renderPlacesList(filterPlaces());
+            });
+            
+            return container;
+        }
+    });
+    
+    // Helper to update toggle button state
+    function updateViewportToggleState(button) {
+        if (filterByViewport) {
+            button.classList.add('active');
+            button.title = 'Viewport filtering: ON - Click to show all places';
+        } else {
+            button.classList.remove('active');
+            button.title = 'Viewport filtering: OFF - Click to show only places in view';
+        }
+    }
+    
+    // Add the viewport toggle control to the map
+    new viewportToggleControl().addTo(placesMap);
 
     // Get places data
     const placesData = document.getElementById('places-data');
@@ -376,10 +427,45 @@ function initFilters() {
 function initSearch() {
     searchInput = document.getElementById('search-input');
     if (searchInput) {
+        // Add event listener for search input
         searchInput.addEventListener('input', e => {
             searchTerm = e.target.value.trim().toLowerCase();
             renderPlaces();
         });
+        
+        // Wrap search input in container div if not already wrapped
+        if (!searchInput.parentElement.classList.contains('search-container')) {
+            const searchParent = searchInput.parentElement;
+            const searchContainer = document.createElement('div');
+            searchContainer.className = 'search-container';
+            
+            // Insert the container before the search input
+            searchParent.insertBefore(searchContainer, searchInput);
+            
+            // Move the search input into the container
+            searchContainer.appendChild(searchInput);
+            
+            // Create viewport toggle switch
+            const viewportToggle = document.createElement('div');
+            viewportToggle.className = 'sidebar-viewport-toggle';
+            viewportToggle.innerHTML = `
+                <span class="toggle-label">Map View Only</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="viewport-toggle-checkbox" ${filterByViewport ? 'checked' : ''}>
+                    <span class="toggle-slider"></span>
+                </label>
+            `;
+            
+            // Add the toggle to the container
+            searchContainer.appendChild(viewportToggle);
+            
+            // Add event listener for the toggle
+            const toggleCheckbox = viewportToggle.querySelector('#viewport-toggle-checkbox');
+            toggleCheckbox.addEventListener('change', function() {
+                filterByViewport = this.checked;
+                renderPlacesList(filterPlaces());
+            });
+        }
     }
 }
 
@@ -452,7 +538,7 @@ function filterPlaces() {
         }
         
         // Filter by map viewport - only show places that are within the current map view
-        if (mapBounds) {
+        if (filterByViewport && mapBounds) {
             const placeLatLng = L.latLng(place.lat, place.lng);
             if (!mapBounds.contains(placeLatLng)) {
                 return false;
@@ -499,12 +585,18 @@ function renderPlacesList(places = null) {
         }
         
         placeItem.innerHTML = `
-            <h3 class="place-title">${place.title}</h3>
-            <p class="place-description">${place.description || ''}</p>
-            ${tagsToDisplay.length ? `
-            <div class="place-tags">
-                ${tagsToDisplay.map(tag => `<span class="place-tag">${tag}</span>`).join('')}
+            ${place.images && place.images.length > 0 ? `
+            <div class="place-thumbnail">
+                <img src="${place.images[0].path}" alt="Image of ${place.title}">
             </div>` : ''}
+            <div class="place-content">
+                <h3 class="place-title">${place.title}</h3>
+                <p class="place-description">${place.description || ''}</p>
+                ${tagsToDisplay.length ? `
+                <div class="place-tags">
+                    ${tagsToDisplay.map(tag => `<span class="place-tag">${tag}</span>`).join('')}
+                </div>` : ''}
+            </div>
         `;
         
         // Add click handler
@@ -749,20 +841,127 @@ function showPlaceDetails(place, updateHistory = true, doZoom = false) {
         if (placesMap) placesMap.invalidateSize();
     }
     
-    // Display the pre-rendered content if available
-    if (place.content) {
-        // Create a container for the content
-        const contentContainer = document.createElement('div');
-        contentContainer.className = 'place-content';
-        
-        // Decode JSON escaped HTML before inserting
-        contentContainer.innerHTML = decodeJSONHTML(place.content);
-        
-        // Add the content to the place detail
-        const placeDetail = placeDetailContent.querySelector('.place-detail');
-        if (placeDetail) {
-            placeDetail.appendChild(contentContainer);
-        }
+    // Create a container for the content
+    const contentContainer = document.createElement('div');
+    contentContainer.className = 'place-content';
+    contentContainer.innerHTML = '<div class="loading-content">Loading content...</div>';
+    
+    // Directly fetch the page content
+    fetch(place.permalink)
+        .then(response => response.text())
+        .then(html => {
+            // Create a temporary DOM element to parse the fetched HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // First, try to find the exact place content - what we're looking for is 
+            // the raw content from the markdown file that's rendered into HTML
+            // This is directly related to the place.Content value in the JSON data
+            let contentElement = null;
+            
+            // Option 1: Try to find the content directly from the HTML structure
+            // We're looking for article or main content that contains the place content
+            
+            // Start with specifically targeted content
+            const articleContent = doc.querySelector('article .place-content') || 
+                                 doc.querySelector('main .place-content');
+            
+            if (articleContent) {
+                console.log("Found place content with specific selector");
+                contentElement = articleContent;
+            } 
+            else {
+                // Otherwise, just grab the raw content from the article or main element
+                // and we'll extract the specific content from it
+                const article = doc.querySelector('article') || doc.querySelector('main');
+                
+                if (article) {
+                    console.log("Found article/main element, extracting content");
+                    
+                    // Remove navigation, headers, footers, etc.
+                    const elementsToRemove = article.querySelectorAll('header, .header, nav, .nav, footer, .footer, .place-action-buttons, .map-container, .side-panel, .panel-toggle, .menu-pill, .back-button');
+                    elementsToRemove.forEach(el => el.remove());
+                    
+                    // Process the article to extract just the content we want
+                    const h2Elements = article.querySelectorAll('h2');
+                    
+                    // If we found h2 headings, assume they're the content sections
+                    if (h2Elements.length > 0) {
+                        // Create a content wrapper
+                        contentElement = document.createElement('div');
+                        contentElement.className = 'extracted-content';
+                        
+                        // Extract each h2 and its following content
+                        h2Elements.forEach(h2 => {
+                            const section = document.createElement('div');
+                            section.className = 'content-section';
+                            section.appendChild(h2.cloneNode(true));
+                            
+                            // Get all next siblings until the next h2
+                            let nextElement = h2.nextElementSibling;
+                            while (nextElement && nextElement.tagName !== 'H2') {
+                                section.appendChild(nextElement.cloneNode(true));
+                                nextElement = nextElement.nextElementSibling;
+                            }
+                            
+                            contentElement.appendChild(section);
+                        });
+                    } else {
+                        // If no h2 elements, just use the article itself
+                        contentElement = article;
+                    }
+                }
+                else {
+                    // Last resort: try to extract content from the body
+                    console.log("No article found, searching body for content");
+                    contentElement = document.createElement('div');
+                    
+                    // Look for specific content identifiers
+                    const paragraphs = doc.querySelectorAll('body p');
+                    if (paragraphs.length > 0) {
+                        paragraphs.forEach(p => contentElement.appendChild(p.cloneNode(true)));
+                    }
+                    
+                    // Add any h2 sections with their content
+                    const bodyH2s = doc.querySelectorAll('body h2');
+                    bodyH2s.forEach(h2 => {
+                        contentElement.appendChild(h2.cloneNode(true));
+                        
+                        // Get next siblings until the next heading
+                        let nextElement = h2.nextElementSibling;
+                        while (nextElement && !['H1', 'H2', 'H3'].includes(nextElement.tagName)) {
+                            contentElement.appendChild(nextElement.cloneNode(true));
+                            nextElement = nextElement.nextElementSibling;
+                        }
+                    });
+                }
+            }
+            
+            // Set the content
+            contentContainer.innerHTML = '';
+            if (contentElement) {
+                // Final cleanup
+                const scripts = contentElement.querySelectorAll('script');
+                scripts.forEach(script => script.remove());
+                
+                contentContainer.appendChild(contentElement);
+                console.log("Content loaded directly for:", place.title);
+            } else {
+                contentContainer.innerHTML = '<div class="error-content">Sorry, content could not be loaded.</div>';
+                console.error("No content element found for:", place.title);
+            }
+        })
+        .catch(error => {
+            contentContainer.innerHTML = '<div class="error-content">Error loading content.</div>';
+            console.error("Error fetching content:", error);
+        });
+    
+    // Add the content to the place detail
+    const placeDetail = placeDetailContent.querySelector('.place-detail');
+    if (placeDetail) {
+        placeDetail.appendChild(contentContainer);
+    } else {
+        console.warn("No place detail container found for:", place.title);
     }
 }
 
@@ -1100,6 +1299,161 @@ function updateMapForDarkMode(isDark) {
         console.log('Map dark mode:', isDark);
     }
 }
+
+// Add CSS styles for the viewport filter toggle and iframe
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        /* Iframe styling for place content */
+        .place-content-iframe {
+            width: 100%;
+            border: none;
+            overflow: auto;
+            margin-top: 20px;
+            background: white;
+        }
+        
+        /* Hide the header, navigation, and footer when in an iframe */
+        .place-content-iframe {
+            position: relative;
+        }
+        
+        /* Style the iframe container */
+        .place-content {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Fix for map controls visibility with higher z-index */
+        .leaflet-map-pane {
+            z-index: 1 !important;
+        }
+        
+        .leaflet-control-container {
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            z-index: 800 !important;
+            position: relative !important;
+        }
+        
+        .leaflet-top, .leaflet-bottom {
+            z-index: 1000 !important;
+            position: absolute !important;
+        }
+        
+        .leaflet-control {
+            z-index: 1000 !important;
+            pointer-events: auto !important;
+            clear: both !important;
+        }
+        
+        .leaflet-control-zoom {
+            visibility: visible !important;
+            opacity: 1 !important;
+            display: block !important;
+            z-index: 1000 !important;
+        }
+        
+        /* Map toggle button styles */
+        .viewport-filter-toggle {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: white;
+            color: #333;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 1000 !important;
+        }
+        
+        .viewport-filter-toggle.active {
+            background: #3388ff;
+            color: white;
+        }
+        
+        .viewport-filter-toggle svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .viewport-filter-toggle:hover {
+            background: #f4f4f4;
+        }
+        
+        .viewport-filter-toggle.active:hover {
+            background: #0078f8;
+        }
+        
+        /* Sidebar toggle styles */
+        .search-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-viewport-toggle {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 14px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+            margin: 0 8px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 22px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 2px;
+            background-color: white;
+            transition: .2s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #3388ff;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(21px);
+        }
+        
+        .toggle-label {
+            font-size: 12px;
+            white-space: nowrap;
+        }
+    </style>
+`);
 
 // Connect to theme toggle
 const htmlElement = document.documentElement;
