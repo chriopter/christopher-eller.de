@@ -25,7 +25,9 @@ export function initMap() {
 
         console.log('Creating map instance...');
         const map = L.map('places-map', {
-            zoomControl: false
+            zoomControl: false,
+            // Add padding to ensure popups don't go under menu
+            paddingTopLeft: [0, 60]
         }).setView(mapConfig.defaultView, mapConfig.defaultZoom);
 
         console.log('Adding tile layer...');

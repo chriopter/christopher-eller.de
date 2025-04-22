@@ -1,9 +1,18 @@
 /**
- * Side panel functionality
+ * Side panel and place interaction functionality
  */
 
 import { elements, updateState, isPanelVisible } from '../base/state.js';
 import { panelConfig } from '../base/config.js';
+
+/**
+ * Open a place in a new tab
+ * @param {Object} place - The place object to open
+ */
+export function openPlaceInNewTab(place) {
+    if (!place || !place.permalink) return;
+    window.open(place.permalink, '_blank');
+}
 
 /**
  * Setup panel toggling functionality
@@ -92,59 +101,5 @@ export function updatePanelVisibility() {
             if (sidePanel) sidePanel.classList.remove('hidden');
             if (panelShowToggle) panelShowToggle.classList.add('hidden');
         }
-    }
-}
-
-/**
- * Hide search, filters, and list view when showing place details
- */
-export function hideListElements() {
-    const { searchInput } = elements;
-    
-    if (searchInput && searchInput.parentElement) {
-        searchInput.parentElement.style.display = 'none';
-    }
-    
-    const tagFilters = document.getElementById('tag-filters');
-    if (tagFilters) {
-        tagFilters.style.display = 'none';
-    }
-    
-    // Hide the header title and description
-    const header = document.querySelector('.side-panel-header');
-    if (header) {
-        header.style.display = 'none';
-    }
-    
-    const placesList = document.getElementById('places-list');
-    if (placesList) {
-        placesList.style.display = 'none';
-    }
-}
-
-/**
- * Show search, filters, and list view when returning to list view
- */
-export function showListElements() {
-    const { searchInput } = elements;
-    
-    if (searchInput && searchInput.parentElement) {
-        searchInput.parentElement.style.display = '';
-    }
-    
-    const tagFilters = document.getElementById('tag-filters');
-    if (tagFilters) {
-        tagFilters.style.display = '';
-    }
-    
-    // Show the header title and description
-    const header = document.querySelector('.side-panel-header');
-    if (header) {
-        header.style.display = '';
-    }
-    
-    const placesList = document.getElementById('places-list');
-    if (placesList) {
-        placesList.style.display = 'block';
     }
 }

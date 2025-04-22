@@ -16,8 +16,9 @@
 
   /* Semantic Colors */
   --color-bg: rgba(var(--color-light-rgb), 1);
+  --color-bg-hover: #f5f5f5;
   --color-text: rgba(var(--color-text-light-rgb), 1);
-  --color-text-secondary: #666;
+  --color-text-secondary: #757575;
   --color-border: rgba(var(--color-border-light-rgb), 1);
 
   /* UI Component Colors */
@@ -33,6 +34,7 @@
   --space-sm: calc(var(--space-unit) * 2);
   --space-md: calc(var(--space-unit) * 4);
   --space-lg: calc(var(--space-unit) * 6);
+  --space-xl: calc(var(--space-unit) * 8);
 }
 
 /* Border Radius */
@@ -47,8 +49,9 @@
 /* Shadows */
 :root {
   --shadow-color: 0, 0, 0;
-  --shadow-sm: 0 2px 5px rgba(var(--shadow-color), 0.1);
+  --shadow-sm: 0 1px 3px rgba(var(--shadow-color), 0.1);
   --shadow-md: 0 3px 15px rgba(var(--shadow-color), 0.15);
+  --shadow-hover: 0 2px 4px rgba(var(--shadow-color), 0.1);
 }
 
 /* Transitions */
@@ -72,6 +75,7 @@
 /* Dark Mode */
 .dark-mode {
   --color-bg: rgba(var(--color-dark-rgb), 1);
+  --color-bg-hover: rgba(255, 255, 255, 0.05);
   --color-text: rgba(var(--color-text-dark-rgb), 1);
   --color-text-secondary: #aaa;
   --color-border: rgba(var(--color-border-dark-rgb), 1);

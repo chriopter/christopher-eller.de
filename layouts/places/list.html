@@ -8,7 +8,7 @@
         {{ partial "header.html" . }}
     </div>
     
-    <!-- Unified Side Panel -->
+    <!-- Side Panel -->
     <div class="side-panel" id="side-panel">
         <!-- Panel toggle button -->
         <div class="panel-hide-toggle" id="panel-hide-toggle" title="Hide Panel">
@@ -40,27 +40,10 @@
             {{ end }}
         </div>
         
-        <!-- Places List and Details Container -->
+        <!-- Places List -->
         <div class="places-content" id="places-content">
-            <!-- List View (shown by default) -->
             <div class="places-list" id="places-list">
                 <!-- Places list will be dynamically generated -->
-            </div>
-            
-            <!-- Place Details (shown when a place is selected) -->
-            <div class="place-detail-container" id="place-detail-container" style="display: none;">
-                <div class="place-detail-header">
-                    <button class="back-button" id="back-to-list">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M19 12H5"></path>
-                            <path d="M12 19l-7-7 7-7"></path>
-                        </svg>
-                        Back to list
-                    </button>
-                </div>
-                <div class="place-detail-content" id="place-detail-content">
-                    <!-- Place details will be dynamically loaded here -->
-                </div>
             </div>
         </div>
     </div>
@@ -94,29 +77,17 @@
                     "lng": {{ .Params.lng }},
                     "tags": {{ .Params.tags | jsonify }},
                     "urls": {{ .Params.urls | jsonify }},
-                    "permalink": {{ .RelPermalink }},
-                    "content": {{ .Content | jsonify }},
-                    "images": [
-                        {{ $first := true }}
-                        {{ range .Resources.ByType "image" }}
-                            {{ if $first }}{{ $first = false }}{{ else }},{{ end }}
-                            {
-                                "path": {{ .RelPermalink | jsonify }},
-                                "name": {{ .Name | jsonify }}
-                            }
-                        {{ end }}
-                    ]
+                    "permalink": {{ .RelPermalink | jsonify }},
+                    "thumbnail": {{ with .Resources.GetMatch "*featured*" }}{{ .RelPermalink | jsonify }}{{ else }}""{{ end }}
                 }
             {{ end }}
         ]
     </script>
 </div>
 
-<!-- Load CSS -->
+<!-- Dependencies -->
 <link rel="stylesheet" href="/places/node_modules/leaflet/dist/leaflet.css">
 <link rel="stylesheet" href="/places/css/main.css">
-
-<!-- Load JavaScript -->
 <script src="/places/node_modules/leaflet/dist/leaflet.js"></script>
 <script type="module" src="/places/js/places.js" defer></script>
 {{ end }}

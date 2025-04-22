@@ -4,7 +4,6 @@
  */
 
 import { initPlacesMap } from './base/init.js';
-import { showPlaceDetails, backToListView } from './components/placeDetails.js';
 import { allPlaces, updateState, markers } from './base/state.js';
 import { initThemeHandling } from './utils/theme.js';
 import { initMenuTheme } from './utils/menuTheme.js';
@@ -29,8 +28,6 @@ async function initializeWhenReady() {
         console.log('Leaflet and DOM loaded, initializing...');
 
         // Make necessary functions and data globally accessible
-        window.showPlaceDetails = showPlaceDetails;
-        window.backToListView = backToListView;
         window.allPlaces = allPlaces;
         window.updateState = updateState;
         window.initPlacesMap = initPlacesMap;
@@ -67,8 +64,6 @@ initializeWhenReady().catch(error => {
 
 // Export module for use in other files
 export {
-    showPlaceDetails,
-    backToListView,
     allPlaces,
     updateState,
     initPlacesMap,

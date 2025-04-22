@@ -1,5 +1,6 @@
+
 {{ define "main" }}
-<div class="places-section">
+<div class="places-section" id="places-section">
     <!-- Full Viewport Map -->
     <div class="map-container" id="places-map"></div>
     
@@ -8,7 +9,7 @@
         {{ partial "header.html" . }}
     </div>
     
-    <!-- Unified Side Panel -->
+    <!-- Side Panel -->
     <div class="side-panel" id="side-panel">
         <!-- Panel toggle button -->
         <div class="panel-hide-toggle" id="panel-hide-toggle" title="Hide Panel">
@@ -19,51 +20,52 @@
 
         <!-- Back Button -->
         <div class="place-detail-header">
-            <button class="back-button" onclick="window.location.href='/places/'">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <a href="/places/" class="back-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 12H5"></path>
                     <path d="M12 19l-7-7 7-7"></path>
                 </svg>
-                Back to list
-            </button>
+                <span>Back to list</span>
+            </a>
         </div>
 
         <!-- Place Content -->
         <article class="place-detail">
-            <header class="place-header">
+            <!-- Content for JavaScript to parse -->
+            <div class="place-header">
                 <h1>{{ .Title }}</h1>
                 {{ with .Description }}<p class="place-description">{{ . }}</p>{{ end }}
-            </header>
-
-            <!-- Tags -->
-            {{ with .Params.tags }}
-            <div class="place-tags">
-                {{ range . }}<span class="tag">{{ . }}</span>{{ end }}
             </div>
-            {{ end }}
 
-            <!-- Website Link -->
-            {{ with .Params.urls }}
-            <div class="place-links">
-                <a href="{{ . }}" class="website-link" target="_blank" rel="noopener noreferrer">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            <div class="place-actions">
+                <button class="action-btn copy-btn" title="Copy link to clipboard">
+                    <svg width="16" height="16" viewBox="0 0 16 16">
+                        <path d="M2 2h8v2h2v10H4v-2H2V2zm2 2h4v6h2V6h-2V4H4v6h4v2H4V4z" fill="currentColor"/>
                     </svg>
-                    Visit Website
-                </a>
+                    Copy
+                </button>
+                <button class="action-btn share-btn" title="Share this place">
+                    <svg width="16" height="16" viewBox="0 0 16 16">
+                        <path d="M4 6v6h8V6H4zm1 1h6v4H5V7z M3 4h10v8H3V4z" fill="currentColor"/>
+                    </svg>
+                    Share
+                </button>
+                {{ with .Params.urls }}
+                    <a href="{{ . }}" class="action-btn web-btn" target="_blank" rel="noopener noreferrer" title="Visit website">
+                        <svg width="16" height="16" viewBox="0 0 16 16">
+                            <path d="M3 3h10v10H3V3zm2 2h6v6H5V5z" fill="currentColor"/>
+                        </svg>
+                        Web
+                    </a>
+                {{ end }}
             </div>
-            {{ end }}
 
-            <!-- Main Content -->
-            <div class="place-body">
+            <div class="place-content-body">
                 {{ .Content }}
             </div>
 
-            <!-- Images -->
             {{ with .Resources.ByType "image" }}
-            <div class="place-images">
+            <div class="photos-grid">
                 {{ range . }}
                 <img src="{{ .RelPermalink }}" alt="{{ .Name }}" loading="lazy">
                 {{ end }}
@@ -71,7 +73,6 @@
             {{ end }}
         </article>
     </div>
-
     
     <!-- Mobile Toggle Button -->
     <div class="panel-toggle" id="panel-toggle">
@@ -90,21 +91,19 @@
     </div>
 </div>
 
-<!-- Load CSS -->
+<!-- Dependencies -->
 <link rel="stylesheet" href="/places/node_modules/leaflet/dist/leaflet.css">
 <link rel="stylesheet" href="/places/css/main.css">
-
-<!-- Load JavaScript -->
 <script src="/places/node_modules/leaflet/dist/leaflet.js"></script>
 <script type="module">
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize map
     const placeData = {
         lat: parseFloat("{{ .Params.lat }}"),
         lng: parseFloat("{{ .Params.lng }}"),
         title: "{{ .Title }}"
     };
 
-    // Initialize map
     const map = L.map('places-map').setView([placeData.lat, placeData.lng], 13);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -129,6 +128,57 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleBtn.addEventListener('click', togglePanel);
     showPanelBtn.addEventListener('click', togglePanel);
     hidePanelBtn.addEventListener('click', togglePanel);
+
+    // Share and Copy button functionality
+    const copyBtn = document.querySelector('.copy-btn');
+    const shareBtn = document.querySelector('.share-btn');
+
+    function showCopiedFeedback(button) {
+        const icon = button.querySelector('svg').outerHTML;
+        const originalText = button.innerHTML;
+        button.innerHTML = `${icon} Copied`;
+        setTimeout(() => {
+            button.innerHTML = originalText;
+        }, 2000);
+    }
+
+    // Initialize copy button
+    if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(window.location.href)
+                .then(() => showCopiedFeedback(copyBtn))
+                .catch(err => console.error('Error copying text to clipboard:', err));
+        });
+    }
+
+    // Initialize share button
+    if (shareBtn) {
+        // Ensure share button is visible
+        shareBtn.style.removeProperty('display');
+        
+        shareBtn.addEventListener('click', async () => {
+            if (typeof navigator.share === 'function') {
+                try {
+                    await navigator.share({
+                        title: document.title,
+                        url: window.location.href
+                    });
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        // Only show feedback if not cancelled
+                        navigator.clipboard.writeText(window.location.href)
+                            .then(() => showCopiedFeedback(shareBtn))
+                            .catch(err => console.error('Error copying text to clipboard:', err));
+                    }
+                }
+            } else {
+                // Fall back to clipboard if Web Share API is not available
+                navigator.clipboard.writeText(window.location.href)
+                    .then(() => showCopiedFeedback(shareBtn))
+                    .catch(err => console.error('Error copying text to clipboard:', err));
+            }
+        });
+    }
 });
 </script>
 {{ end }}

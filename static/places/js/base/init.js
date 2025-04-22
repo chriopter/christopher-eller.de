@@ -8,11 +8,7 @@ import { initMap } from '../components/map.js';
 import { initFilters } from '../components/filters.js';
 import { initSearch } from '../components/search.js';
 import { setupPanelToggling } from '../components/panel.js';
-import { initLightbox } from '../components/gallery.js';
-import { initBackButton } from '../components/placeDetails.js';
 import { setupHistoryHandling, initializeFromURL } from '../utils/history.js';
-import { initThemeHandling } from '../utils/theme.js';
-import { initMenuTheme } from '../utils/menuTheme.js';
 import { renderPlaces } from '../components/markers.js';
 
 /**
@@ -39,11 +35,9 @@ export function initPlacesMap() {
 
         try {
             // Reset any existing state
-            console.log('Resetting application state...');
             resetState();
             
             // Parse and validate places data
-            console.log('Parsing places data...');
             let places;
             try {
                 places = JSON.parse(placesData.textContent);
@@ -58,8 +52,6 @@ export function initPlacesMap() {
             
             if (places.length === 0) {
                 console.warn('Warning: No places found in data');
-            } else {
-                console.log(`Found ${places.length} places in data`);
             }
             
             // Validate required fields and normalize permalinks
@@ -82,50 +74,25 @@ export function initPlacesMap() {
                 console.error('Warning: Some places have invalid or missing required fields:', invalidPlaces);
             }
             
-            // Initialize state
-            console.log('Initializing application state...');
+            // Initialize state and map
             updateState('markers', {});
             updateState('allPlaces', places);
-            
-            // Initialize map
-            console.log('Initializing map...');
             const map = initMap();
             if (!map) {
                 throw new Error('Map initialization failed - map instance is null');
             }
             
-            // Initialize components in order
-            console.log('Initializing components...');
+            // Initialize components
             initFilters();
             initSearch();
             setupPanelToggling();
-            initLightbox();
-            initBackButton();
             
-            // Render places and setup history handling
-            console.log('Rendering places...');
+            // Render places
             renderPlaces(true);
             
-            // Log data state before history handling
-            console.log('Places data state:', {
-                placesCount: allPlaces.length,
-                placesData: allPlaces,
-                mapInitialized: !!map
-            });
-            
-            // Setup history handling after places are loaded
+            // Setup history handling and URL initialization
             setupHistoryHandling();
-            
-            // Initialize from URL after everything is ready
-            console.log('Initializing from URL...');
             initializeFromURL();
-            
-            // Log final state
-            console.log('Initialization complete:', {
-                placesCount: allPlaces.length,
-                mapInitialized: !!map,
-                markersCount: Object.keys(markers).length
-            });
             
             // Handle resize events
             window.addEventListener('resize', handleResize);
