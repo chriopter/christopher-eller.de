@@ -1,4 +1,16 @@
 {{ define "main" }}
+<style>
+    /* Override main content styles from base template */
+    main {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+    header {
+        padding: 0;
+        margin: 0;
+    }
+</style>
 <div class="places-section" id="places-section">
     <!-- Full Viewport Map -->
     <div class="map-container" id="places-map"></div>
