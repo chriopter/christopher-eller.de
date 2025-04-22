@@ -1,20 +1,35 @@
 {{ define "main" }}
-<div class="places-layout">
-    <!-- Left Side: Content -->
-    <div class="places-content">
-        <!-- Navigation -->
-        <nav class="places-nav">
-            <a href="/places/" class="back-link">
+<div class="places-section">
+    <!-- Full Viewport Map -->
+    <div class="map-container" id="places-map"></div>
+    
+    <!-- Menu Pill -->
+    <div class="menu-pill" id="menu-pill">
+        {{ partial "header.html" . }}
+    </div>
+    
+    <!-- Unified Side Panel -->
+    <div class="side-panel" id="side-panel">
+        <!-- Panel toggle button -->
+        <div class="panel-hide-toggle" id="panel-hide-toggle" title="Hide Panel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 18l-6-6 6-6"></path>
+            </svg>
+        </div>
+
+        <!-- Back Button -->
+        <div class="place-detail-header">
+            <button class="back-button" onclick="window.location.href='/places/'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 12H5"></path>
                     <path d="M12 19l-7-7 7-7"></path>
                 </svg>
-                Back to Places
-            </a>
-        </nav>
+                Back to list
+            </button>
+        </div>
 
         <!-- Place Content -->
-        <article class="place-article">
+        <article class="place-detail">
             <header class="place-header">
                 <h1>{{ .Title }}</h1>
                 {{ with .Description }}<p class="place-description">{{ . }}</p>{{ end }}
@@ -57,14 +72,21 @@
         </article>
     </div>
 
-    <!-- Right Side: Map -->
-    <div class="places-map-container">
-        <div id="places-map" 
-             class="map" 
-             data-lat="{{ .Params.lat }}" 
-             data-lng="{{ .Params.lng }}" 
-             data-title="{{ .Title }}">
-        </div>
+    
+    <!-- Mobile Toggle Button -->
+    <div class="panel-toggle" id="panel-toggle">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </div>
+    
+    <!-- Show Panel Button -->
+    <div class="panel-show-toggle hidden" id="panel-show-toggle" title="Show Panel">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6"></path>
+        </svg>
     </div>
 </div>
 
@@ -74,22 +96,39 @@
 
 <!-- Load JavaScript -->
 <script src="/places/node_modules/leaflet/dist/leaflet.js"></script>
-<script>
+<script type="module">
 document.addEventListener('DOMContentLoaded', function() {
-    const mapElement = document.getElementById('places-map');
-    const lat = parseFloat(mapElement.dataset.lat);
-    const lng = parseFloat(mapElement.dataset.lng);
-    const title = mapElement.dataset.title;
-    
-    const map = L.map('places-map').setView([lat, lng], 13);
+    const placeData = {
+        lat: parseFloat("{{ .Params.lat }}"),
+        lng: parseFloat("{{ .Params.lng }}"),
+        title: "{{ .Title }}"
+    };
+
+    // Initialize map
+    const map = L.map('places-map').setView([placeData.lat, placeData.lng], 13);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
     
-    L.marker([lat, lng])
-        .bindPopup(title)
+    L.marker([placeData.lat, placeData.lng])
+        .bindPopup(placeData.title)
         .addTo(map);
+
+    // Panel toggle functionality
+    const panel = document.getElementById('side-panel');
+    const toggleBtn = document.getElementById('panel-toggle');
+    const showPanelBtn = document.getElementById('panel-show-toggle');
+    const hidePanelBtn = document.getElementById('panel-hide-toggle');
+
+    function togglePanel() {
+        panel.classList.toggle('hidden');
+        showPanelBtn.classList.toggle('hidden');
+    }
+
+    toggleBtn.addEventListener('click', togglePanel);
+    showPanelBtn.addEventListener('click', togglePanel);
+    hidePanelBtn.addEventListener('click', togglePanel);
 });
 </script>
 {{ end }}
