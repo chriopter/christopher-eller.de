@@ -1,5 +1,5 @@
 {{ define "main" }}
-<div class="places-section">
+<div class="places-section" id="places-section">
     <!-- Full Viewport Map -->
     <div class="map-container" id="places-map"></div>
     
@@ -43,7 +43,24 @@
         <!-- Places List -->
         <div class="places-content" id="places-content">
             <div class="places-list" id="places-list">
-                <!-- Places list will be dynamically generated -->
+                {{ range .Pages }}
+                <div class="place-item" data-lat="{{ .Params.lat }}" data-lng="{{ .Params.lng }}">
+                    <div class="place-content">
+                        <h3 class="place-title">{{ .Title }}</h3>
+                        {{ with .Params.description }}<p class="place-description">{{ . }}</p>{{ end }}
+                    </div>
+                    {{ with .Resources.Match "*.jpeg" }}
+                    <div class="place-images-gallery">
+                        {{ range . }}
+                        {{ $thumbnail := .Resize "160x" }}
+                        <div class="place-image-pin">
+                            <img src="{{ $thumbnail.RelPermalink }}" alt="{{ .Name }}" loading="lazy">
+                        </div>
+                        {{ end }}
+                    </div>
+                    {{ end }}
+                </div>
+                {{ end }}
             </div>
         </div>
     </div>
@@ -82,8 +99,9 @@
                         {{ $first := true }}
                         {{ range .Resources.Match "*.jpeg" }}
                             {{ if $first }}{{ $first = false }}{{ else }},{{ end }}
+                            {{ $thumbnail := .Resize "160x" }}
                             {
-                                "path": {{ .RelPermalink | jsonify }},
+                                "path": {{ $thumbnail.RelPermalink | jsonify }},
                                 "name": {{ .Name | jsonify }}
                             }
                         {{ end }}

@@ -32,12 +32,28 @@ export function addPlaceMarker(place) {
             title: place.title
         });
 
+        // Process tags for popup
+        let tagsToDisplay = [];
+        if (typeof place.tags === 'string') {
+            try {
+                tagsToDisplay = JSON.parse(place.tags);
+            } catch (e) {
+                console.error(`Error parsing tags for popup "${place.title}":`, e);
+            }
+        } else if (Array.isArray(place.tags)) {
+            tagsToDisplay = place.tags;
+        }
+
         // Create popup content
         const popupContent = `
             <div class="popup-content">
-                <div class="popup-header">
-                    <h3 class="popup-title">${stripQuotes(place.title)}</h3>
-                    <p class="popup-description">${stripQuotes(place.description)}</p>
+                <div class="place-content">
+                    <h3 class="place-title">${stripQuotes(place.title)}</h3>
+                    <p class="place-description">${stripQuotes(place.description)}</p>
+                    ${tagsToDisplay.length ? `
+                    <div class="place-tags">
+                        ${tagsToDisplay.map(tag => `<span class="place-tag">${stripQuotes(tag)}</span>`).join('')}
+                    </div>` : ''}
                 </div>
                 ${place.images && place.images.length > 0 ? `
                 <div class="place-images-gallery">

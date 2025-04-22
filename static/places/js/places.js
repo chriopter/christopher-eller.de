@@ -5,8 +5,7 @@
 
 import { initPlacesMap } from './base/init.js';
 import { allPlaces, updateState, markers } from './base/state.js';
-import { initThemeHandling } from './utils/theme.js';
-import { initMenuTheme } from './utils/menuTheme.js';
+import { initTheme } from './base/theme.js';
 
 // Wait for both DOM and Leaflet to be ready
 async function initializeWhenReady() {
@@ -26,6 +25,9 @@ async function initializeWhenReady() {
         }
 
         console.log('Leaflet and DOM loaded, initializing...');
+
+        // Initialize theme
+        initTheme();
 
         // Make necessary functions and data globally accessible
         window.allPlaces = allPlaces;

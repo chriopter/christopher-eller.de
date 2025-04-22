@@ -1,14 +1,16 @@
 /* Place Items */
 .place-item {
   padding: var(--space-md);
-  margin-bottom: var(--space-sm);
+  margin-bottom: var(--space-md);
   cursor: pointer;
   transition: all var(--transition-base);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
   border-radius: var(--radius-md);
-  border-bottom: 1px solid var(--color-border);
+  border: 1px solid var(--color-border);
+  background-color: rgba(var(--color-light-rgb), 0.02);
+  box-shadow: var(--shadow-sm);
 }
 
 .place-images-gallery {
@@ -30,9 +32,9 @@
   min-width: 80px;
   border-radius: var(--radius-sm);
   overflow: hidden;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
   transition: all var(--transition-base);
-  border: 4px solid white;
+  border: 2px solid white;
   scroll-snap-align: start;
   background-color: white;
   position: relative;
@@ -57,7 +59,7 @@
 
 .place-item:hover .place-image-pin:hover {
   transform: translateY(-5px) scale(1.05);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
   z-index: 2;
 }
 
@@ -73,13 +75,13 @@
   flex-direction: column;
   gap: var(--space-xs);
   padding: 0 var(--space-sm);
-  order: 1;
+  order: 2;
 }
 
 .place-item:hover {
-  background-color: rgba(var(--color-light-rgb), 0.05);
+  background-color: rgba(var(--color-light-rgb), 0.08);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
 }
 
 .place-item.active {
@@ -101,6 +103,41 @@
   line-height: 1.4;
 }
 
+.dark-mode .place-item {
+  background-color: rgba(var(--color-dark-rgb), 0.05);
+}
+
 .dark-mode .place-item:hover {
   background-color: rgba(var(--color-dark-rgb), 0.2);
+}
+
+/* Tags styling */
+.place-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.place-tag {
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-background-alt);
+  color: var(--color-text-secondary);
+}
+
+/* Popup specific styles */
+.popup-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.popup-content .place-content {
+  padding: 0;
+}
+
+.popup-content .place-images-gallery {
+  margin-top: var(--space-xs);
 }
