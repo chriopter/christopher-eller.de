@@ -5,37 +5,75 @@
   cursor: pointer;
   transition: all var(--transition-base);
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-md);
   border-radius: var(--radius-md);
   border-bottom: 1px solid var(--color-border);
 }
 
-.place-thumbnail {
-  width: 50px;
-  height: 50px;
-  min-width: 50px;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
+.place-images-gallery {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  padding: var(--space-xs) 0;
+  margin: 0;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  order: 2;
 }
 
-.place-thumbnail img {
+.place-image-pin {
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+  border: 4px solid white;
+  scroll-snap-align: start;
+  background-color: white;
+  position: relative;
+  z-index: 1;
+}
+
+.place-image-pin:not(:first-child) {
+  margin-left: -25px;
+}
+
+.place-item:hover .place-image-pin:not(:hover) {
+  transform: translateY(5px);
+  opacity: 0.8;
+}
+
+.place-image-pin img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform var(--transition-base);
 }
 
-.place-item:hover .place-thumbnail img {
-  transform: scale(1.05);
+.place-item:hover .place-image-pin:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: var(--shadow-lg);
+  z-index: 2;
+}
+
+.place-image-pin img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-base);
 }
 
 .place-content {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
+  padding: 0 var(--space-sm);
+  order: 1;
 }
 
 .place-item:hover {

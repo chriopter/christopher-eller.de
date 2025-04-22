@@ -8,6 +8,15 @@ import { openPlaceInNewTab } from './panel.js';
 import { filterPlaces } from './filters.js';
 
 /**
+ * Strip quotes from a string
+ * @param {string} text - The text to strip quotes from
+ * @returns {string} The text with quotes removed
+ */
+function stripQuotes(text) {
+    return text ? text.replace(/['"]/g, '') : '';
+}
+
+/**
  * Add a marker for a place
  * @param {Object} place - The place object to create a marker for
  * @returns {Object|null} The created marker or null if creation failed
@@ -27,9 +36,17 @@ export function addPlaceMarker(place) {
         const popupContent = `
             <div class="popup-content">
                 <div class="popup-header">
-                    <h3 class="popup-title">${place.title}</h3>
-                    <p class="popup-description">${place.description || ''}</p>
+                    <h3 class="popup-title">${stripQuotes(place.title)}</h3>
+                    <p class="popup-description">${stripQuotes(place.description)}</p>
                 </div>
+                ${place.images && place.images.length > 0 ? `
+                <div class="place-images-gallery">
+                    ${place.images.slice(0, 3).map((img, index) => `
+                        <div class="place-image-pin" style="transform: rotate(${index % 2 === 0 ? '-2' : '2'}deg)">
+                            <img src="${stripQuotes(img.path)}" alt="${stripQuotes(img.name)}">
+                        </div>
+                    `).join('')}
+                </div>` : ''}
             </div>
         `;
 
@@ -43,6 +60,15 @@ export function addPlaceMarker(place) {
         }).setContent(popupContent);
 
         marker.bindPopup(popup);
+
+        // Add hover events
+        marker.on('mouseover', () => {
+            marker.openPopup();
+        });
+        
+        marker.on('mouseout', () => {
+            marker.closePopup();
+        });
         
         // Add click event with position check
         marker.on('click', () => {
@@ -167,16 +193,20 @@ export function renderPlacesList(places = null) {
         
         placeItem.innerHTML = `
             <div class="place-content">
-                <h3 class="place-title">${place.title}</h3>
-                <p class="place-description">${place.description || ''}</p>
+                <h3 class="place-title">${stripQuotes(place.title)}</h3>
+                <p class="place-description">${stripQuotes(place.description)}</p>
                 ${tagsToDisplay.length ? `
                 <div class="place-tags">
-                    ${tagsToDisplay.map(tag => `<span class="place-tag">${tag}</span>`).join('')}
+                    ${tagsToDisplay.map(tag => `<span class="place-tag">${stripQuotes(tag)}</span>`).join('')}
                 </div>` : ''}
             </div>
             ${place.images && place.images.length > 0 ? `
-            <div class="place-thumbnail">
-                <img src="${place.images[0].path}" alt="Image of ${place.title}">
+            <div class="place-images-gallery">
+                ${place.images.slice(0, 3).map((img, index) => `
+                    <div class="place-image-pin" style="transform: rotate(${index % 2 === 0 ? '-2' : '2'}deg)">
+                        <img src="${stripQuotes(img.path)}" alt="${stripQuotes(img.name)}">
+                    </div>
+                `).join('')}
             </div>` : ''}
         `;
         

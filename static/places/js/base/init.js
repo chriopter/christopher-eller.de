@@ -65,7 +65,14 @@ export function initPlacesMap() {
                 
                 // Normalize permalink format
                 if (place.permalink) {
-                    place.permalink = `/places/${place.permalink.replace(/^\/places\//, '').replace(/\/$/, '')}`;
+                    // Strip quotes, remove any leading/trailing slashes, and ensure single places prefix
+                    place.permalink = place.permalink
+                        .replace(/['"]/g, '') // Remove quotes
+                        .replace(/^\/+|\/+$/g, '') // Remove leading/trailing slashes
+                        .replace(/^places\//, ''); // Remove leading 'places/'
+                    
+                    // Add single places prefix
+                    place.permalink = `/places/${place.permalink}`;
                 }
                 return place;
             });

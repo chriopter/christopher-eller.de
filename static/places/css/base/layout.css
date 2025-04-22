@@ -31,3 +31,8 @@ body:has(.places-section) main {
 .leaflet-top.leaflet-right {
   margin-top: 10px;
 }
+
+.leaflet-bottom.leaflet-right {
+  margin-bottom: 20px;
+  margin-right: 20px;
+}
