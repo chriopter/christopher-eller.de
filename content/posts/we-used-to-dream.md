@@ -1,6 +1,6 @@
 +++
 date = '2025-04-24T08:24:27+02:00'
-title = 'We Used to Dream'
+title = 'We used to dream.'
 +++
 In my childhood, scientists and especially physicists were heroes. The pictures of Apollo 11, Viking, or Hubble were astonishing to me. We were literally reaching for the stars.
 
