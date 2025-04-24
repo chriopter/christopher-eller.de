@@ -12,7 +12,7 @@ There was a prosperous and bright future of a better world right at our fingerti
 
 The same state-backed TV channels I viewed as a child have replaced the dreamers with moral de-growthers.
 
-The “known TV physicist” we have here literally advocates for less space travel. Advocates for less technology. Literally advocates for less energy. Does not praise engineering marvels on trains but advocates for bike zones as an answer to climate change.
+The “known TV physicist” we have here literally advocates for _less_ space travel. Advocates for _less_ technology. Literally advocates for _less_ energy. Does not praise engineering marvels on trains but advocates for bike zones as an answer to climate change.
 
 I find Copenhagen nice, too. But it is literally insane that a physicist does not inspire us to reach for the stars and instead chooses to get onto TV to speculate about bike zone concepts of municipalities. That’s it?
 
