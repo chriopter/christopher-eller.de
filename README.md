@@ -21,4 +21,4 @@ git config --local include.path ../.gitconfig && brew install exiftool
 - **Update Dependencies:** Refresh all npm modules with:
 ```bash
 find . -name "package.json" -not -path "*/node_modules/*" -execdir sh -c 'echo "Updating in $(pwd)" && npm update' \;
-```
+``` 
