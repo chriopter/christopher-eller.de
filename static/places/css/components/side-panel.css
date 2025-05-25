@@ -28,6 +28,7 @@
   .panel-show-toggle {
     top: 240px; /* Adjust show toggle position for mobile */
   }
+  
 }
 
 @media (max-width: 480px) {
@@ -217,6 +218,13 @@
   backdrop-filter: blur(10px);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-md);
+}
+
+/* Show toggle button on mobile */
+@media (max-width: 768px) {
+  .panel-toggle {
+    display: flex !important;
+  }
 }
 
 .panel-toggle svg {

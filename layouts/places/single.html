@@ -1,6 +1,5 @@
-
 {{ define "main" }}
-<div class="places-section" id="places-section">
+<div class="places-section place-single-view" id="places-section">
     <!-- Full Viewport Map -->
     <div class="map-container" id="places-map"></div>
     
@@ -8,6 +7,9 @@
     <div class="menu-pill" id="menu-pill">
         {{ partial "header.html" . }}
     </div>
+    
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobile-overlay"></div>
     
     <!-- Side Panel -->
     <div class="side-panel" id="side-panel">
@@ -50,25 +52,28 @@
             {{ end }}
 
             <div class="place-actions">
-                <button class="action-btn copy-btn" title="Copy link to clipboard">
-                    <svg width="16" height="16" viewBox="0 0 16 16">
-                        <path d="M2 2h8v2h2v10H4v-2H2V2zm2 2h4v6h2V6h-2V4H4v6h4v2H4V4z" fill="currentColor"/>
+                <button class="action-btn action-btn-icon copy-btn" title="Copy link to clipboard">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
-                    Copy
                 </button>
-                <button class="action-btn share-btn" title="Share this place">
-                    <svg width="16" height="16" viewBox="0 0 16 16">
-                        <path d="M4 6v6h8V6H4zm1 1h6v4H5V7z M3 4h10v8H3V4z" fill="currentColor"/>
+                <button class="action-btn action-btn-icon share-btn" title="Share this place">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                        <polyline points="16,6 12,2 8,6"></polyline>
+                        <line x1="12" y1="2" x2="12" y2="15"></line>
                     </svg>
-                    Share
                 </button>
                 {{ with .Params.urls }}
-                    <a href="{{ . }}" class="action-btn web-btn" target="_blank" rel="noopener noreferrer" title="Visit website">
-                        <svg width="16" height="16" viewBox="0 0 16 16">
-                            <path d="M3 3h10v10H3V3zm2 2h6v6H5V5z" fill="currentColor"/>
-                        </svg>
-                        Web
-                    </a>
+                <a href="{{ . }}" class="action-btn web-btn" target="_blank" rel="noopener noreferrer" title="Visit website">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    Web
+                </a>
                 {{ end }}
             </div>
 
@@ -179,20 +184,117 @@ document.addEventListener('DOMContentLoaded', function() {
         .bindPopup(placeData.title)
         .addTo(map);
 
-    // Panel toggle functionality
+    // Panel toggle functionality - Same as list view
     const panel = document.getElementById('side-panel');
     const toggleBtn = document.getElementById('panel-toggle');
     const showPanelBtn = document.getElementById('panel-show-toggle');
     const hidePanelBtn = document.getElementById('panel-hide-toggle');
+    const overlay = document.getElementById('mobile-overlay');
 
     function togglePanel() {
-        panel.classList.toggle('hidden');
-        showPanelBtn.classList.toggle('hidden');
+        // Check if we're on mobile (based on window width)
+        if (window.innerWidth <= 768) {
+            // Mobile: toggle sidebar with proper state management
+            if (panel.classList.contains('visible')) {
+                // Hide sidebar - user manually hiding it
+                panel.classList.remove('visible');
+                panel.classList.add('hidden-by-user');
+                if (overlay) {
+                    overlay.classList.remove('visible');
+                }
+            } else {
+                // Show sidebar - remove user hide state
+                panel.classList.add('visible');
+                panel.classList.remove('hidden-by-user');
+                if (overlay) {
+                    overlay.classList.add('visible');
+                }
+            }
+        } else {
+            // Desktop: hide/show sidebar
+            panel.classList.toggle('hidden');
+            showPanelBtn.classList.toggle('hidden');
+        }
+        
+        // Update map size after transition
+        setTimeout(() => {
+            if (map) {
+                map.invalidateSize();
+            }
+        }, 300);
+    }
+
+    function hidePanel() {
+        if (window.innerWidth <= 768) {
+            panel.classList.remove('visible');
+            panel.classList.add('hidden-by-user');
+            if (overlay) {
+                overlay.classList.remove('visible');
+            }
+        } else {
+            panel.classList.add('hidden');
+            showPanelBtn.classList.remove('hidden');
+        }
+        
+        setTimeout(() => {
+            if (map) {
+                map.invalidateSize();
+            }
+        }, 300);
     }
 
     toggleBtn.addEventListener('click', togglePanel);
     showPanelBtn.addEventListener('click', togglePanel);
-    hidePanelBtn.addEventListener('click', togglePanel);
+    hidePanelBtn.addEventListener('click', hidePanel);
+    
+    // Close panel when clicking overlay
+    if (overlay) {
+        overlay.addEventListener('click', hidePanel);
+    }
+
+    // Set initial state - show sidebar on mobile for single view
+    function setInitialState() {
+        if (window.innerWidth <= 768) {
+            // Mobile: show sidebar by default for single view
+            panel.classList.add('visible');
+            if (overlay) {
+                overlay.classList.add('visible');
+            }
+        } else {
+            // Desktop: hide desktop show button initially
+            showPanelBtn.classList.add('hidden');
+        }
+    }
+    
+    // Set initial state on load
+    setInitialState();
+
+    // Handle window resize to ensure proper behavior
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            // Reset mobile classes when switching to desktop
+            panel.classList.remove('visible');
+            if (overlay) {
+                overlay.classList.remove('visible');
+            }
+        } else {
+            // Reset desktop classes when switching to mobile
+            panel.classList.remove('hidden');
+            showPanelBtn.classList.add('hidden');
+            // Ensure sidebar is visible on mobile
+            panel.classList.add('visible');
+            if (overlay) {
+                overlay.classList.add('visible');
+            }
+        }
+        
+        // Invalidate map size on resize
+        setTimeout(() => {
+            if (map) {
+                map.invalidateSize();
+            }
+        }, 100);
+    });
 
     // Share and Copy button functionality
     const copyBtn = document.querySelector('.copy-btn');
@@ -216,11 +318,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize share button (dummy for UI testing)
+    // Initialize share button with Web Share API
     if (shareBtn) {
         shareBtn.style.removeProperty('display');
-        shareBtn.addEventListener('click', () => {
-            console.log('Share button clicked - UI testing only');
+        shareBtn.addEventListener('click', async () => {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: "{{ .Title }}",
+                        text: "{{ with .Description }}{{ . }}{{ else }}Check out this place I found!{{ end }}",
+                        url: window.location.href
+                    });
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        console.error('Error sharing:', error);
+                    }
+                }
+            }
         });
     }
 });

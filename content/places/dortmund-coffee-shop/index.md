@@ -1,5 +1,5 @@
 +++
-title = "Dortmund Coffee Shop"
+title = "Dortmund"
 lat = 52.5200
 lng = 13.4050
 tags = ["cuisine"]

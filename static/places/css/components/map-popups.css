@@ -1,10 +1,65 @@
-/* Map Popups */
+/* Map Popups - LIT DESIGN 🔥 */
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
 .custom-popup .leaflet-popup-content-wrapper {
-  border-radius: var(--radius-lg);
+  border-radius: 20px;
   padding: 0;
   overflow: hidden;
-  box-shadow: var(--shadow-md);
-  background-color: var(--color-bg);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 250, 251, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  z-index: 1010 !important;
+  animation: popupFadeIn 0.3s ease-out;
+}
+
+/* Dark mode popup wrapper */
+.dark-mode .custom-popup .leaflet-popup-content-wrapper {
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(40, 40, 40, 0.95) 100%);
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.3),
+    0 10px 10px -5px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+/* Ensure all popup elements have high z-index */
+.leaflet-popup-pane {
+  z-index: 1010 !important;
+}
+
+.leaflet-popup {
+  z-index: 1010 !important;
+}
+
+/* Popup arrow styling */
+.custom-popup .leaflet-popup-tip {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 250, 251, 0.95) 100%);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .custom-popup .leaflet-popup-tip {
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(40, 40, 40, 0.95) 100%);
 }
 
 .custom-popup .leaflet-popup-content {
@@ -22,45 +77,66 @@
   font-size: 0.9rem;
 }
 
+/* Compact popup content */
 .popup-content {
-  padding: var(--space-md);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .popup-header {
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: none;
   margin-bottom: var(--space-sm);
   padding-bottom: var(--space-sm);
 }
 
-.popup-title {
-  font-weight: 600;
-  font-size: 1.1rem;
-  margin: 0 0 var(--space-xs) 0;
-  color: var(--color-text);
-}
-
-.popup-description {
-  font-size: 0.9rem;
-  margin: 0;
-  color: var(--color-text-secondary);
-  line-height: 1.4;
-}
-
-.popup-tags {
+/* Place content in popup */
+.popup-content .place-content {
+  order: 1;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs);
-  margin-top: var(--space-sm);
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
-.popup-tag {
-  font-size: 0.7rem;
-  padding: 2px var(--space-sm);
-  border-radius: var(--radius-pill);
-  background-color: var(--color-border);
-  color: var(--color-text-secondary);
+/* Popup actions styling - bottom left positioning */
+.popup-actions {
+  margin-top: 0.125rem;
+  padding-top: 0;
+  display: flex;
+  justify-content: flex-start;
+  order: 3;
 }
 
+
+/* Simple popup overrides */
+.simple-popup .popup-content {
+  padding: 1.25rem;
+}
+
+.simple-popup .popup-header {
+  border-bottom: none;
+  margin-bottom: var(--space-sm);
+  padding-bottom: 0;
+}
+
+.simple-popup .popup-title {
+  font-size: 1.2rem;
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.simple-popup .popup-description {
+  font-size: 1rem;
+}
+
+/* Loading animation */
+.popup-loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Footer styles */
 .popup-footer {
   padding: var(--space-sm) var(--space-md);
   background-color: rgba(var(--color-light-rgb), 0.03);
@@ -79,61 +155,50 @@
   color: var(--color-text);
 }
 
-/* Simple popup */
-.simple-popup .popup-content {
-  padding: var(--space-md);
-}
-
-.simple-popup .popup-header {
-  border-bottom: none;
-  margin-bottom: var(--space-sm);
-  padding-bottom: 0;
-}
-
-.simple-popup .popup-title {
-  font-size: 1.2rem;
-  margin: 0 0 var(--space-sm) 0;
-}
-
-.simple-popup .popup-description {
-  font-size: 1rem;
-}
-
-/* Popup photos */
-.popup-photos {
-  margin-top: var(--space-xs);
-}
-
-.popup-photo-gallery {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: var(--space-xs);
-  margin-top: var(--space-xs);
-  overflow-x: auto;
-  padding-bottom: var(--space-xs);
-}
-
-.popup-gallery-image {
-  width: 60px;
-  height: 60px;
-  flex-shrink: 0;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-base);
-  cursor: pointer;
-}
-
-.popup-gallery-image:hover {
-  transform: scale(1.05);
-}
-
-.popup-gallery-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 .dark-mode .popup-footer {
   background-color: rgba(var(--color-dark-rgb), 0.1);
+}
+
+/* Marker highlight styles */
+.leaflet-marker-icon.marker-highlight {
+  filter: drop-shadow(0 0 10px #667eea) drop-shadow(0 0 20px #667eea);
+  transition: filter 0.3s ease;
+  z-index: 1000 !important;
+}
+
+.dark-mode .leaflet-marker-icon.marker-highlight {
+  filter: drop-shadow(0 0 10px #f093fb) drop-shadow(0 0 20px #f093fb);
+}
+
+/* Animate the highlight effect with glow only */
+@keyframes glow-pulse {
+  0% {
+    filter: drop-shadow(0 0 10px #667eea) drop-shadow(0 0 20px #667eea);
+  }
+  50% {
+    filter: drop-shadow(0 0 15px #667eea) drop-shadow(0 0 30px #667eea) brightness(1.2);
+  }
+  100% {
+    filter: drop-shadow(0 0 10px #667eea) drop-shadow(0 0 20px #667eea);
+  }
+}
+
+@keyframes glow-pulse-dark {
+  0% {
+    filter: drop-shadow(0 0 10px #f093fb) drop-shadow(0 0 20px #f093fb);
+  }
+  50% {
+    filter: drop-shadow(0 0 15px #f093fb) drop-shadow(0 0 30px #f093fb) brightness(1.2);
+  }
+  100% {
+    filter: drop-shadow(0 0 10px #f093fb) drop-shadow(0 0 20px #f093fb);
+  }
+}
+
+.leaflet-marker-icon.marker-highlight {
+  animation: glow-pulse 1.5s ease-in-out infinite;
+}
+
+.dark-mode .leaflet-marker-icon.marker-highlight {
+  animation: glow-pulse-dark 1.5s ease-in-out infinite;
 }

@@ -20,7 +20,7 @@
 
 /* Tablet and below */
 @media (max-width: 768px) {
-  /* Show overlay when panel is visible */
+  /* Show overlay when panel is visible - for both list and single view */
   .mobile-overlay {
     display: block;
     pointer-events: none;
@@ -30,7 +30,8 @@
   .mobile-overlay.visible {
     pointer-events: auto;
   }
-  /* Side Panel */
+  
+  /* Side Panel - Default mobile behavior for both list and single view */
   .side-panel {
     width: 85%;
     left: 0;
@@ -45,13 +46,24 @@
     transform: translateX(0);
   }
   
+  /* Show sidebar by default on mobile for single view, but allow toggle */
+  .place-single-view .side-panel:not(.hidden-by-user) {
+    transform: translateX(0);
+  }
+  
+  .place-single-view .mobile-overlay.visible {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
   /* Hide desktop toggle buttons on mobile */
   .panel-hide-toggle,
   .panel-show-toggle {
     display: none !important;
   }
   
-  /* Show mobile toggle button */
+  /* Mobile toggle button - standard position for both views */
   .panel-toggle {
     display: flex;
     align-items: center;

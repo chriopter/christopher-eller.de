@@ -9,7 +9,7 @@ import { initFilters } from '../components/filters.js';
 import { initSearch } from '../components/search.js';
 import { setupPanelToggling, updatePanelVisibility } from '../components/panel.js';
 import { setupHistoryHandling, initializeFromURL } from '../utils/history.js';
-import { renderPlaces } from '../components/markers.js';
+import { renderPlaces, initSeeFullButtonHandlers } from '../components/markers.js';
 
 /**
  * Initialize the Places map and all related functionality
@@ -93,6 +93,9 @@ export function initPlacesMap() {
             initFilters();
             initSearch();
             setupPanelToggling();
+            
+            // Initialize button handlers
+            initSeeFullButtonHandlers();
             
             // Render places
             renderPlaces(true);
