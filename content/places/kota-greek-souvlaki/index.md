@@ -10,4 +10,4 @@ resources = [
 ]
 +++
 
-Familiengeführtes Restaurant, sehr freundlich, sehr gut.
+Obwohl der Ort sehr touristisch ist; dieses Restaurant ist Familiengeführt, sehr freundlich, sehr gut.

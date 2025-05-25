@@ -1,5 +1,5 @@
 +++
-title = "Muckross Park Hotel & Spa"
+title = "Muckross Park Hotel"
 lat = 52.024623
 lng = -9.489315
 tags = ["cuisine", "cafe"]
