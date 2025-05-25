@@ -5,6 +5,7 @@
 
 import { initPlacesMap } from './base/init.js';
 import { allPlaces, updateState, markers } from './base/state.js';
+import { renderPlaces } from './components/markers.js';
 
 // Wait for both DOM and Leaflet to be ready
 async function initializeWhenReady() {
@@ -30,6 +31,7 @@ async function initializeWhenReady() {
         window.updateState = updateState;
         window.initPlacesMap = initPlacesMap;
         window.markers = markers;
+        window.renderPlaces = renderPlaces;
 
         // Initialize places map if container exists
         const mapContainer = document.getElementById('places-map');
@@ -65,5 +67,6 @@ export {
     allPlaces,
     updateState,
     initPlacesMap,
-    markers
+    markers,
+    renderPlaces
 };

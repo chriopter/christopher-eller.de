@@ -2,8 +2,7 @@
  * Search functionality for places
  */
 
-import { elements, updateState } from '../base/state.js';
-import { renderPlaces } from './markers.js';
+import { elements, updateState, filterByViewport } from '../base/state.js';
 
 /**
  * Initialize search functionality
@@ -15,7 +14,9 @@ export function initSearch() {
     // Add event listener for search input
     searchInput.addEventListener('input', e => {
         updateState('searchTerm', e.target.value.trim().toLowerCase());
-        renderPlaces();
+        if (window.renderPlaces) {
+            window.renderPlaces();
+        }
     });
     
     // Create search container with viewport toggle
@@ -58,7 +59,9 @@ function wrapSearchInput() {
         const toggleCheckbox = viewportToggle.querySelector('#viewport-toggle-checkbox');
         toggleCheckbox.addEventListener('change', function() {
             updateState('filterByViewport', this.checked);
-            renderPlaces(false);
+            if (window.renderPlaces) {
+                window.renderPlaces(false);
+            }
         });
     }
 }
@@ -71,7 +74,9 @@ export function clearSearch() {
     if (searchInput) {
         searchInput.value = '';
         updateState('searchTerm', '');
-        renderPlaces();
+        if (window.renderPlaces) {
+            window.renderPlaces();
+        }
     }
 }
 
@@ -84,6 +89,8 @@ export function setSearchTerm(term) {
     if (searchInput) {
         searchInput.value = term;
         updateState('searchTerm', term.toLowerCase());
-        renderPlaces();
+        if (window.renderPlaces) {
+            window.renderPlaces();
+        }
     }
 }

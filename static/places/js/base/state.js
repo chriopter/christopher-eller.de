@@ -38,6 +38,9 @@ export const elements = {
     menuPill: null
 };
 
+// Prevent recursive state updates
+let isUpdatingState = false;
+
 /**
  * Update a state value
  * @param {string} key - The state key to update
@@ -45,42 +48,55 @@ export const elements = {
  * @returns {boolean} - Whether the update was successful
  */
 export function updateState(key, value) {
-    switch (key) {
-        case 'placesMap':
-            placesMap = value;
-            return true;
-        case 'allPlaces':
-            allPlaces = value;
-            return true;
-        case 'markers':
-            markers = value;
-            return true;
-        case 'activeFilters':
-            activeFilters = value;
-            return true;
-        case 'searchTerm':
-            searchTerm = value;
-            return true;
-        case 'filterByViewport':
-            filterByViewport = value;
-            return true;
-        case 'isPanelVisible':
-            isPanelVisible = value;
-            return true;
-        case 'isInitialRender':
-            isInitialRender = value;
-            return true;
-        case 'currentPlaceId':
-            currentPlaceId = value;
-            return true;
-        case 'currentLightboxIndex':
-            currentLightboxIndex = value;
-            return true;
-        case 'lightboxImages':
-            lightboxImages = value;
-            return true;
-        default:
-            return false;
+    // Prevent recursive state updates
+    if (isUpdatingState) {
+        console.warn('Preventing recursive state update for:', key);
+        return false;
+    }
+    
+    isUpdatingState = true;
+    
+    try {
+        switch (key) {
+            case 'placesMap':
+                placesMap = value;
+                break;
+            case 'allPlaces':
+                allPlaces = value;
+                break;
+            case 'markers':
+                markers = value;
+                break;
+            case 'activeFilters':
+                activeFilters = value;
+                break;
+            case 'searchTerm':
+                searchTerm = value;
+                break;
+            case 'filterByViewport':
+                filterByViewport = value;
+                break;
+            case 'isPanelVisible':
+                isPanelVisible = value;
+                break;
+            case 'isInitialRender':
+                isInitialRender = value;
+                break;
+            case 'currentPlaceId':
+                currentPlaceId = value;
+                break;
+            case 'currentLightboxIndex':
+                currentLightboxIndex = value;
+                break;
+            case 'lightboxImages':
+                lightboxImages = value;
+                break;
+            default:
+                return false;
+        }
+        return true;
+    } finally {
+        isUpdatingState = false;
     }
 }
 

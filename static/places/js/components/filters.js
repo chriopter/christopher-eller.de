@@ -4,7 +4,6 @@
 
 import { activeFilters, searchTerm, filterByViewport, placesMap, allPlaces, updateState } from '../base/state.js';
 import { controlConfig } from '../base/config.js';
-import { renderPlaces } from './markers.js';
 
 /**
  * Initialize tag filters
@@ -31,7 +30,9 @@ export function initFilters() {
                 updateState('activeFilters', activeFilters.filter(t => t !== tag));
             }
             
-            renderPlaces();
+            if (window.renderPlaces) {
+                window.renderPlaces();
+            }
         });
     });
 }
@@ -66,13 +67,15 @@ export function addViewportToggleControl(map) {
     viewportFilter.addEventListener('click', () => {
         updateState('filterByViewport', !filterByViewport);
         updateViewportToggleState(viewportFilter);
-        renderPlaces();
+        if (window.renderPlaces) {
+            window.renderPlaces();
+        }
     });
 
     // Add map move handlers
     map.on('moveend zoomend', () => {
-        if (filterByViewport) {
-            renderPlaces();
+        if (filterByViewport && window.renderPlaces) {
+            window.renderPlaces();
         }
     });
 }

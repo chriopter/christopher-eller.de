@@ -17,11 +17,11 @@ function stripQuotes(text) {
 }
 
 /**
- * Add a marker for a place
+ * Create a marker for a place without updating global state
  * @param {Object} place - The place object to create a marker for
  * @returns {Object|null} The created marker or null if creation failed
  */
-export function addPlaceMarker(place) {
+export function createPlaceMarker(place) {
     try {
         if (!place || typeof place.lat !== 'number' || typeof place.lng !== 'number') {
             console.error('Invalid place data:', place);
@@ -203,18 +203,29 @@ export function addPlaceMarker(place) {
             marker.closePopup();
         });
 
+        return marker;
+    } catch (error) {
+        console.error(`Error creating marker for place ${place?.title}:`, error);
+        return null;
+    }
+}
+
+/**
+ * Add a marker for a place (legacy function that calls createPlaceMarker and updates state)
+ * @param {Object} place - The place object to create a marker for
+ * @returns {Object|null} The created marker or null if creation failed
+ */
+export function addPlaceMarker(place) {
+    const marker = createPlaceMarker(place);
+    if (marker) {
         // Add marker to map
         marker.addTo(placesMap);
         
         // Store marker reference
         const updatedMarkers = { ...markers, [place.permalink]: marker };
         updateState('markers', updatedMarkers);
-
-        return marker;
-    } catch (error) {
-        console.error(`Error creating marker for place ${place?.title}:`, error);
-        return null;
     }
+    return marker;
 }
 
 /**
@@ -239,6 +250,9 @@ export function initSeeFullButtonHandlers() {
     });
 }
 
+// Prevent recursive rendering
+let isRendering = false;
+
 /**
  * Render all places on the map
  * @param {boolean} shouldUpdateBounds - Whether to update map bounds
@@ -249,43 +263,62 @@ export function renderPlaces(shouldUpdateBounds = false) {
         return;
     }
 
-    // Clear existing markers
-    Object.values(markers).forEach(marker => placesMap.removeLayer(marker));
-    updateState('markers', {});
-
-    // Filter places
-    const filteredPlaces = filterPlaces();
-
-    // Add markers for filtered places
-    filteredPlaces.forEach(place => {
-        addPlaceMarker(place);
-    });
-
-    // Update bounds only if this is the initial render or explicitly requested
-    if ((isInitialRender || shouldUpdateBounds) && filteredPlaces.length > 0) {
-        const bounds = L.latLngBounds(filteredPlaces.map(place => [place.lat, place.lng]));
-        
-        // Calculate padding based on sidebar visibility
-        let leftPadding = 50;
-        if (isPanelVisible && window.innerWidth >= panelConfig.mobileBreakpoint) {
-            // Add sidebar width plus a larger margin
-            leftPadding = panelConfig.sidebarWidth + 120;
-        }
-        
-        // Use asymmetric padding [top, right, bottom, left]
-        placesMap.fitBounds(bounds, { 
-            padding: [50, 70, 50, leftPadding]
-        });
-        
-        // Set initial render to false after first render
-        if (isInitialRender) {
-            updateState('isInitialRender', false);
-        }
+    // Prevent recursive rendering
+    if (isRendering) {
+        console.warn('Preventing recursive renderPlaces call');
+        return;
     }
 
-    // Update places list if available
-    if (document.getElementById('places-list')) {
-        renderPlacesList(filteredPlaces);
+    isRendering = true;
+
+    try {
+        // Clear existing markers
+        Object.values(markers).forEach(marker => placesMap.removeLayer(marker));
+        
+        // Filter places
+        const filteredPlaces = filterPlaces();
+
+        // Batch create all markers
+        const newMarkers = {};
+        filteredPlaces.forEach(place => {
+            const marker = createPlaceMarker(place);
+            if (marker) {
+                newMarkers[place.permalink] = marker;
+                marker.addTo(placesMap);
+            }
+        });
+
+        // Update markers state once at the end
+        updateState('markers', newMarkers);
+
+        // Update bounds only if this is the initial render or explicitly requested
+        if ((isInitialRender || shouldUpdateBounds) && filteredPlaces.length > 0) {
+            const bounds = L.latLngBounds(filteredPlaces.map(place => [place.lat, place.lng]));
+            
+            // Calculate padding based on sidebar visibility
+            let leftPadding = 50;
+            if (isPanelVisible && window.innerWidth >= panelConfig.mobileBreakpoint) {
+                // Add sidebar width plus a larger margin
+                leftPadding = panelConfig.sidebarWidth + 120;
+            }
+            
+            // Use asymmetric padding [top, right, bottom, left]
+            placesMap.fitBounds(bounds, { 
+                padding: [50, 70, 50, leftPadding]
+            });
+            
+            // Set initial render to false after first render
+            if (isInitialRender) {
+                updateState('isInitialRender', false);
+            }
+        }
+
+        // Update places list if available
+        if (document.getElementById('places-list')) {
+            renderPlacesList(filteredPlaces);
+        }
+    } finally {
+        isRendering = false;
     }
 }
 
