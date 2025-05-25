@@ -54,3 +54,11 @@ body:has(.places-section) main {
   top: auto !important;
   left: auto !important;
 }
+
+/* Adjust zoom controls position on mobile */
+@media (max-width: 768px) {
+  .leaflet-control-zoom {
+    bottom: 20px !important;
+    right: 20px !important;
+  }
+}

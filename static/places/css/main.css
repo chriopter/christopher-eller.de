@@ -6,7 +6,6 @@
 @import 'base/layout.css';
 
 /* Components */
-@import 'components/menu-pill.css';
 @import 'components/side-panel.css';
 @import 'components/search.css';
 @import 'components/tags.css';

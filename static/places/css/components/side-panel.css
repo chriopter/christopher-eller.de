@@ -1,10 +1,10 @@
 /* Side Panel */
 .side-panel {
   position: fixed;
-  top: 130px;
-  left: 30px;
-  bottom: 50px;
-  width: 350px;
+  top: 90px;
+  left: 20px;
+  bottom: 20px;
+  width: 320px;
   background-color: var(--color-overlay);
   backdrop-filter: blur(10px);
   z-index: var(--z-modal);
@@ -17,6 +17,27 @@
   display: flex;
   flex-direction: column;
   border: 1px solid var(--color-border);
+}
+
+/* Mobile adjustments for pill header */
+@media (max-width: 768px) {
+  .side-panel {
+    top: 220px; /* Increased to give more space to header pill */
+  }
+  
+  .panel-show-toggle {
+    top: 240px; /* Adjust show toggle position for mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .side-panel {
+    top: 200px; /* Increased to give more space to header pill on smaller screens */
+  }
+  
+  .panel-show-toggle {
+    top: 220px; /* Adjust show toggle position for mobile */
+  }
 }
 
 .side-panel::-webkit-scrollbar {
@@ -184,16 +205,33 @@
 
 .panel-toggle {
   display: none;
-  z-index: var(--z-modal);
+  z-index: calc(var(--z-modal) + 2);
   position: fixed;
-  top: 150px;
-  left: 30px;
+  bottom: 20px;
+  left: 20px;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background-color: var(--color-overlay-strong);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+.panel-toggle svg {
+  color: var(--color-text);
+}
+
+.panel-toggle:hover {
+  background-color: var(--color-overlay-stronger);
+  transform: scale(1.05);
 }
 
 .panel-show-toggle {
   position: fixed;
-  top: 150px;
-  left: 30px;
+  top: 110px;
+  left: 20px;
   z-index: calc(var(--z-modal) + 1);
   display: flex;
   align-items: center;

@@ -37,6 +37,14 @@ export function setupPanelToggling() {
             toggleMobilePanel();
         });
     }
+    
+    // Handle overlay click to close panel on mobile
+    const overlay = document.getElementById('mobile-overlay');
+    if (overlay) {
+        overlay.addEventListener('click', () => {
+            toggleMobilePanel();
+        });
+    }
 }
 
 /**
@@ -80,26 +88,49 @@ export function showSidePanel() {
  */
 export function toggleMobilePanel() {
     const { sidePanel } = elements;
-    sidePanel.classList.toggle('visible');
+    const overlay = document.getElementById('mobile-overlay');
+    
+    const isVisible = sidePanel.classList.contains('visible');
+    
+    if (isVisible) {
+        // Hide panel
+        sidePanel.classList.remove('visible');
+        if (overlay) overlay.classList.remove('visible');
+    } else {
+        // Show panel
+        sidePanel.classList.add('visible');
+        if (overlay) overlay.classList.add('visible');
+    }
 }
 
 /**
  * Update panel visibility based on screen size
  */
 export function updatePanelVisibility() {
-    const { panelToggle, sidePanel, panelShowToggle } = elements;
+    const { panelToggle, sidePanel, panelShowToggle, panelHideToggle } = elements;
     
     if (window.innerWidth < panelConfig.mobileBreakpoint) {
+        // Mobile mode - show hamburger menu, hide desktop toggles
         if (panelToggle) panelToggle.style.display = 'flex';
-        if (sidePanel) sidePanel.classList.add('hidden');
-        if (panelShowToggle) panelShowToggle.classList.remove('hidden');
+        if (panelHideToggle) panelHideToggle.style.display = 'none';
+        if (panelShowToggle) panelShowToggle.style.display = 'none';
+        // Remove any desktop-specific classes
+        if (sidePanel) {
+            sidePanel.classList.remove('hidden');
+            sidePanel.classList.remove('visible');
+        }
         updateState('isPanelVisible', false);
     } else {
+        // Desktop mode - hide hamburger menu, show desktop toggles
         if (panelToggle) panelToggle.style.display = 'none';
+        if (panelHideToggle) panelHideToggle.style.display = 'flex';
         // Only restore the panel if it was previously visible
         if (isPanelVisible) {
             if (sidePanel) sidePanel.classList.remove('hidden');
             if (panelShowToggle) panelShowToggle.classList.add('hidden');
+        } else {
+            if (sidePanel) sidePanel.classList.add('hidden');
+            if (panelShowToggle) panelShowToggle.classList.remove('hidden');
         }
     }
 }

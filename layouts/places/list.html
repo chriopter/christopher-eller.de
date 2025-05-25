@@ -15,10 +15,11 @@
     <!-- Full Viewport Map -->
     <div class="map-container" id="places-map"></div>
     
-    <!-- Menu Pill -->
-    <div class="menu-pill" id="menu-pill">
-        {{ partial "header.html" . }}
-    </div>
+    <!-- Unified Header in Pill Mode -->
+    {{ partial "header.html" (dict "mode" "pill" "Site" .Site "Page" .) }}
+    
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobile-overlay"></div>
     
     <!-- Side Panel -->
     <div class="side-panel" id="side-panel">

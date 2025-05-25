@@ -1,29 +1,68 @@
 /* Responsive Design */
 
+/* Mobile Overlay */
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: calc(var(--z-modal) - 1);
+  opacity: 0;
+  transition: opacity var(--transition-slow);
+}
+
+.mobile-overlay.visible {
+  opacity: 1;
+}
+
 /* Tablet and below */
 @media (max-width: 768px) {
+  /* Show overlay when panel is visible */
+  .mobile-overlay {
+    display: block;
+    pointer-events: none;
+  }
+  
+  .side-panel.visible ~ .mobile-overlay,
+  .mobile-overlay.visible {
+    pointer-events: auto;
+  }
   /* Side Panel */
   .side-panel {
     width: 85%;
     left: 0;
+    bottom: 0;
     border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
     transform: translateX(-100%);
+    transition: transform var(--transition-slow);
+    z-index: var(--z-modal);
   }
   
   .side-panel.visible {
     transform: translateX(0);
   }
   
-  .panel-toggle {
-    display: flex;
+  /* Hide desktop toggle buttons on mobile */
+  .panel-hide-toggle,
+  .panel-show-toggle {
+    display: none !important;
   }
   
-  /* Menu Pill */
-  .menu-pill.expanded {
-    width: calc(100% - var(--space-lg));
-    margin: 0 var(--space-sm);
-    padding: var(--space-sm) var(--space-md);
+  /* Show mobile toggle button */
+  .panel-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: calc(var(--z-modal) + 10);
   }
+  
+  /* Menu Pill stays visible on mobile for navigation */
 
   /* Place Detail */
   .place-action-buttons {
@@ -41,28 +80,33 @@
     width: 120px;
     height: 90px;
   }
+
+  /* Place items */
+  .place-item {
+    padding: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+  
+  .place-images-gallery {
+    padding: var(--space-xs) 0;
+  }
 }
 
 /* Mobile */
 @media (max-width: 600px) {
-  /* Menu Pill */
-  .menu-pill.expanded.content-visible .menu-pill-content {
-    flex-direction: column;
-    gap: var(--space-md);
-  }
-  
-  .menu-pill .nav-links {
-    width: 100%;
-    justify-content: center;
-    gap: var(--space-md);
-  }
-
   /* Side Panel */
   .side-panel {
     width: 100%;
     left: 0;
     right: 0;
     border-radius: 0;
+  }
+
+  /* Ensure panel content is scrollable */
+  .places-list {
+    padding: var(--space-xs) var(--space-md) 80px var(--space-md); /* Added bottom padding for toggle button */
+    height: calc(100vh - 250px); /* Account for header and search */
+    overflow-y: auto;
   }
 
   /* Place Detail */
@@ -74,10 +118,29 @@
     font-size: 1.1rem;
   }
 
+  .place-title {
+    font-size: 1rem;
+  }
+
+  .place-description {
+    font-size: 0.85rem;
+  }
+
   /* Gallery */
   .gallery-image {
     width: 100px;
     height: 75px;
+  }
+
+  /* Smaller image pins on mobile */
+  .place-image-pin {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+  }
+
+  .place-image-pin:not(:first-child) {
+    margin-left: -20px;
   }
 
   /* Lightbox */
@@ -96,10 +159,6 @@
 
 /* Small Mobile */
 @media (max-width: 400px) {
-  .menu-pill.expanded {
-    padding: var(--space-xs) var(--space-sm);
-  }
-
   .place-action-btn {
     min-width: 100%;
   }
@@ -107,5 +166,33 @@
   .gallery-image {
     width: 90px;
     height: 70px;
+  }
+  
+  /* Even smaller image pins */
+  .place-image-pin {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+  }
+
+  .place-image-pin:not(:first-child) {
+    margin-left: -15px;
+  }
+  
+  /* Reduce padding on small screens */
+  .side-panel-header {
+    padding: var(--space-sm);
+  }
+  
+  .search-container {
+    padding: 0 var(--space-sm);
+  }
+  
+  .tag-filters {
+    padding: 0 var(--space-sm);
+  }
+  
+  .places-list {
+    padding: var(--space-xs) var(--space-sm);
   }
 }

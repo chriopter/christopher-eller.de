@@ -7,7 +7,7 @@ import { initializeElements, updateState, elements, allPlaces, isPanelVisible, m
 import { initMap } from '../components/map.js';
 import { initFilters } from '../components/filters.js';
 import { initSearch } from '../components/search.js';
-import { setupPanelToggling } from '../components/panel.js';
+import { setupPanelToggling, updatePanelVisibility } from '../components/panel.js';
 import { setupHistoryHandling, initializeFromURL } from '../utils/history.js';
 import { renderPlaces } from '../components/markers.js';
 
@@ -101,6 +101,15 @@ export function initPlacesMap() {
             setupHistoryHandling();
             initializeFromURL();
             
+            // Initialize panel visibility
+            updatePanelVisibility();
+            
+            // Initialize moon toggle (theme switcher)
+            initializeMoonToggle();
+            
+            // Initialize dropdown menu
+            initializeDropdown();
+            
             // Handle resize events
             window.addEventListener('resize', handleResize);
             
@@ -134,21 +143,97 @@ function handleResize() {
         placesMap.invalidateSize();
     }
 
-    // Show/hide panel toggle based on screen size
-    const { panelToggle, sidePanel, panelShowToggle } = elements;
-    const { mobileBreakpoint } = panelConfig;
+    // Delegate panel visibility handling to the panel module
+    updatePanelVisibility();
+}
 
-    if (window.innerWidth < mobileBreakpoint) {
-        if (panelToggle) panelToggle.style.display = 'flex';
-        if (sidePanel) sidePanel.classList.add('hidden');
-        if (panelShowToggle) panelShowToggle.classList.remove('hidden');
-        updateState('isPanelVisible', false);
-    } else {
-        if (panelToggle) panelToggle.style.display = 'none';
-        // Only restore the panel if it was previously visible
-        if (isPanelVisible) {
-            if (sidePanel) sidePanel.classList.remove('hidden');
-            if (panelShowToggle) panelShowToggle.classList.add('hidden');
+/**
+ * Initialize moon toggle (theme switcher)
+ */
+function initializeMoonToggle() {
+    const moonToggle = document.getElementById('moonToggle');
+    if (!moonToggle) return;
+    
+    // Set initial moon phase
+    const isDark = document.documentElement.classList.contains('dark-mode');
+    moonToggle.textContent = isDark ? '🌑' : '🌕';
+    
+    // Single click to toggle theme
+    moonToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        const isDark = document.documentElement.classList.contains('dark-mode');
+        const newTheme = !isDark;
+        
+        // Update classes
+        document.documentElement.classList.toggle('dark-mode', newTheme);
+        document.body.classList.toggle('dark-mode', newTheme);
+        
+        // Update moon phase
+        moonToggle.textContent = newTheme ? '🌑' : '🌕';
+        
+        // Store preference
+        localStorage.setItem('darkMode', newTheme.toString());
+        
+        // Update theme color meta tag
+        const themeColorMeta = document.getElementById('theme-color');
+        if (themeColorMeta) {
+            themeColorMeta.content = newTheme ? '#111111' : '#ffffff';
         }
-    }
+        
+        // Update places section if it exists
+        const placesSection = document.querySelector('.places-section');
+        if (placesSection) {
+            placesSection.classList.toggle('dark-mode', newTheme);
+        }
+    });
+    
+    // Double click to sync with system
+    moonToggle.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('darkMode');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // Update classes
+        document.documentElement.classList.toggle('dark-mode', prefersDark);
+        document.body.classList.toggle('dark-mode', prefersDark);
+        
+        // Update moon phase
+        moonToggle.textContent = prefersDark ? '🌑' : '🌕';
+        
+        // Update theme color meta tag
+        const themeColorMeta = document.getElementById('theme-color');
+        if (themeColorMeta) {
+            themeColorMeta.content = prefersDark ? '#111111' : '#ffffff';
+        }
+        
+        // Update places section if it exists
+        const placesSection = document.querySelector('.places-section');
+        if (placesSection) {
+            placesSection.classList.toggle('dark-mode', prefersDark);
+        }
+    });
+}
+
+/**
+ * Initialize dropdown menu functionality
+ */
+function initializeDropdown() {
+    const dropdown = document.querySelector('.dropdown');
+    if (!dropdown) return;
+    
+    const trigger = dropdown.querySelector('.dropdown-trigger');
+    if (!trigger) return;
+    
+    // For touch devices, toggle on click
+    trigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        dropdown.classList.toggle('active');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target)) {
+            dropdown.classList.remove('active');
+        }
+    });
 }
