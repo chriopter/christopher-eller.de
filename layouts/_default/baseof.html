@@ -22,13 +22,8 @@
     <link rel="shortcut icon" href="/favicon/favicon.ico">
     <title>{{ with .Title }}{{ . }} | {{ end }}{{ .Site.Title }}</title>
     
-    <!-- OpenGraph and Twitter Card tags -->
-    {{ template "_internal/opengraph.html" . }}
-    {{ template "_internal/twitter_cards.html" . }}
-    <!-- Additional OpenGraph tags -->
-    <meta property="og:logo" content="https://christopher-eller.de/about/profile_small.jpg">
-    <!-- Override Twitter card type to summary for better display with small image -->
-    <meta name="twitter:card" content="summary">
+    <!-- Custom OpenGraph and Twitter Card tags -->
+    {{ partial "opengraph.html" . }}
     <style>
         /* Theme variables */
         :root {

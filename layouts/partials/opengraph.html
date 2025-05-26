@@ -1,0 +1,118 @@
+{{/* Custom OpenGraph implementation with automatic image detection */}}
+
+{{/* Determine the image to use */}}
+{{ $image := "" }}
+{{ $images := slice }}
+
+{{/* For posts, places, and photos: try to find images automatically */}}
+{{ if or (eq .Section "posts") (eq .Section "places") (eq .Section "photos") }}
+  {{/* First: Check page bundle for images */}}
+  {{ range .Resources.ByType "image" }}
+    {{ $image = (.Fit "1200x630 webp").RelPermalink | absURL }}
+    {{ $images = $images | append $image }}
+    {{ break }}
+  {{ end }}
+  
+  {{/* Second: If no bundle images, try to find images in content */}}
+  {{ if not $image }}
+    {{ $content := .Content }}
+    {{ $imgRegex := `<img[^>]+src="([^"]+)"` }}
+    {{ $matches := findRE $imgRegex $content 1 }}
+    {{ if $matches }}
+      {{ $match := index $matches 0 }}
+      {{ $srcRegex := `src="([^"]+)"` }}
+      {{ $srcMatch := findRE $srcRegex $match 1 }}
+      {{ if $srcMatch }}
+        {{ $src := index $srcMatch 0 }}
+        {{ $src = replace $src `src="` "" }}
+        {{ $src = replace $src `"` "" }}
+        {{ if not (hasPrefix $src "http") }}
+          {{ $src = $src | absURL }}
+        {{ end }}
+        {{ $image = $src }}
+        {{ $images = $images | append $image }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{/* Fallback to site default images */}}
+{{ if not $image }}
+  {{ with .Site.Params.images }}
+    {{ range . }}
+      {{ $images = $images | append (. | absURL) }}
+    {{ end }}
+    {{ $image = index . 0 | absURL }}
+  {{ end }}
+{{ end }}
+
+{{/* Page title */}}
+{{ $title := .Title }}
+{{ if .IsHome }}
+  {{ $title = .Site.Title }}
+{{ else if ne .Title .Site.Title }}
+  {{ $title = printf "%s | %s" .Title .Site.Title }}
+{{ end }}
+
+{{/* Page description */}}
+{{ $description := "" }}
+{{ with .Description }}
+  {{ $description = . }}
+{{ else with .Summary }}
+  {{ $description = . | plainify | chomp }}
+{{ else with .Site.Params.description }}
+  {{ $description = . }}
+{{ end }}
+
+{{/* Page URL */}}
+{{ $permalink := .Permalink }}
+
+{{/* Page type */}}
+{{ $type := "website" }}
+{{ if eq .Section "posts" }}
+  {{ $type = "article" }}
+{{ end }}
+
+{{/* Generate OpenGraph tags */}}
+<meta property="og:title" content="{{ $title }}" />
+<meta property="og:description" content="{{ $description }}" />
+<meta property="og:type" content="{{ $type }}" />
+<meta property="og:url" content="{{ $permalink }}" />
+<meta property="og:site_name" content="{{ .Site.Title }}" />
+
+{{/* Images */}}
+{{ range $images }}
+<meta property="og:image" content="{{ . }}" />
+{{ end }}
+
+{{/* Additional article properties for posts */}}
+{{ if eq .Section "posts" }}
+  {{ with .Date }}
+<meta property="article:published_time" content="{{ .Format "2006-01-02T15:04:05Z07:00" }}" />
+  {{ end }}
+  {{ with .Lastmod }}
+<meta property="article:modified_time" content="{{ .Format "2006-01-02T15:04:05Z07:00" }}" />
+  {{ end }}
+  {{ with .Site.Params.social.twitter }}
+<meta property="article:author" content="https://twitter.com/{{ . }}" />
+  {{ end }}
+{{ end }}
+
+{{/* Locale */}}
+<meta property="og:locale" content="{{ .Site.LanguageCode | default "en_US" }}" />
+
+{{/* Twitter Card tags */}}
+{{ if $image }}
+<meta name="twitter:card" content="summary_large_image" />
+{{ else }}
+<meta name="twitter:card" content="summary" />
+{{ end }}
+<meta name="twitter:title" content="{{ $title }}" />
+<meta name="twitter:description" content="{{ $description }}" />
+{{ if $image }}
+<meta name="twitter:image" content="{{ $image }}" />
+{{ end }}
+{{ with .Site.Params.social.twitter }}
+<meta name="twitter:site" content="@{{ . }}" />
+<meta name="twitter:creator" content="@{{ . }}" />
+{{ end }}
