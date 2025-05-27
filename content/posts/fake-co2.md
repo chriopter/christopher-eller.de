@@ -1,6 +1,6 @@
 +++
 date = '2025-05-27T12:05:25+02:00'
-title = 'Fake CO2 - No, your email isn’t melting the planet.'
+title = 'Fake CO2'
 +++
 
 My guilty pleasure is listening to DLF Radio - and DLF's guilty pleasure is inviting people who come up with fake CO2 emissions figures.
