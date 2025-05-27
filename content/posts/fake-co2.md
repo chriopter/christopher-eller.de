@@ -24,7 +24,7 @@ Using the claimed 50g CO2 per email, 22,000,000 emails would result in 1,100 ton
 
 How much energy would produce 1,100 tonnes of CO2 on the German grid?
 
-Even assuming a dirty German grid (though server farms usually use renewable energy) with 360g/kWh, you would need around 3 million kWh! German energy is expensive, but even at 10 cents per kWh, that would cost roughly €300,000 in energy alone. Even if you think these 1,100 tonnes are solely for producing the hardware, try to buy the coal you need to burn to generate 1,100 tonnes of CO2 for €8.
+Assuming a dirty German grid (though server farms usually use renewable energy) with 360g/kWh, you would need around 3 million kWh! German energy is expensive, but even at 10 cents per kWh, that would cost roughly €300,000 in energy alone. Even if you think these 1,100 tonnes are solely for producing the hardware, try to buy the coal you need to burn to generate 1,100 tonnes of CO2 for €8.
 
 Here's my FAQ summary:
 
