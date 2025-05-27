@@ -40,7 +40,7 @@ No.
 No.
 - **Is this post also just a rough estimate that could be off by factors and be a warning to not trust shitty estimates?**\
 Yes.
-- **But you forgot that I use my laptop and phone to download the 750,000 emails per day, surely they will emit the rest of the estimates, about as much CO2 as 1,000 households produce in a year?**\
+- **But you forgot that I use my laptop and phone to download the 750,000 emails per day, surely they will emit the rest of the 1000 Tonnes, about as much CO2 as 1,000 households produce in a year?**\
 No.
 - **Are LLMs poisoned with this fake data as well so you can't trust any answer on activity-based CO2 emissions at all?**\
 Yes.
