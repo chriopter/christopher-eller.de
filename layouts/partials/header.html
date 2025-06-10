@@ -39,8 +39,8 @@
     </div>
     <nav class="nav-links">
         <a href="/photos"{{ if eq $page.Section "photos" }} class="active"{{ end }}>photos</a>
-        <a href="/places"{{ if eq $page.Section "places" }} class="active"{{ end }}>map</a>
-        <a href="/texts"{{ if or (eq $page.Section "posts") (and (eq $page.Section "pages") (and $page.File (eq $page.File.BaseFileName "texts"))) }} class="active"{{ end }}>text</a>
+        <a href="/places"{{ if eq $page.Section "places" }} class="active"{{ end }}>places</a>
+        <a href="/texts"{{ if or (eq $page.Section "posts") (and (eq $page.Section "pages") (and $page.File (eq $page.File.BaseFileName "texts"))) }} class="active"{{ end }}>texts</a>
         <div class="dropdown" id="bitsDropdown">
             <a class="dropdown-trigger">bits</a>
             <div class="dropdown-content">
