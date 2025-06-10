@@ -2,39 +2,79 @@
  * Filter functionality for places
  */
 
-import { activeFilters, searchTerm, filterByViewport, placesMap, allPlaces, updateState } from '../base/state.js';
+import { activeFilters, searchTerm, filterByViewport, showVisited, placesMap, allPlaces, updateState } from '../base/state.js';
 import { controlConfig } from '../base/config.js';
 
 /**
- * Initialize tag filters
+ * Initialize tag filters and visit status toggle
  */
 export function initFilters() {
+    // Initialize tag filters
     const tagFilters = document.getElementById('tag-filters');
-    if (!tagFilters) return;
-    
-    // Get all pre-rendered tag filter elements
-    const tagElements = tagFilters.querySelectorAll('.tag-filter');
-    
-    // Add click handlers to each tag filter
-    tagElements.forEach(filterBtn => {
-        const tag = filterBtn.dataset.tag;
+    if (tagFilters) {
+        // Get all pre-rendered tag filter elements
+        const tagElements = tagFilters.querySelectorAll('.tag-filter');
         
-        filterBtn.addEventListener('click', () => {
-            // Toggle active class
-            filterBtn.classList.toggle('active');
+        // Add click handlers to each tag filter
+        tagElements.forEach(filterBtn => {
+            const tag = filterBtn.dataset.tag;
             
-            // Update active filters
-            if (filterBtn.classList.contains('active')) {
-                updateState('activeFilters', [...activeFilters, tag]);
-            } else {
-                updateState('activeFilters', activeFilters.filter(t => t !== tag));
-            }
-            
-            if (window.renderPlaces) {
-                window.renderPlaces();
+            filterBtn.addEventListener('click', () => {
+                // Toggle active class
+                filterBtn.classList.toggle('active');
+                
+                // Update active filters
+                if (filterBtn.classList.contains('active')) {
+                    updateState('activeFilters', [...activeFilters, tag]);
+                } else {
+                    updateState('activeFilters', activeFilters.filter(t => t !== tag));
+                }
+                
+                if (window.renderPlaces) {
+                    window.renderPlaces();
+                }
+            });
+        });
+    }
+
+    // Initialize visit status segmented control
+    const visitedOption = document.getElementById('visited-option');
+    const unvisitedOption = document.getElementById('unvisited-option');
+    
+    if (visitedOption && unvisitedOption) {
+        // Set initial state
+        visitedOption.checked = showVisited;
+        unvisitedOption.checked = !showVisited;
+        
+        // Add change event listeners with immediate rendering
+        visitedOption.addEventListener('change', () => {
+            if (visitedOption.checked) {
+                updateState('showVisited', true);
+                // Trigger immediate pin update with double frame buffer for smoothness
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        if (window.renderPlaces) {
+                            window.renderPlaces();
+                        }
+                    });
+                });
             }
         });
-    });
+        
+        unvisitedOption.addEventListener('change', () => {
+            if (unvisitedOption.checked) {
+                updateState('showVisited', false);
+                // Trigger immediate pin update with double frame buffer for smoothness
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        if (window.renderPlaces) {
+                            window.renderPlaces();
+                        }
+                    });
+                });
+            }
+        });
+    }
 }
 
 /**
@@ -103,7 +143,8 @@ export function filterPlaces() {
         totalPlaces: allPlaces.length,
         activeFilters,
         searchTerm,
-        filterByViewport
+        filterByViewport,
+        showVisited
     });
 
     if (!Array.isArray(allPlaces)) {
@@ -133,27 +174,19 @@ export function filterPlaces() {
         // Check if place has unvisited tag
         const isUnvisited = placeTags.includes('unvisited');
         
-        // Check if unvisited filter is active
-        const unvisitedFilterActive = normalizedActiveFilters.includes('unvisited');
-        
-        // Get non-unvisited filters
-        const contentFilters = normalizedActiveFilters.filter(f => f !== 'unvisited');
-        
-        // If unvisited filter is active, only show unvisited places
-        if (unvisitedFilterActive && !isUnvisited) {
-            return false;
+        // Filter by visit status (toggle)
+        if (showVisited && isUnvisited) {
+            return false; // Hide unvisited places when showing visited
+        }
+        if (!showVisited && !isUnvisited) {
+            return false; // Hide visited places when showing unvisited
         }
         
-        // If unvisited filter is not active, hide unvisited places
-        if (!unvisitedFilterActive && isUnvisited) {
-            return false;
-        }
-        
-        // Filter by content tags (non-unvisited filtering)
-        if (contentFilters.length > 0) {
-            // Check if any content filter matches any place tag
+        // Filter by content tags (excluding unvisited since it's handled by toggle)
+        if (normalizedActiveFilters.length > 0) {
+            // Check if any active filter matches any place tag (excluding unvisited)
             const hasMatchingTag = placeTags.some(tag => 
-                contentFilters.includes(tag)
+                normalizedActiveFilters.includes(tag) && tag !== 'unvisited'
             );
             
             if (!hasMatchingTag) return false;

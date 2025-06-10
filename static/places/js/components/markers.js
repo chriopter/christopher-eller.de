@@ -299,21 +299,30 @@ export function renderPlaces(shouldUpdateBounds = false) {
     isRendering = true;
 
     try {
-        // Clear existing markers
-        Object.values(markers).forEach(marker => placesMap.removeLayer(marker));
-        
-        // Filter places
+        // Get filtered places first
         const filteredPlaces = filterPlaces();
-
-        // Batch create all markers
+        
+        // Clear all existing markers instantly
+        const currentMarkers = Object.values(markers);
+        currentMarkers.forEach(marker => {
+            placesMap.removeLayer(marker);
+        });
+        
+        // Batch create and add all new markers
         const newMarkers = {};
+        const markersToAdd = [];
+        
+        // Create all markers first (batched for performance)
         filteredPlaces.forEach(place => {
             const marker = createPlaceMarker(place);
             if (marker) {
                 newMarkers[place.permalink] = marker;
-                marker.addTo(placesMap);
+                markersToAdd.push(marker);
             }
         });
+        
+        // Add all markers to map in one batch
+        markersToAdd.forEach(marker => marker.addTo(placesMap));
 
         // Update markers state once at the end
         updateState('markers', newMarkers);

@@ -13,6 +13,7 @@ export let markers = {};
 export let activeFilters = [];
 export let searchTerm = '';
 export let filterByViewport = true;
+export let showVisited = true;
 
 // UI state
 export let isPanelVisible = true;
@@ -76,6 +77,9 @@ export function updateState(key, value) {
             case 'filterByViewport':
                 filterByViewport = value;
                 break;
+            case 'showVisited':
+                showVisited = value;
+                break;
             case 'isPanelVisible':
                 isPanelVisible = value;
                 break;
@@ -126,6 +130,7 @@ export function resetState() {
     activeFilters = [];
     searchTerm = '';
     filterByViewport = true;
+    showVisited = true;
     isPanelVisible = true;
     isInitialRender = true;
     currentPlaceId = null;

@@ -39,6 +39,19 @@
         <div class="search-container">
             <input type="text" id="search-input" class="search-input" placeholder="Search places...">
         </div>
+
+        <!-- Visit Status Toggle -->
+        <div class="visit-status-toggle" id="visit-status-toggle">
+            <div class="segmented-control">
+                <input type="radio" name="visit-status" id="visited-option" value="visited" checked>
+                <label for="visited-option" class="segment-label">Visited</label>
+                
+                <input type="radio" name="visit-status" id="unvisited-option" value="unvisited">
+                <label for="unvisited-option" class="segment-label">Unvisited</label>
+                
+                <div class="segment-slider"></div>
+            </div>
+        </div>
         
         <div class="tag-filters" id="tag-filters">
             {{ $allTags := slice }}
@@ -49,7 +62,9 @@
             {{ end }}
             
             {{ range $allTags | uniq }}
-                <span class="tag-filter" data-tag="{{ . }}">{{ . }}</span>
+                {{ if ne . "unvisited" }}
+                    <span class="tag-filter" data-tag="{{ . }}">{{ . }}</span>
+                {{ end }}
             {{ end }}
         </div>
         
