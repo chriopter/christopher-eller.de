@@ -59,3 +59,53 @@
 .dark-mode .tag-filter:hover {
   border-color: rgba(var(--color-light-rgb), 0.1);
 }
+
+/* Special style for unvisited tag */
+.tag-filter[data-tag="unvisited"] {
+  background-color: rgba(128, 128, 128, 0.2);
+  color: #666;
+  border: 1px dashed #999;
+}
+
+.tag-filter[data-tag="unvisited"]:hover {
+  background-color: rgba(128, 128, 128, 0.3);
+  border-color: #666;
+}
+
+.tag-filter[data-tag="unvisited"].active {
+  background-color: #666;
+  color: white;
+  border: 1px solid #666;
+}
+
+/* Unvisited Marker Styles */
+.unvisited-marker {
+  opacity: 0.85;
+}
+
+.unvisited-marker .marker-pin {
+  width: 25px;
+  height: 41px;
+  position: relative;
+}
+
+.unvisited-marker .marker-pin::before {
+  content: '';
+  position: absolute;
+  width: 25px;
+  height: 41px;
+  background-image: url('/places/images/marker-icon.png');
+  background-size: contain;
+  filter: grayscale(100%) opacity(0.9);
+}
+
+.unvisited-marker .marker-pin::after {
+  content: '?';
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}

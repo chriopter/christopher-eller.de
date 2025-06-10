@@ -28,9 +28,36 @@ export function createPlaceMarker(place) {
             return null;
         }
 
-        const marker = L.marker([place.lat, place.lng], {
+        // Parse place tags to check for unvisited
+        let placeTags = [];
+        if (typeof place.tags === 'string') {
+            try {
+                placeTags = JSON.parse(place.tags).map(tag => tag.toLowerCase());
+            } catch (e) {
+                console.error(`Error parsing tags for marker "${place.title}":`, e);
+            }
+        } else if (Array.isArray(place.tags)) {
+            placeTags = place.tags.map(tag => tag.toLowerCase());
+        }
+        
+        // Create custom icon for unvisited places
+        let markerOptions = {
             title: place.title
-        });
+        };
+        
+        // Use a different icon for unvisited places
+        if (placeTags.includes('unvisited')) {
+            const unvisitedIcon = L.divIcon({
+                className: 'unvisited-marker',
+                html: '<div class="marker-pin"></div>',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]
+            });
+            markerOptions.icon = unvisitedIcon;
+        }
+        
+        const marker = L.marker([place.lat, place.lng], markerOptions);
 
         // Process tags for popup
         let tagsToDisplay = [];

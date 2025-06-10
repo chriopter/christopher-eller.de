@@ -118,21 +118,28 @@ export function filterPlaces() {
     const mapBounds = placesMap ? placesMap.getBounds() : null;
     
     const filteredPlaces = allPlaces.filter(place => {
-        // Filter by tags
-        if (normalizedActiveFilters.length > 0) {
-            // Parse and normalize place tags to lowercase
-            let placeTags = [];
-            
-            if (typeof place.tags === 'string') {
-                try {
-                    placeTags = JSON.parse(place.tags).map(tag => tag.toLowerCase());
-                } catch (e) {
-                    console.error(`Error parsing tags for place "${place.title}":`, e);
-                }
-            } else if (Array.isArray(place.tags)) {
-                placeTags = place.tags.map(tag => tag.toLowerCase());
+        // Parse place tags
+        let placeTags = [];
+        if (typeof place.tags === 'string') {
+            try {
+                placeTags = JSON.parse(place.tags).map(tag => tag.toLowerCase());
+            } catch (e) {
+                console.error(`Error parsing tags for place "${place.title}":`, e);
             }
-            
+        } else if (Array.isArray(place.tags)) {
+            placeTags = place.tags.map(tag => tag.toLowerCase());
+        }
+        
+        // Check if place has unvisited tag
+        const isUnvisited = placeTags.includes('unvisited');
+        
+        // If place is unvisited and unvisited is not actively selected, hide it
+        if (isUnvisited && !normalizedActiveFilters.includes('unvisited')) {
+            return false;
+        }
+        
+        // Filter by tags (for non-unvisited filtering)
+        if (normalizedActiveFilters.length > 0) {
             // Check if any active filter matches any place tag
             const hasMatchingTag = placeTags.some(tag => 
                 normalizedActiveFilters.includes(tag)
@@ -173,7 +180,7 @@ export function filterPlaces() {
             }
         }
         
-            return true;
+        return true;
     });
 
     console.log('Filtering complete:', {
