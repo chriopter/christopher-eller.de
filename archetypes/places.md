@@ -10,4 +10,3 @@ resources = [
 ]
 +++
 
-Write details about this place here...

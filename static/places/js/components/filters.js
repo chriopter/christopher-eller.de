@@ -133,16 +133,27 @@ export function filterPlaces() {
         // Check if place has unvisited tag
         const isUnvisited = placeTags.includes('unvisited');
         
-        // If place is unvisited and unvisited is not actively selected, hide it
-        if (isUnvisited && !normalizedActiveFilters.includes('unvisited')) {
+        // Check if unvisited filter is active
+        const unvisitedFilterActive = normalizedActiveFilters.includes('unvisited');
+        
+        // Get non-unvisited filters
+        const contentFilters = normalizedActiveFilters.filter(f => f !== 'unvisited');
+        
+        // If unvisited filter is active, only show unvisited places
+        if (unvisitedFilterActive && !isUnvisited) {
             return false;
         }
         
-        // Filter by tags (for non-unvisited filtering)
-        if (normalizedActiveFilters.length > 0) {
-            // Check if any active filter matches any place tag
+        // If unvisited filter is not active, hide unvisited places
+        if (!unvisitedFilterActive && isUnvisited) {
+            return false;
+        }
+        
+        // Filter by content tags (non-unvisited filtering)
+        if (contentFilters.length > 0) {
+            // Check if any content filter matches any place tag
             const hasMatchingTag = placeTags.some(tag => 
-                normalizedActiveFilters.includes(tag)
+                contentFilters.includes(tag)
             );
             
             if (!hasMatchingTag) return false;
