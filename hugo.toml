@@ -3,8 +3,8 @@ languageCode = 'de-DE'
 title = 'Christopher Eller'
 
 [outputs]
-home = ["HTML", "RSS"]
-section = ["HTML"]
+home = ["HTML", "RSS", "OGIMAGE"]
+section = ["HTML", "OGIMAGE"]
 page = ["HTML", "OGIMAGE"]
 
 # Changes rss-feed to feed.xml
