@@ -7,7 +7,7 @@ title = 'Cathedrals for Everyone'
 
 It’s a triumph of the modern world that palaces once built through plunder and forced labor are now freely visited by everyone. Parking your car in front of Versailles is very much the most egalitarian thing you can do.
 
-But we should not fall for the pictures those monarchs and emperors drew of themselves by literally paying for the oilportrait.
+And while we wander around in awe, we shouldn’t fall for the self-portraits those monarchs paid to have painted.
 The Baroque buildings in Europe are full of art-slop that we only admire because it was fine craftsmanship and obscenely expensive.
 
 Seriously, if you pulled the same sculptures out of a plastic mold, everyone would absolutely call it ugly.\
