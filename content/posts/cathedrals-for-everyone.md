@@ -13,15 +13,14 @@ The Baroque buildings in Europe are full of art-slop that we only admire because
 Seriously, if you pulled the same sculptures out of a plastic mold, everyone would absolutely call it ugly.\
 And that’s because there were people living in it who had as bad taste as we have (they were no gods, after all!)—who ended up putting up a Medusa head sculpture on the top of a beautiful wooden staircase just because Greek mythology stuff looked cool. That’s how a 14-year-old decorates his room.
 
-Don’t get me wrong; I’m not dunking on our handling of cultural heritage—but we should admire the modern cathedrals as well. Too often, we find the old things a cultural wonder and dismiss the modern ones as tacky.
+Don’t get me wrong; I’m not dunking on our handling of cultural heritage—but we should admire the modern cathedrals as well. Too often, we frame the old things as cultural wonders and dismiss the modern ones as tacky.
 
 We humans have built things that are orders of magnitude more complicated, expensive, and astonishing than Fontainebleau, Alhambra, or Neuschwanstein - without an autocrat forcing anyone, but just out of the voluntary cooperation of free individuals.
 
-If a 747 had flown over Sanssouci, Frederick the Great would have been on his knees.
+Even a modern multiplex cinema is far more complicated than the water fountain systems found in castles. Still, it’s such a commodity that nobody will be interested in preserving one as a historic wonder—it’s literally in every small city.\
+And if a 747 had flown over Sanssouci, Frederick the Great would have been on his knees.
 
-Even a modern multiplex cinema is far more complicated than the water fountain systems found in castles. Still, it’s such a commodity that nobody will be interested in preserving one as a historic wonder—it’s literally in every small city.
-
-It is, because it’s built to appeal to those who are paying for it—on a voluntary basis. Not to impress some god, not for your distant descendants, the mistress, or the Czar visiting.
+It may be tacky, because it’s built to appeal to those who are paying for it on a voluntary basis - the masses. Not to impress some god, not for your distant descendants, the mistress, or the Czar visiting.
 Just individuals voluntarily cooperating for their own humble benefit.
 
 We should not fall for the Sun King’s Übermensch tale.
