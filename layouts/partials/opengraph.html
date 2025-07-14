@@ -36,13 +36,13 @@
   {{ end }}
 {{ end }}
 
-{{/* Fallback to site default images */}}
-{{ if not $image }}
-  {{ with .Site.Params.images }}
-    {{ range . }}
-      {{ $images = $images | append (. | absURL) }}
-    {{ end }}
-    {{ $image = index . 0 | absURL }}
+{{/* Generate SVG if no image found for posts */}}
+{{ if and (not $image) (or (eq .Section "posts") (eq .Section "places")) }}
+  {{/* Use the generated SVG image */}}
+  {{ if .OutputFormats.Get "ogimage" }}
+    {{ $ogImageURL := (.OutputFormats.Get "ogimage").Permalink }}
+    {{ $image = $ogImageURL }}
+    {{ $images = $images | append $image }}
   {{ end }}
 {{ end }}
 

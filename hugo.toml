@@ -5,11 +5,19 @@ title = 'Christopher Eller'
 [outputs]
 home = ["HTML", "RSS"]
 section = ["HTML"]
-page = ["HTML"]
+page = ["HTML", "OGIMAGE"]
 
 # Changes rss-feed to feed.xml
 [outputFormats.RSS]
 baseName = "feed"
+
+# Custom output format for OpenGraph images
+[outputFormats.OGIMAGE]
+mediaType = "image/svg+xml"
+baseName = "og-image"
+isPlainText = true
+notAlternative = true
+permalinkable = false
 
 # Number of items per page in lists
 paginate = 10
@@ -17,8 +25,6 @@ paginatePath = "page"
 
 [params]
   description = "Personal website of Christopher Eller - Sharing texts, links, and photos"
-  # Use profile picture for all OpenGraph/Twitter Card images
-  images = ["https://christopher-eller.de/about/profile_small.jpg"]
   favicon = true
   site_manifest = "/site.webmanifest"
   

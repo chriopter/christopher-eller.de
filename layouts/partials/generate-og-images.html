@@ -1,0 +1,28 @@
+{{- /* This partial generates OpenGraph images for posts without images */ -}}
+{{- /* It should be called from a template that processes all pages */ -}}
+
+{{- $page := . -}}
+{{- $needsOGImage := false -}}
+
+{{- /* Check if this page needs an OG image generated */ -}}
+{{- if and (or (eq .Section "posts") (eq .Section "places")) (not .Params.image) -}}
+  {{- /* Check if page has any images in resources */ -}}
+  {{- $hasImage := false -}}
+  {{- range .Resources.ByType "image" -}}
+    {{- $hasImage = true -}}
+    {{- break -}}
+  {{- end -}}
+  
+  {{- if not $hasImage -}}
+    {{- $needsOGImage = true -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if $needsOGImage -}}
+  {{- /* Generate filename */ -}}
+  {{- $filename := printf "og-%s.svg" (.File.ContentBaseName | urlize) -}}
+  {{- $svgContent := partial "og-svg.html" . -}}
+  
+  {{- /* Store generated filename in scratch for later use */ -}}
+  {{- .Scratch.Set "og-image-generated" (printf "/og-images/%s" $filename) -}}
+{{- end -}}
