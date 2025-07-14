@@ -13,7 +13,7 @@ The Baroque buildings in Europe are full of art-slop that we only admire because
 Seriously, if you pulled the same sculptures out of a plastic mold, everyone would absolutely call it ugly.\
 And that’s because there were people living in it who had as bad taste as we have (they were no gods, after all!)—who ended up putting up a Medusa head sculpture on the top of a beautiful wooden staircase just because Greek mythology stuff looked cool. That’s how a 14-year-old decorates his room.
 
-Don’t get me wrong; I’m not dunking on our handling of cultural heritage—but we should admire the modern cathedrals as well.
+Don’t get me wrong; I’m not dunking on our handling of cultural heritage—but we should admire the modern cathedrals as well. Too often, we find the old things a cultural wonder and dismiss the modern ones as tacky.
 
 We humans have built things that are orders of magnitude more complicated, expensive, and astonishing than Fontainebleau, Alhambra, or Neuschwanstein - without an autocrat forcing anyone, but just out of the voluntary cooperation of free individuals.
 
