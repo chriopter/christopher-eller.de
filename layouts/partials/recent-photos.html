@@ -1,0 +1,29 @@
+{{- $photos := where .Site.RegularPages "Section" "photos" -}}
+{{- $recentPhotos := first 5 $photos -}}
+{{- if $recentPhotos -}}
+<section class="recent-photos">
+  <h2>Recent Photos</h2>
+  <div class="photos-grid">
+    {{ range $recentPhotos }}
+      <article class="photo-item">
+        <a href="{{ .Permalink }}">
+          {{ with .Resources.GetMatch "*.jpeg" }}
+            {{ $thumbnail := .Resize "300x300" }}
+            <img src="{{ $thumbnail.RelPermalink }}" alt="{{ $.Title }}" loading="lazy">
+          {{ else }}
+            {{ with .Resources.GetMatch "*.jpg" }}
+              {{ $thumbnail := .Resize "300x300" }}
+              <img src="{{ $thumbnail.RelPermalink }}" alt="{{ $.Title }}" loading="lazy">
+            {{ end }}
+          {{ end }}
+          <div class="photo-overlay">
+            <h3>{{ .Title }}</h3>
+            <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
+          </div>
+        </a>
+      </article>
+    {{ end }}
+  </div>
+  <a href="/photos/" class="view-all">View all photos →</a>
+</section>
+{{- end -}}

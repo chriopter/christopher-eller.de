@@ -1,7 +1,9 @@
 {{ define "main" }}
 <div class="home-content">
-    {{ .Content }}
-
+    {{- if .Content -}}
+        {{ .Content }}
+    {{- end -}}
+    {{- partial "recent-photos.html" . -}}
     <div class="posts">
         {{ $paginator := .Paginate (where .Site.RegularPages "Type" "in" (slice "posts" "photos" "links")) }}
         {{ range $paginator.Pages }}
@@ -251,6 +253,102 @@
 .page-numbers {
     color: var(--secondary-text);
     font-size: 0.95rem;
+}
+
+/* Recent Photos Section */
+.recent-photos {
+    margin: 0 0 4rem 0;
+    padding: 0 0 2rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.recent-photos h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 1.5rem 0;
+}
+
+.photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .photos-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+.photo-item {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+}
+
+.photo-item a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+}
+
+.photo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.photo-item:hover img {
+    transform: scale(1.05);
+}
+
+.photo-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+    padding: 1rem 0.75rem 0.75rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.photo-item:hover .photo-overlay {
+    opacity: 1;
+}
+
+.photo-overlay h3 {
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin: 0 0 0.25rem 0;
+    line-height: 1.2;
+}
+
+.photo-overlay time {
+    color: rgba(255,255,255,0.8);
+    font-size: 0.75rem;
+    margin: 0;
+}
+
+.recent-photos .view-all {
+    display: inline-block;
+    font-size: 0.95rem;
+    color: var(--link-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.recent-photos .view-all:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
 }
 </style>
 {{ end }}
