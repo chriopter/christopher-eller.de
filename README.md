@@ -9,6 +9,8 @@ My Site in Hugo
 
 - **Places:** Create location markers with `hugo new content/places/location-name.md`. View map at `/places/`.
 
+- **OpenGraph:** Automatically generates PNG preview images for social media sharing using Hugo's built-in image processing.
+
 ## Technical
 
 - **Auto-Update:** Uses https://github.com/chriopter/hugo-autopilot

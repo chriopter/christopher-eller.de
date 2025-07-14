@@ -36,12 +36,15 @@
   {{ end }}
 {{ end }}
 
-{{/* Generate SVG if no image found */}}
+{{/* Generate PNG image if no image found */}}
 {{ if not $image }}
-  {{/* Use the generated SVG image for any page type that has one */}}
-  {{ if .OutputFormats.Get "ogimage" }}
-    {{ $ogImageURL := (.OutputFormats.Get "ogimage").Permalink }}
-    {{ $image = $ogImageURL }}
+  {{/* Generate the OpenGraph image */}}
+  {{ partial "opengraph-image.html" . }}
+  
+  {{/* Get the generated image from scratch */}}
+  {{ $generatedImg := .Scratch.Get "og-image" }}
+  {{ if $generatedImg }}
+    {{ $image = $generatedImg.Permalink }}
     {{ $images = $images | append $image }}
   {{ end }}
 {{ end }}
@@ -83,6 +86,12 @@
 {{/* Images */}}
 {{ range $images }}
 <meta property="og:image" content="{{ . }}" />
+{{ end }}
+{{/* Add image dimensions if we generated it */}}
+{{ $generatedImg := .Scratch.Get "og-image" }}
+{{ if $generatedImg }}
+<meta property="og:image:width" content="{{ $generatedImg.Width }}" />
+<meta property="og:image:height" content="{{ $generatedImg.Height }}" />
 {{ end }}
 
 {{/* Additional article properties for posts */}}

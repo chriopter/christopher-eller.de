@@ -1,0 +1,80 @@
+{{/* Load resources */}}
+{{ $fontBold := resources.Get "fonts/Inter-Bold.ttf" }}
+{{ $fontRegular := resources.Get "fonts/Inter-Regular.ttf" }}
+{{ $text := "" }}
+
+{{/* Create white background by loading marker and resizing with white fill */}}
+{{ $img := resources.GetRemote "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Solid_white.svg/1200px-Solid_white.svg.png" }}
+{{ if not $img }}
+  {{ errorf "Failed to get white background image" }}
+{{ end }}
+{{ $img = $img.Resize "1200x630 #ffffff" }}
+
+{{/* Determine text based on page type */}}
+{{- if .IsHome }}
+  {{ $text = .Site.Title }}
+{{- else if .IsSection }}
+  {{/* Section pages get special two-line treatment */}}
+{{- else }}
+  {{ $text = .Title }}
+{{- end }}
+
+{{/* For section pages, use two-line layout */}}
+{{- if .IsSection }}
+  {{/* Add section title */}}
+  {{ $img = $img.Filter (images.Text .Title (dict
+    "color" "#111111"
+    "size" 120
+    "x" 100
+    "y" 240
+    "font" $fontBold
+  ))}}
+  {{/* Add site name below */}}
+  {{ $img = $img.Filter (images.Text .Site.Title (dict
+    "color" "#111111"
+    "size" 80
+    "x" 100
+    "y" 380
+    "font" $fontRegular
+  ))}}
+{{- else }}
+  {{/* Single large title for posts/home */}}
+  {{ $img = $img.Filter (images.Text $text (dict
+    "color" "#111111"
+    "size" 96
+    "linespacing" 1.2
+    "x" 100
+    "y" 200
+    "font" $fontBold
+  ))}}
+  {{/* Add site name at bottom for posts */}}
+  {{- if .IsPage }}
+    {{ $img = $img.Filter (images.Text .Site.Title (dict
+      "color" "#666666"
+      "size" 32
+      "x" 100
+      "y" 520
+      "font" $fontRegular
+    ))}}
+    {{/* Add date if available */}}
+    {{- if .Date }}
+      {{ $dateText := .Date.Format "January 2, 2006" }}
+      {{ $img = $img.Filter (images.Text $dateText (dict
+        "color" "#666666"
+        "size" 32
+        "x" 600
+        "y" 520
+        "font" $fontRegular
+      ))}}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{/* Convert to WebP for better compression */}}
+{{ $img = $img.Resize "1200x webp" }}
+
+{{/* Save the image alongside the content */}}
+{{ $img = resources.Copy (path.Join .RelPermalink "og.png") $img }}
+
+{{/* Set scratch variable for use in head */}}
+{{ .Scratch.Set "og-image" $img }}
