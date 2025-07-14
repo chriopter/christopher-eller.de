@@ -2,7 +2,7 @@
 {{- $recentPhotos := first 5 $photos -}}
 {{- if $recentPhotos -}}
 <section class="recent-photos">
-  <h2>Recent Photos</h2>
+  <h2><a href="/photos/">Recent Photos</a></h2>
   <div class="photos-grid">
     {{ range $recentPhotos }}
       <article class="photo-item">
