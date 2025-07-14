@@ -36,9 +36,9 @@
   {{ end }}
 {{ end }}
 
-{{/* Generate SVG if no image found for posts */}}
-{{ if and (not $image) (or (eq .Section "posts") (eq .Section "places")) }}
-  {{/* Use the generated SVG image */}}
+{{/* Generate SVG if no image found */}}
+{{ if not $image }}
+  {{/* Use the generated SVG image for any page type that has one */}}
   {{ if .OutputFormats.Get "ogimage" }}
     {{ $ogImageURL := (.OutputFormats.Get "ogimage").Permalink }}
     {{ $image = $ogImageURL }}
