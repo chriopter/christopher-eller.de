@@ -271,14 +271,25 @@
 
 .photos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
     margin-bottom: 1.5rem;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
-@media (min-width: 768px) {
+@media (max-width: 768px) {
     .photos-grid {
-        grid-template-columns: repeat(5, 1fr);
+        display: flex;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .photos-grid .photo-item {
+        flex: 0 0 calc(50% - 0.5rem);
+        scroll-snap-align: start;
     }
 }
 
