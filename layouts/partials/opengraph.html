@@ -103,9 +103,6 @@
   {{ with .Lastmod }}
 <meta property="article:modified_time" content="{{ .Format "2006-01-02T15:04:05Z07:00" }}" />
   {{ end }}
-  {{ with .Site.Params.social.twitter }}
-<meta property="article:author" content="https://twitter.com/{{ . }}" />
-  {{ end }}
 {{ end }}
 
 {{/* Locale */}}
@@ -121,8 +118,4 @@
 <meta name="twitter:description" content="{{ $description }}" />
 {{ if $image }}
 <meta name="twitter:image" content="{{ $image }}" />
-{{ end }}
-{{ with .Site.Params.social.twitter }}
-<meta name="twitter:site" content="@{{ . }}" />
-<meta name="twitter:creator" content="@{{ . }}" />
 {{ end }}

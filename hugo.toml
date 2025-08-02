@@ -20,9 +20,6 @@ paginatePath = "page"
   favicon = true
   site_manifest = "/site.webmanifest"
   
-  # Twitter handle (without the @)
-  [params.social]
-    twitter = "chriopter"
 
 [markup.goldmark.renderhooks.image]
   enable = true
