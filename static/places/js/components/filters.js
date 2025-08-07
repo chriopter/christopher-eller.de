@@ -112,12 +112,8 @@ export function addViewportToggleControl(map) {
         }
     });
 
-    // Add map move handlers
-    map.on('moveend zoomend', () => {
-        if (filterByViewport && window.renderPlaces) {
-            window.renderPlaces();
-        }
-    });
+    // Map movement is already handled in map.js with debouncing
+    // The filterByViewport state is checked inside filterPlaces() which is called by renderPlaces()
 }
 
 /**

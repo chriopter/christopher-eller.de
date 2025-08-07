@@ -50,10 +50,21 @@ export function initMap() {
         // Update global map reference
         updateState('placesMap', map);
 
-        // Add event listener for map movement
-        map.on('moveend', () => {
-            // Update places list without changing map bounds
-            renderPlaces(false);
+        // Debounce timer for map movement
+        let mapMoveTimer = null;
+
+        // Add event listener for map movement with debouncing
+        map.on('moveend zoomend', () => {
+            // Clear any existing timer
+            if (mapMoveTimer) {
+                clearTimeout(mapMoveTimer);
+            }
+            
+            // Set a new timer to update after user stops interacting
+            mapMoveTimer = setTimeout(() => {
+                // Update places list without changing map bounds
+                renderPlaces(false);
+        }, 1); // Wait after movement stops
         });
 
         console.log('Map initialization complete');
