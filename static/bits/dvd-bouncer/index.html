@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>8-Bit CRT TV & DVD Logo Game with Score & Sound</title>
+  <style>
+    /* Basic reset; dark background and pixelated rendering for a retro feel */
+    body {
+      margin: 0;
+      background: #222;
+      overflow: hidden;
+      font-family: monospace;
+    }
+    canvas {
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    /* Fixed overlay for score display */
+    #scoreDisplay {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: #fff;
+      font-size: 20px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    #instructions {
+      position: fixed;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      color: #fff;
+      font-size: 16px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="scoreDisplay">Score: 0</div>
+  <canvas id="gameCanvas"></canvas>
+  <div id="instructions">Move TV with arrow keys or drag on touch screen - try to hit corners with DVD logo!</div>
+  <script>
+    // -------------------------------
+    // Helper function: Draw a rounded rectangle.
+    // -------------------------------
+    function drawRoundedRect(ctx, x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    // -------------------------------
+    // Canvas setup
+    // -------------------------------
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = false;  // Maintain the true 8-bit effect.
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    const scoreDisplay = document.getElementById("scoreDisplay");
+
+    // -------------------------------
+    // Global variables for the DVD logo color and score.
+    // -------------------------------
+    let logoColor;
+    function pickColor() {
+      let r = Math.floor(Math.random() * 255);
+      let g = Math.floor(Math.random() * 255);
+      let b = Math.floor(Math.random() * 255);
+      logoColor = `rgb(${r},${g},${b})`;
+    }
+    pickColor();
+    let score = 0;
+
+    // -------------------------------
+    // TV Object – Redesigned to look like an old CRT
+    // -------------------------------
+    const tv = {
+      width: 800,
+      height: 600,
+      // Start roughly centered.
+      x: (canvas.width - 800) / 2,
+      y: (canvas.height - 600) / 2,
+      speed: 10,      // Movement speed via arrow keys.
+      margin: 64,     // Margin for inner screen (used to calculate the elliptical screen)
+      draw() {
+        // Draw the outer cabinet
+        drawRoundedRect(ctx, this.x, this.y, this.width, this.height, 8);
+        ctx.fillStyle = "#5A4A42"; // 8-bit brown color
+        ctx.fill();
+
+        // Draw the inner screen border
+        drawRoundedRect(ctx, this.x + 20, this.y + 20, this.width - 40, this.height - 40, 4);
+        ctx.fillStyle = "#3A3A3A"; // Darker inner border
+        ctx.fill();
+
+        // Draw the screen (rectangular)
+        ctx.fillStyle = "#666666"; // Grey screen
+        ctx.fillRect(this.x + this.margin, this.y + this.margin, 
+                    this.width - 2 * this.margin, this.height - 2 * this.margin);
+
+        // Draw the 8-bit antenna
+        ctx.fillStyle = "#000";
+        // Left antenna leg
+        ctx.fillRect(this.x + this.width/2 - 40, this.y - 30, 8, 30);
+        // Right antenna leg
+        ctx.fillRect(this.x + this.width/2 + 32, this.y - 30, 8, 30);
+        // Antenna top left diagonal
+        ctx.beginPath();
+        ctx.moveTo(this.x + this.width/2 - 36, this.y - 30);
+        ctx.lineTo(this.x + this.width/2, this.y - 60);
+        ctx.lineTo(this.x + this.width/2, this.y - 52);
+        ctx.lineTo(this.x + this.width/2 - 28, this.y - 30);
+        ctx.fill();
+        // Antenna top right diagonal
+        ctx.beginPath();
+        ctx.moveTo(this.x + this.width/2 + 36, this.y - 30);
+        ctx.lineTo(this.x + this.width/2, this.y - 60);
+        ctx.lineTo(this.x + this.width/2, this.y - 52);
+        ctx.lineTo(this.x + this.width/2 + 28, this.y - 30);
+        ctx.fill();
+      },
+      // Returns the bounding rectangle (used for DVD bouncing) of the inner screen.
+      getScreenRect() {
+        return {
+          x: this.x + this.margin,
+          y: this.y + this.margin,
+          width: this.width - 2 * this.margin,
+          height: this.height - 2 * this.margin
+        };
+      },
+      // Returns the four corner coordinates of the inner screen's bounding box.
+      getScreenCorners() {
+        const rect = this.getScreenRect();
+        return [
+          { x: rect.x, y: rect.y },
+          { x: rect.x + rect.width, y: rect.y },
+          { x: rect.x, y: rect.y + rect.height },
+          { x: rect.x + rect.width, y: rect.y + rect.height }
+        ];
+      }
+    };
+
+    // -------------------------------
+    // Sound effects using the Web Audio API.
+    // -------------------------------
+    function playBeep(isCornerHit = false) {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      if (isCornerHit) {
+        // High-pitched success sound for corner hits
+        oscillator.type = "square";
+        oscillator.frequency.value = 440; // A4 tone
+        gainNode.gain.value = 0.2;
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.1);
+      } else {
+        // Lower-pitched bounce sound for wall hits
+        oscillator.type = "sine";
+        oscillator.frequency.value = 220; // A3 tone
+        gainNode.gain.value = 0.3;
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.15);
+      }
+    }
+
+    // -------------------------------
+    // DVD Logo Object – 8-bit style; same size, bouncing inside TV screen, changing color on collision.
+    // -------------------------------
+    const dvd = {
+      width: 120,
+      height: 80,
+      x: 0,
+      y: 0,
+      speed: 4,
+      dx: 0,
+      dy: 0,
+      caught: false,  // Flag to prevent multiple scores for one corner hit.
+      init() {
+        const screen = tv.getScreenRect();
+        dvd.x = screen.x + Math.random() * (screen.width - dvd.width);
+        dvd.y = screen.y + Math.random() * (screen.height - dvd.height);
+        let angle = Math.random() * Math.PI * 2;
+        dvd.dx = Math.cos(angle) * dvd.speed;
+        dvd.dy = Math.sin(angle) * dvd.speed;
+      },
+      update() {
+        dvd.x += dvd.dx;
+        dvd.y += dvd.dy;
+        const screen = tv.getScreenRect();
+        let hitWall = false;
+        
+        // Bounce off the left/right boundaries.
+        if (dvd.x < screen.x) {
+          dvd.x = screen.x;
+          dvd.dx = Math.abs(dvd.dx);
+          hitWall = true;
+        } else if (dvd.x + dvd.width > screen.x + screen.width) {
+          dvd.x = screen.x + screen.width - dvd.width;
+          dvd.dx = -Math.abs(dvd.dx);
+          hitWall = true;
+        }
+        
+        // Bounce off the top/bottom boundaries.
+        if (dvd.y < screen.y) {
+          dvd.y = screen.y;
+          dvd.dy = Math.abs(dvd.dy);
+          hitWall = true;
+        } else if (dvd.y + dvd.height > screen.y + screen.height) {
+          dvd.y = screen.y + screen.height - dvd.height;
+          dvd.dy = -Math.abs(dvd.dy);
+          hitWall = true;
+        }
+
+        if (hitWall) {
+          pickColor();
+          playBeep(false); // Play the wall hit sound
+        }
+      },
+      draw() {
+        // Draw the DVD logo with its current background color.
+        ctx.fillStyle = logoColor;
+        ctx.fillRect(dvd.x, dvd.y, dvd.width, dvd.height);
+        ctx.fillStyle = "#000";
+        ctx.font = "bold 16px monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("DVD", dvd.x + dvd.width / 2, dvd.y + dvd.height / 2 - 10);
+        ctx.fillText("VIDEO", dvd.x + dvd.width / 2, dvd.y + dvd.height / 2 + 10);
+      },
+      getCenter() {
+        return {
+          x: dvd.x + dvd.width / 2,
+          y: dvd.y + dvd.height / 2
+        };
+      }
+    };
+    dvd.init();
+
+    // -------------------------------
+    // Check for a corner hit to award score.
+    // Here, we check if the DVD logo's bounding box touches both a horizontal and vertical boundary of the inner screen.
+    // -------------------------------
+    function checkCatch() {
+      const screen = tv.getScreenRect();
+      const epsilon = 2;  // Tolerance in pixels.
+      let hitX = (Math.abs(dvd.x - screen.x) < epsilon) ||
+                 (Math.abs((dvd.x + dvd.width) - (screen.x + screen.width)) < epsilon);
+      let hitY = (Math.abs(dvd.y - screen.y) < epsilon) ||
+                 (Math.abs((dvd.y + dvd.height) - (screen.y + screen.height)) < epsilon);
+      let caughtNow = hitX && hitY;
+      if (caughtNow && !dvd.caught) {
+        score++;
+        dvd.caught = true;
+        playBeep(true); // Play the corner hit sound
+      }
+      if (!caughtNow) {
+        dvd.caught = false;
+      }
+    }
+
+    // -------------------------------
+    // TV Movement via arrow keys and touch.
+    // -------------------------------
+    const keys = {};
+    window.addEventListener("keydown", (e) => { keys[e.key] = true; });
+    window.addEventListener("keyup", (e) => { keys[e.key] = false; });
+
+    // Touch handling
+    let isDragging = false;
+    let lastTouchX = 0;
+    let lastTouchY = 0;
+
+    canvas.addEventListener("touchstart", (e) => {
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+      
+      // Check if touch is within TV bounds
+      if (x >= tv.x && x <= tv.x + tv.width &&
+          y >= tv.y && y <= tv.y + tv.height) {
+        isDragging = true;
+        lastTouchX = x;
+        lastTouchY = y;
+        e.preventDefault(); // Prevent scrolling while dragging
+      }
+    });
+
+    canvas.addEventListener("touchmove", (e) => {
+      if (!isDragging) return;
+      
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+      
+      const dx = x - lastTouchX;
+      const dy = y - lastTouchY;
+      
+      tv.x += dx;
+      tv.y += dy;
+      
+      lastTouchX = x;
+      lastTouchY = y;
+      
+      e.preventDefault(); // Prevent scrolling while dragging
+    });
+
+    canvas.addEventListener("touchend", () => {
+      isDragging = false;
+    });
+
+    function updateTV() {
+      // Arrow key movement
+      if (keys["ArrowUp"])    tv.y -= tv.speed;
+      if (keys["ArrowDown"])  tv.y += tv.speed;
+      if (keys["ArrowLeft"])  tv.x -= tv.speed;
+      if (keys["ArrowRight"]) tv.x += tv.speed;
+      
+      // Constrain the TV within the canvas
+      if (tv.x < 0) tv.x = 0;
+      if (tv.y < 0) tv.y = 0;
+      if (tv.x > canvas.width - tv.width) tv.x = canvas.width - tv.width;
+      if (tv.y > canvas.height - tv.height) tv.y = canvas.height - tv.height;
+    }
+
+    // -------------------------------
+    // Main Game Loop.
+    // -------------------------------
+    function gameLoop() {
+      updateTV();
+      dvd.update();
+      checkCatch();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      tv.draw();
+      dvd.draw();
+      scoreDisplay.innerText = "Score: " + score;
+      requestAnimationFrame(gameLoop);
+    }
+    gameLoop();
+  </script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Bang Simulation!</title>
+    <style>
+        body { margin: 0; background: black; }
+        canvas { display: block; }
+        
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: grid;
+            gap: 15px;
+            min-width: 200px;
+        }
+
+        .control-panel label {
+            display: grid;
+            gap: 5px;
+        }
+
+        .control-panel input[type="range"] {
+            width: 100%;
+        }
+
+        .control-panel button {
+            background: #444;
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .control-panel button:hover {
+            background: #666;
+        }
+
+        .value-display {
+            font-size: 0.8em;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./node_modules/three/build/three.module.js",
+                "three/addons/": "./node_modules/three/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // Create scene
+        const scene = new THREE.Scene();
+        
+        // Create camera
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        // Create renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Universe simulation parameters
+        const PARTICLE_COUNT = 20000;
+        const GALAXY_CLUSTERS = 20;
+        let SIMULATION_SPEED = 1;
+        let time = 0;
+        let phase = 'singularity';
+        let isPlaying = true;
+        const MAX_TIME = 12;
+
+        // Create galaxy cluster centers
+        const galaxyCenters = [];
+        for(let i = 0; i < GALAXY_CLUSTERS; i++) {
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.random() * Math.PI;
+            const radius = 5 + Math.random() * 15;
+            galaxyCenters.push({
+                x: radius * Math.sin(phi) * Math.cos(theta),
+                y: radius * Math.sin(phi) * Math.sin(theta),
+                z: radius * Math.cos(phi),
+                rotationAxis: new THREE.Vector3(
+                    Math.random() - 0.5,
+                    Math.random() - 0.5,
+                    Math.random() - 0.5
+                ).normalize(),
+                rotationSpeed: (Math.random() + 0.5) * 0.001
+            });
+        }
+
+        // Create particles with custom shader for circular points
+        const particles = new THREE.BufferGeometry();
+        const positions = new Float32Array(PARTICLE_COUNT * 3);
+        const colors = new Float32Array(PARTICLE_COUNT * 3);
+        const velocities = new Float32Array(PARTICLE_COUNT * 3);
+        const clusters = new Float32Array(PARTICLE_COUNT);
+        const sizes = new Float32Array(PARTICLE_COUNT);
+
+        // Initialize particles
+        for(let i = 0; i < PARTICLE_COUNT * 3; i += 3) {
+            positions[i] = (Math.random() - 0.5) * 0.001;
+            positions[i + 1] = (Math.random() - 0.5) * 0.001;
+            positions[i + 2] = (Math.random() - 0.5) * 0.001;
+
+            colors[i] = 1;
+            colors[i + 1] = 1;
+            colors[i + 2] = 1;
+
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.random() * Math.PI;
+            velocities[i] = Math.sin(phi) * Math.cos(theta);
+            velocities[i + 1] = Math.sin(phi) * Math.sin(theta);
+            velocities[i + 2] = Math.cos(phi);
+
+            clusters[i/3] = Math.floor(Math.random() * GALAXY_CLUSTERS);
+            sizes[i/3] = Math.random() * 2 + 1; // Larger size range
+        }
+
+        particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        particles.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        // Custom shader material for circular particles
+        const particleMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                scale: { value: 1 }
+            },
+            vertexShader: `
+                attribute float size;
+                varying vec3 vColor;
+                uniform float scale;
+                void main() {
+                    vColor = color;
+                    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                    gl_PointSize = size * (300.0 / -mvPosition.z) * scale;
+                    gl_Position = projectionMatrix * mvPosition;
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vColor;
+                void main() {
+                    vec2 xy = gl_PointCoord.xy - vec2(0.5);
+                    float r = length(xy);
+                    if (r > 0.5) discard;
+                    float alpha = 1.0 - smoothstep(0.45, 0.5, r);
+                    gl_FragColor = vec4(vColor, alpha);
+                }
+            `,
+            transparent: true,
+            vertexColors: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+
+        const points = new THREE.Points(particles, particleMaterial);
+        scene.add(points);
+
+        // Setup OrbitControls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.screenSpacePanning = false;
+        controls.minDistance = 1;
+        controls.maxDistance = 100;
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Create control panel
+        const controlPanel = document.createElement('div');
+        controlPanel.className = 'control-panel';
+        
+        // Reset button
+        const resetButton = document.createElement('button');
+        resetButton.textContent = 'Reset Simulation';
+        resetButton.onclick = () => {
+            time = 0;
+            phase = 'singularity';
+            isPlaying = true;
+            timelineSlider.value = "0";
+            resetParticles();
+        };
+        
+        // Timeline slider
+        const timelineLabel = document.createElement('label');
+        timelineLabel.innerHTML = 'Timeline<br>';
+        const timelineSlider = document.createElement('input');
+        timelineSlider.type = 'range';
+        timelineSlider.min = '0';
+        timelineSlider.max = MAX_TIME.toString();
+        timelineSlider.step = '0.1';
+        timelineSlider.value = '0';
+        const timelineValue = document.createElement('div');
+        timelineValue.className = 'value-display';
+        timelineLabel.appendChild(timelineSlider);
+        timelineLabel.appendChild(timelineValue);
+        
+        timelineSlider.oninput = () => {
+            time = parseFloat(timelineSlider.value);
+            updatePhase();
+            resetParticles();
+        };
+        
+        // Speed control
+        const speedLabel = document.createElement('label');
+        speedLabel.innerHTML = 'Simulation Speed<br>';
+        const speedSlider = document.createElement('input');
+        speedSlider.type = 'range';
+        speedSlider.min = '0.1';
+        speedSlider.max = '5';
+        speedSlider.step = '0.1';
+        speedSlider.value = '1';
+        const speedValue = document.createElement('div');
+        speedValue.className = 'value-display';
+        speedLabel.appendChild(speedSlider);
+        speedLabel.appendChild(speedValue);
+        
+        speedSlider.oninput = () => {
+            SIMULATION_SPEED = parseFloat(speedSlider.value);
+            speedValue.textContent = `${SIMULATION_SPEED}x`;
+        };
+        
+        // Play/Pause button
+        const playPauseButton = document.createElement('button');
+        playPauseButton.textContent = 'Pause';
+        playPauseButton.onclick = () => {
+            isPlaying = !isPlaying;
+            playPauseButton.textContent = isPlaying ? 'Pause' : 'Play';
+        };
+        
+        // Add elements to control panel
+        controlPanel.appendChild(resetButton);
+        controlPanel.appendChild(timelineLabel);
+        controlPanel.appendChild(speedLabel);
+        controlPanel.appendChild(playPauseButton);
+        document.body.appendChild(controlPanel);
+        
+        // Timeline display
+        const timelineDiv = document.createElement('div');
+        timelineDiv.style.position = 'fixed';
+        timelineDiv.style.bottom = '20px';
+        timelineDiv.style.left = '20px';
+        timelineDiv.style.color = 'white';
+        timelineDiv.style.fontFamily = 'Arial, sans-serif';
+        timelineDiv.style.fontSize = '16px';
+        timelineDiv.style.textShadow = '2px 2px 2px black';
+        document.body.appendChild(timelineDiv);
+
+        // Function to reset particles to initial state
+        function resetParticles() {
+            const positions = points.geometry.attributes.position.array;
+            const colors = points.geometry.attributes.color.array;
+            
+            for(let i = 0; i < PARTICLE_COUNT * 3; i += 3) {
+                if(phase === 'singularity') {
+                    positions[i] = (Math.random() - 0.5) * 0.001;
+                    positions[i + 1] = (Math.random() - 0.5) * 0.001;
+                    positions[i + 2] = (Math.random() - 0.5) * 0.001;
+                } else {
+                    const radius = time * 2;
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.random() * Math.PI;
+                    positions[i] = radius * Math.sin(phi) * Math.cos(theta);
+                    positions[i + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                    positions[i + 2] = radius * Math.cos(phi);
+                }
+                
+                colors[i] = 1;
+                colors[i + 1] = 1;
+                colors[i + 2] = 1;
+            }
+            
+            points.geometry.attributes.position.needsUpdate = true;
+            points.geometry.attributes.color.needsUpdate = true;
+        }
+
+        // Function to update phase based on time
+        function updatePhase() {
+            if(time < 1) {
+                phase = 'singularity';
+            } else if(time < 3) {
+                phase = 'inflation';
+            } else if(time < 8) {
+                phase = 'expansion';
+            } else {
+                phase = 'formation';
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if(isPlaying) {
+                time += 0.016 * SIMULATION_SPEED;
+                time = Math.min(time, MAX_TIME);
+                timelineSlider.value = time.toString();
+                updatePhase();
+            }
+
+            const positions = points.geometry.attributes.position.array;
+            const colors = points.geometry.attributes.color.array;
+
+            // Update particles based on phase
+            for(let i = 0; i < positions.length; i += 3) {
+                switch(phase) {
+                    case 'singularity':
+                        positions[i] += (Math.random() - 0.5) * 0.0001;
+                        positions[i + 1] += (Math.random() - 0.5) * 0.0001;
+                        positions[i + 2] += (Math.random() - 0.5) * 0.0001;
+                        break;
+
+                    case 'inflation':
+                        positions[i] *= 1.1;
+                        positions[i + 1] *= 1.1;
+                        positions[i + 2] *= 1.1;
+                        break;
+
+                    case 'expansion':
+                        positions[i] += velocities[i] * 0.01;
+                        positions[i + 1] += velocities[i + 1] * 0.01;
+                        positions[i + 2] += velocities[i + 2] * 0.01;
+                        
+                        colors[i] = Math.max(0.2, colors[i] - 0.01);
+                        colors[i + 1] = Math.max(0.1, colors[i + 1] - 0.02);
+                        colors[i + 2] = Math.max(0.3, colors[i + 2] - 0.005);
+                        break;
+
+                    case 'formation':
+                        const cluster = clusters[i/3];
+                        const center = galaxyCenters[cluster];
+                        
+                        positions[i] += (center.x - positions[i]) * 0.001;
+                        positions[i + 1] += (center.y - positions[i + 1]) * 0.001;
+                        positions[i + 2] += (center.z - positions[i + 2]) * 0.001;
+                        
+                        const toCenter = new THREE.Vector3(
+                            center.x - positions[i],
+                            center.y - positions[i + 1],
+                            center.z - positions[i + 2]
+                        );
+                        const rotationMatrix = new THREE.Matrix4();
+                        rotationMatrix.makeRotationAxis(
+                            center.rotationAxis,
+                            center.rotationSpeed
+                        );
+                        toCenter.applyMatrix4(rotationMatrix);
+                        
+                        positions[i] = center.x - toCenter.x;
+                        positions[i + 1] = center.y - toCenter.y;
+                        positions[i + 2] = center.z - toCenter.z;
+                        
+                        positions[i] += (Math.random() - 0.5) * 0.01;
+                        positions[i + 1] += (Math.random() - 0.5) * 0.01;
+                        positions[i + 2] += (Math.random() - 0.5) * 0.01;
+                        break;
+                }
+            }
+
+            // Update timeline display
+            const timeInBillionYears = (time * 0.5).toFixed(2);
+            timelineDiv.textContent = `Phase: ${phase.toUpperCase()} | Time: ${timeInBillionYears} billion years`;
+            timelineValue.textContent = `${timeInBillionYears} billion years`;
+            speedValue.textContent = `${SIMULATION_SPEED}x`;
+
+            points.geometry.attributes.position.needsUpdate = true;
+            points.geometry.attributes.color.needsUpdate = true;
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

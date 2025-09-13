@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Conquest</title>
+    <style>
+        body { 
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            height: 100vh;
+            display: flex;
+        }
+        .left-panel {
+            width: 300px;
+            background: white;
+            padding: 20px;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        h3 {
+            margin: 0;
+            color: #1976d2;
+            font-size: 1.1em;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e3f2fd;
+        }
+        .player-section {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e3f2fd;
+        }
+        .player-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .current-player, .opponent-player {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: #f8f9fa;
+        }
+        .name-input-container {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+        .save-button {
+            padding: 8px 12px;
+            min-width: 60px;
+            white-space: nowrap;
+        }
+        .player-info-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .current-player.active, .opponent-player.active {
+            background: #e3f2fd;
+        }
+        .player-symbol, .opponent-symbol {
+            font-weight: bold;
+            color: #1976d2;
+            min-width: 20px;
+        }
+        .player-status {
+            font-size: 0.8em;
+            color: #666;
+        }
+        .opponent-name {
+            color: #666;
+            font-style: italic;
+        }
+        .room-info {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e3f2fd;
+        }
+        .room-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ccc;
+            margin-left: auto;
+        }
+        .status-dot.connected {
+            background: #4caf50;
+        }
+        .room-code-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .room-code-container:hover {
+            background: #e3f2fd;
+        }
+        .room-code-container::after {
+            content: 'Click to copy';
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+        .room-code-container:hover::after {
+            opacity: 1;
+        }
+        .room-code {
+            font-family: monospace;
+            font-size: 1.2em;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .copy-feedback {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        .copy-feedback.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .room-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .join-input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .join-container {
+            display: flex;
+            gap: 8px;
+        }
+        .leave-room {
+            background: #ff5252;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        .leave-room:hover {
+            background: #ff1744;
+        }
+        .main-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 20px;
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .game-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .game-status {
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+        }
+        .game-canvas-container {
+            position: relative;
+            margin: 20px 0;
+        }
+        #game-canvas {
+            border: 2px solid #1976d2;
+            border-radius: 8px;
+            background-color: #87CEEB; /* Sky blue background */
+        }
+        .game-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .angle-power-controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .control-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .control-value {
+            font-family: monospace;
+            background: #f0f2f5;
+            padding: 5px 10px;
+            border-radius: 4px;
+            min-width: 40px;
+            text-align: center;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        input[type="range"] {
+            width: 150px;
+        }
+        .throw-button {
+            background: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .throw-button:hover {
+            background: #388e3c;
+        }
+        .throw-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .movement-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .control-row {
+            display: flex;
+            gap: 5px;
+            margin: 5px 0;
+        }
+        .movement-button, .rotation-button {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1976d2;
+        }
+        .rotation-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        .chat-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .connection-status {
+            text-align: center;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 20px;
+            max-height: 300px;
+        }
+        .message {
+            margin: 8px 0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 70%;
+        }
+        .message.received {
+            background: #e3f2fd;
+            align-self: flex-start;
+        }
+        .message.sent {
+            background: #e8f5e9;
+            align-self: flex-end;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+        }
+        button {
+            padding: 10px 20px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #1565c0;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .connection-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="left-panel">
+        <div class="player-section">
+            <h3>Players</h3>
+            <div class="player-info">
+                <div class="current-player">
+                    <div class="name-input-container">
+                        <input type="text" id="player-name" class="join-input" placeholder="Enter your name" maxlength="20">
+                        <button id="save-name" class="save-button">Save</button>
+                    </div>
+                    <div class="player-info-row">
+                        <span class="player-symbol"></span>
+                        <span class="player-status">(You)</span>
+                    </div>
+                </div>
+                <div class="opponent-player">
+                    <span class="opponent-name">Waiting for opponent...</span>
+                    <span class="opponent-symbol"></span>
+                </div>
+            </div>
+        </div>
+        <div class="room-info">
+            <div class="room-header">
+                <h3>Room</h3>
+                <div id="connection-status-dot" class="status-dot"></div>
+            </div>
+            <div id="connection-status">Not connected</div>
+            <div id="room-code-display" class="room-code-container" style="display: none;">
+                <div id="room-code" class="room-code"></div>
+            </div>
+            <div class="room-actions">
+                <button id="create-room">Create Room</button>
+                <div class="join-container">
+                    <input type="text" id="room-code-input" class="join-input" placeholder="Enter room code">
+                    <button id="join-room">Join</button>
+                </div>
+                <button id="leave-room" class="leave-room" style="display: none;">Leave Room</button>
+            </div>
+            <div id="copy-feedback" class="copy-feedback">Code copied!</div>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="game-container">
+            <div class="game-status">Waiting for opponent...</div>
+            <div class="game-canvas-container">
+                <canvas id="game-canvas" width="600" height="400"></canvas>
+            </div>
+        <div class="game-controls">
+            <div class="movement-controls">
+                <div class="control-row">
+                    <button id="forward-button" class="movement-button">↑</button>
+                </div>
+                <div class="control-row">
+                    <button id="left-button" class="movement-button">←</button>
+                    <button id="backward-button" class="movement-button">↓</button>
+                    <button id="right-button" class="movement-button">→</button>
+                </div>
+            </div>
+            <div class="rotation-controls">
+                <button id="rotate-left-button" class="rotation-button">⟲</button>
+                <button id="rotate-right-button" class="rotation-button">⟳</button>
+            </div>
+            <div class="angle-power-controls">
+                <div class="control-group">
+                    <div class="control-label">Aim Angle</div>
+                    <div class="slider-container">
+                        <input type="range" id="angle-slider" min="-45" max="45" value="0" class="slider">
+                        <div class="control-value" id="angle-value">0°</div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Power</div>
+                    <div class="slider-container">
+                        <input type="range" id="power-slider" min="10" max="100" value="50" class="slider">
+                        <div class="control-value" id="power-value">50</div>
+                    </div>
+                </div>
+            </div>
+            <button id="throw-button" class="throw-button" disabled>Shoot!</button>
+            </div>
+            <button id="reset-game" style="display: none;">New Game</button>
+        </div>
+        <div class="chat-container">
+            <div id="messages" class="messages"></div>
+            <div class="input-area">
+                <input type="text" id="message-input" placeholder="Type a message..." disabled>
+                <button id="send-button" disabled>Send</button>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="src/index.js"></script>
+</body>
+</html>

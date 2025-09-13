@@ -1,0 +1,149 @@
+{{ define "main" }}
+<style>
+    /* Override main content styles from base template */
+    main {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+    header {
+        padding: 0;
+        margin: 0;
+    }
+</style>
+<div class="places-section" id="places-section">
+    <!-- Full Viewport Map -->
+    <div class="map-container" id="places-map"></div>
+    
+    <!-- Unified Header in Pill Mode -->
+    {{ partial "header.html" (dict "mode" "pill" "Site" .Site "Page" .) }}
+    
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+    
+    <!-- Side Panel -->
+    <div class="side-panel" id="side-panel">
+        <!-- Panel toggle button -->
+        <div class="panel-hide-toggle" id="panel-hide-toggle" title="Hide Panel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 18l-6-6 6-6"></path>
+            </svg>
+        </div>
+        
+        <header class="side-panel-header">
+            <h1>Places</h1>
+            {{ with .Description }}<p>{{ . }}</p>{{ end }}
+        </header>
+        
+        <!-- Search and Filters -->
+        <div class="search-container">
+            <input type="text" id="search-input" class="search-input" placeholder="Search places...">
+        </div>
+
+        <!-- Visit Status Toggle -->
+        <div class="visit-status-toggle" id="visit-status-toggle">
+            <div class="segmented-control">
+                <input type="radio" name="visit-status" id="visited-option" value="visited" checked>
+                <label for="visited-option" class="segment-label">Visited</label>
+                
+                <input type="radio" name="visit-status" id="unvisited-option" value="unvisited">
+                <label for="unvisited-option" class="segment-label">Unvisited</label>
+                
+                <div class="segment-slider"></div>
+            </div>
+        </div>
+        
+        <div class="tag-filters" id="tag-filters">
+            {{ $allTags := slice }}
+            {{ range .Pages }}
+                {{ range .Params.tags }}
+                    {{ $allTags = $allTags | append . }}
+                {{ end }}
+            {{ end }}
+            
+            {{ range $allTags | uniq }}
+                {{ if ne . "unvisited" }}
+                    <span class="tag-filter" data-tag="{{ . }}">{{ . }}</span>
+                {{ end }}
+            {{ end }}
+        </div>
+        
+        
+        <!-- Places List -->
+        <div class="places-content" id="places-content">
+            <div class="places-list" id="places-list">
+                {{ range .Pages }}
+                <div class="place-item" data-lat="{{ .Params.lat }}" data-lng="{{ .Params.lng }}">
+                    <div class="place-content">
+                        <h3 class="place-title">{{ .Title }}</h3>
+                        {{ with .Params.description }}<p class="place-description">{{ . }}</p>{{ end }}
+                    </div>
+                    {{ with .Resources.Match "*.jpeg" }}
+                    <div class="place-images-gallery">
+                        {{ range . }}
+                        {{ $thumbnail := .Resize "160x" }}
+                        <div class="place-image-pin">
+                            <img src="{{ $thumbnail.RelPermalink }}" alt="{{ .Name }}" loading="lazy">
+                        </div>
+                        {{ end }}
+                    </div>
+                    {{ end }}
+                </div>
+                {{ end }}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mobile Toggle Button -->
+    <div class="panel-toggle" id="panel-toggle">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </div>
+    
+    <!-- Show Panel Button -->
+    <div class="panel-show-toggle hidden" id="panel-show-toggle" title="Show Panel">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6"></path>
+        </svg>
+    </div>
+
+    <!-- Places Data -->
+    <script type="application/json" id="places-data">
+        [
+            {{ $first := true }}
+            {{ range .Pages }}
+                {{ if $first }}{{ $first = false }}{{ else }},{{ end }}
+                {
+                    "title": {{ .Title | jsonify }},
+                    "description": {{ .Params.description | jsonify }},
+                    "lat": {{ .Params.lat }},
+                    "lng": {{ .Params.lng }},
+                    "tags": {{ .Params.tags | jsonify }},
+                    "urls": {{ .Params.urls | jsonify }},
+                    "permalink": {{ .RelPermalink | jsonify }},
+                    "images": [
+                        {{ $first := true }}
+                        {{ range .Resources.Match "*.jpeg" }}
+                            {{ if $first }}{{ $first = false }}{{ else }},{{ end }}
+                            {{ $thumbnail := .Resize "160x" }}
+                            {
+                                "path": {{ $thumbnail.RelPermalink | jsonify }},
+                                "name": {{ .Name | jsonify }}
+                            }
+                        {{ end }}
+                    ]
+                }
+            {{ end }}
+        ]
+    </script>
+</div>
+
+<!-- Dependencies -->
+<link rel="stylesheet" href="/places/node_modules/leaflet/dist/leaflet.css">
+<link rel="stylesheet" href="/places/css/main.css">
+<script src="/places/node_modules/leaflet/dist/leaflet.js"></script>
+<script type="module" src="/places/js/places.js" defer></script>
+{{ end }}

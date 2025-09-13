@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Screen Size Calculator</title>
+    <style>
+        /* Theme variables */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000;
+            --border-color: #eee;
+            --link-color: #000;
+            --link-hover-color: #000;
+            --secondary-text: #666;
+        }
+
+        .dark-mode {
+            --bg-color: #111;
+            --text-color: #fff;
+            --border-color: #333;
+            --link-color: #fff;
+            --link-hover-color: #fff;
+            --secondary-text: #999;
+        }
+
+        /* Base styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .calculator-form {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.95rem;
+            color: var(--secondary-text);
+        }
+
+        input, select {
+            font-family: inherit;
+            font-size: 1rem;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            font-family: inherit;
+            font-size: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--text-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .results {
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .result-item {
+            margin-bottom: 1rem;
+        }
+
+        .result-label {
+            font-size: 0.95rem;
+            color: var(--secondary-text);
+            margin-bottom: 0.25rem;
+        }
+
+        .result-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Screen Size Calculator</h1>
+        
+        <div class="calculator-form">
+            <div class="input-group">
+                <label for="diagonal">Screen Diagonal (inches)</label>
+                <input type="number" id="diagonal" min="0" step="0.1" placeholder="Enter diagonal size">
+                <div class="error" id="diagonal-error"></div>
+            </div>
+
+            <div class="input-group">
+                <label for="aspect-ratio">Aspect Ratio</label>
+                <select id="aspect-ratio" required>
+                    <option value="">Select aspect ratio</option>
+                    <option value="16:9" selected>16:9 (Widescreen)</option>
+                    <option value="4:3">4:3 (Standard)</option>
+                    <option value="21:9">21:9 (Ultrawide)</option>
+                    <option value="32:9">32:9 (Super Ultrawide)</option>
+                </select>
+                <div class="error" id="aspect-ratio-error"></div>
+            </div>
+
+            <button type="button" id="calculate">Calculate</button>
+        </div>
+
+        <div class="results" id="results" style="display: none;">
+            <div class="result-item">
+                <div class="result-label">Diagonal Size</div>
+                <div class="result-value" id="diagonal-result"></div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">Screen Area</div>
+                <div class="result-value" id="area"></div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">Recommended Resolutions</div>
+                <div class="result-value" id="resolutions"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme handling
+        function initTheme() {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const storedTheme = localStorage.getItem('darkMode');
+            const shouldBeDark = storedTheme === 'true' || (storedTheme === null && prefersDark);
+            
+            if (shouldBeDark) {
+                document.documentElement.classList.add('dark-mode');
+                document.body.classList.add('dark-mode');
+            }
+        }
+
+        // Initialize theme
+        initTheme();
+
+        // Listen for theme changes from parent
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'theme') {
+                const isDark = event.data.theme === 'dark';
+                if (isDark) {
+                    document.documentElement.classList.add('dark-mode');
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    document.body.classList.remove('dark-mode');
+                }
+            }
+        });
+
+        // Calculator functionality
+        const diagonal = document.getElementById('diagonal');
+        const aspectRatioSelect = document.getElementById('aspect-ratio');
+        const calculateButton = document.getElementById('calculate');
+        const resultsDiv = document.getElementById('results');
+        const diagonalResult = document.getElementById('diagonal-result');
+        const areaResult = document.getElementById('area');
+        const resolutionsResult = document.getElementById('resolutions');
+
+        function calculateDimensions(diagonal, aspectRatio) {
+            const [w, h] = aspectRatio.split(':').map(Number);
+            const ratio = w / h;
+            
+            // Using the Pythagorean theorem: diagonal² = width² + height²
+            // And knowing that width = ratio * height
+            // We can solve for height: height = diagonal / √(1 + ratio²)
+            const height = diagonal / Math.sqrt(1 + ratio * ratio);
+            const width = height * ratio;
+            
+            return { width, height };
+        }
+
+        function inchesToCm(inches) {
+            return inches * 2.54;
+        }
+
+        function squareInchesToSquareCm(squareInches) {
+            return squareInches * 6.4516;
+        }
+
+        function calculateArea(width, height) {
+            return width * height;
+        }
+
+        function getRecommendedResolutions(diagonal) {
+            const resolutions = [
+                { min: 0, max: 21, res: ['1366x768', '1600x900'] },
+                { min: 21, max: 24, res: ['1920x1080', '2560x1440'] },
+                { min: 24, max: 27, res: ['2560x1440', '3840x2160'] },
+                { min: 27, max: 32, res: ['3840x2160', '5120x2880'] },
+                { min: 32, max: Infinity, res: ['3840x2160', '5120x2880', '7680x4320'] }
+            ];
+
+            for (const range of resolutions) {
+                if (diagonal >= range.min && diagonal < range.max) {
+                    return range.res;
+                }
+            }
+            return ['1920x1080'];
+        }
+
+        function validateInputs() {
+            let isValid = true;
+            const diagonalError = document.getElementById('diagonal-error');
+            const aspectRatioError = document.getElementById('aspect-ratio-error');
+            
+            diagonalError.textContent = '';
+            aspectRatioError.textContent = '';
+
+            if (!diagonal.value) {
+                diagonalError.textContent = 'Diagonal size is required';
+                isValid = false;
+            } else if (parseFloat(diagonal.value) <= 0) {
+                diagonalError.textContent = 'Diagonal size must be greater than 0';
+                isValid = false;
+            }
+
+            if (!aspectRatioSelect.value) {
+                aspectRatioError.textContent = 'Please select an aspect ratio';
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function calculate() {
+            if (!validateInputs()) return;
+
+            const diagonalSize = parseFloat(diagonal.value);
+            const dimensions = calculateDimensions(diagonalSize, aspectRatioSelect.value);
+            const area = calculateArea(dimensions.width, dimensions.height);
+            const resolutions = getRecommendedResolutions(diagonalSize);
+
+            const diagonalCm = inchesToCm(diagonalSize);
+            const areaCm = squareInchesToSquareCm(area);
+            const widthCm = inchesToCm(dimensions.width);
+            const heightCm = inchesToCm(dimensions.height);
+
+            diagonalResult.textContent = `${diagonalSize.toFixed(1)} inches (${diagonalCm.toFixed(1)} cm)`;
+            areaResult.textContent = `${area.toFixed(1)} square inches (${areaCm.toFixed(1)} cm²) | ${dimensions.width.toFixed(1)}" × ${dimensions.height.toFixed(1)}" (${widthCm.toFixed(1)} cm × ${heightCm.toFixed(1)} cm)`;
+            resolutionsResult.textContent = resolutions.join(', ');
+
+            resultsDiv.style.display = 'block';
+        }
+
+        calculateButton.addEventListener('click', calculate);
+
+        // Handle Enter key
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                calculate();
+            }
+        });
+    </script>
+</body>
+</html>

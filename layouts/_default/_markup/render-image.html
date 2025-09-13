@@ -1,0 +1,42 @@
+{{- $u := urls.Parse .Destination -}}
+{{- $src := $u.String -}}
+{{- if not $u.IsAbs -}}
+  {{- $path := strings.TrimPrefix "./" $u.Path -}}
+  {{- with or (.PageInner.Resources.Get $path) (resources.Get $path) -}}
+    {{- $img := . -}}
+    {{- $src = .RelPermalink -}}
+    
+    {{- /* Check if we can process this image */ -}}
+    {{- if and (eq $img.MediaType.MainType "image") (or (eq $img.MediaType.SubType "jpeg") (eq $img.MediaType.SubType "jpg") (eq $img.MediaType.SubType "png") (eq $img.MediaType.SubType "webp")) -}}
+      {{- /* Check if we're in a summary context */ -}}
+      {{- $page := $.Page -}}
+      {{- $isListPage := in (slice "home" "section" "taxonomy" "term") $page.Kind -}}
+      
+      {{- if $isListPage -}}
+        {{- /* For list pages (home, archives, etc): create smaller thumbnails */ -}}
+        {{- $thumbnail := $img.Resize "600x q85" -}}
+        {{- $src = $thumbnail.RelPermalink -}}
+      {{- else -}}
+        {{- /* For single pages: optimize but keep reasonable size */ -}}
+        {{- $optimized := $img.Resize "1200x q90" -}}
+        {{- $src = $optimized.RelPermalink -}}
+      {{- end -}}
+    {{- end -}}
+    
+    {{- with $u.RawQuery -}}
+      {{- $src = printf "%s?%s" $src . -}}
+    {{- end -}}
+    {{- with $u.Fragment -}}
+      {{- $src = printf "%s#%s" $src . -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+<img src="{{ $src }}" alt="{{ .PlainText }}" loading="lazy"
+  {{- with .Title }} title="{{ . }}" {{- end -}}
+  {{- range $k, $v := .Attributes -}}
+    {{- if $v -}}
+      {{- printf " %s=%q" $k ($v | transform.HTMLEscape) | safeHTMLAttr -}}
+    {{- end -}}
+  {{- end -}}
+>
+{{- /**/ -}}

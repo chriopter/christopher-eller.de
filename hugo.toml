@@ -1,0 +1,30 @@
+baseURL = 'https://christopher-eller.de/'
+languageCode = 'de-DE'
+title = 'Christopher Eller'
+
+[outputs]
+home = ["HTML", "RSS"]
+section = ["HTML"]
+page = ["HTML"]
+
+# Changes rss-feed to feed.xml
+[outputFormats.RSS]
+baseName = "feed"
+
+# Number of items per page in lists
+paginate = 10
+paginatePath = "page"
+
+[params]
+  description = "Personal website of Christopher Eller - Sharing texts, links, and photos"
+  favicon = true
+  site_manifest = "/site.webmanifest"
+  
+
+[markup.goldmark.renderhooks.image]
+  enable = true
+  multilingualOnly = false
+
+[markup.goldmark.renderhooks.link]
+  enable = true
+  multilingualOnly = false
