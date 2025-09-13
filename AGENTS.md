@@ -20,6 +20,32 @@ Hugo-powered personal site with posts, photos, links, and an interactive places 
 - Content helpers: `hugo new content/links/your-title.md`, `hugo new content/places/location-name.md`.
 - NPM packages: All use latest versions (*) and are installed automatically via serve.sh. Dependencies are gitignored.
 
+## JavaScript Dependencies & Package Management
+- **NEVER use CDN links** for JavaScript libraries in HTML files.
+- **ALWAYS use package.json** to manage dependencies for interactive bits/projects.
+- **ALWAYS use `"*"` for package versions** - never pin to specific versions.
+- For projects in `static/bits/`:
+  - Create a `package.json` with all required dependencies.
+  - **MUST use `"*"` for all version numbers** to ensure latest versions.
+  - Import modules locally from `node_modules/` after installing.
+  - Example structure (see `static/bits/world-conquest/package.json`):
+    ```json
+    {
+      "name": "project-name",
+      "version": "1.0.0",
+      "dependencies": {
+        "library-name": "*",
+        "another-lib": "*"
+      },
+      "devDependencies": {
+        "dev-tool": "*"
+      }
+    }
+    ```
+- Run `npm install` in the project directory to install dependencies.
+- Reference installed packages via local paths or ES6 imports, not external CDNs.
+- **NO version pinning** - all packages should use `"*"` to stay on latest.
+
 ## Coding Style & Naming Conventions
 - Content front matter: `title`, `date`, `tags`; prefer descriptive filenames, kebab-case slugs.
 - Templates: Go templates, 2-space indent; keep partials small and reusable.
