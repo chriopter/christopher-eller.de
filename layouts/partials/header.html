@@ -48,7 +48,7 @@
                 {{ $files := readDir "static/bits" }}
                 {{ range $files }}
                     {{ if .IsDir }}
-                    <a href="/bits/{{ .Name }}" target="_blank">{{ .Name | humanize | title }}</a>
+                    <a href="/bits/{{ .Name }}" target="_blank">{{ .Name | humanize | lower }}</a>
                     {{ end }}
                 {{ end }}
             {{ end }}
