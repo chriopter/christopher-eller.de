@@ -1,5 +1,5 @@
 # christopher-eller.de
-My Site in Hugo
+My Site in Hugo.
 
 ## Content Features
 
