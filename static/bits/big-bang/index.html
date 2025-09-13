@@ -3,55 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Big Bang Simulation!</title>
+    <title>Big Bang</title>
     <style>
-        body { margin: 0; background: black; }
-        canvas { display: block; }
-        
-        .control-panel {
+        body {
+            margin: 0;
+            background: radial-gradient(ellipse at center, #0a0a2e 0%, #000000 100%);
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        .phase-indicator {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 8px;
-            color: white;
-            font-family: Arial, sans-serif;
-            display: grid;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+        .subtitle {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            letter-spacing: 2px;
+            pointer-events: none;
+        }
+        .time-control {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            display: flex;
+            align-items: center;
             gap: 15px;
-            min-width: 200px;
         }
-
-        .control-panel label {
-            display: grid;
-            gap: 5px;
+        .time-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            border-radius: 2px;
         }
-
-        .control-panel input[type="range"] {
-            width: 100%;
-        }
-
-        .control-panel button {
-            background: #444;
-            border: none;
-            color: white;
-            padding: 8px;
-            border-radius: 4px;
+        .time-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: white;
             cursor: pointer;
-            transition: background 0.2s;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
-
-        .control-panel button:hover {
-            background: #666;
+        .time-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: white;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
-
-        .value-display {
-            font-size: 0.8em;
-            color: #aaa;
+        .play-button {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .play-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
         }
     </style>
 </head>
 <body>
+    <div class="subtitle">13.8 BILLION YEARS IN 30 SECONDS</div>
+    <div class="phase-indicator" id="phase">SINGULARITY</div>
+    <div class="time-control">
+        <button class="play-button" id="playBtn">▶</button>
+        <input type="range" class="time-slider" id="timeSlider" min="0" max="1" step="0.001" value="0">
+    </div>
+
     <script type="importmap">
         {
             "imports": {
@@ -64,102 +114,115 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        // Create scene
+        // Scene setup
         const scene = new THREE.Scene();
-        
-        // Create camera
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 5;
+        camera.position.z = 30;
 
-        // Create renderer
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
         document.body.appendChild(renderer.domElement);
 
-        // Universe simulation parameters
-        const PARTICLE_COUNT = 20000;
-        const GALAXY_CLUSTERS = 20;
-        let SIMULATION_SPEED = 1;
-        let time = 0;
-        let phase = 'singularity';
+        // Simulation parameters
+        const PARTICLE_COUNT = 50000;
+        const CYCLE_DURATION = 30000; // 30 seconds in milliseconds
+        let startTime = Date.now();
         let isPlaying = true;
-        const MAX_TIME = 12;
+        let progress = 0;
 
-        // Create galaxy cluster centers
-        const galaxyCenters = [];
-        for(let i = 0; i < GALAXY_CLUSTERS; i++) {
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.random() * Math.PI;
-            const radius = 5 + Math.random() * 15;
-            galaxyCenters.push({
-                x: radius * Math.sin(phi) * Math.cos(theta),
-                y: radius * Math.sin(phi) * Math.sin(theta),
-                z: radius * Math.cos(phi),
-                rotationAxis: new THREE.Vector3(
-                    Math.random() - 0.5,
-                    Math.random() - 0.5,
-                    Math.random() - 0.5
-                ).normalize(),
-                rotationSpeed: (Math.random() + 0.5) * 0.001
-            });
-        }
+        // Phase definitions
+        const phases = [
+            { name: 'SINGULARITY', start: 0, end: 0.05, color: new THREE.Color(1, 1, 1) },
+            { name: 'INFLATION', start: 0.05, end: 0.15, color: new THREE.Color(1, 0.8, 0.3) },
+            { name: 'PARTICLE ERA', start: 0.15, end: 0.3, color: new THREE.Color(0.5, 0.7, 1) },
+            { name: 'NUCLEOSYNTHESIS', start: 0.3, end: 0.45, color: new THREE.Color(1, 0.5, 0.2) },
+            { name: 'FIRST STARS', start: 0.45, end: 0.6, color: new THREE.Color(0.8, 0.8, 1) },
+            { name: 'GALAXY FORMATION', start: 0.6, end: 0.8, color: new THREE.Color(0.6, 0.4, 0.9) },
+            { name: 'PRESENT DAY', start: 0.8, end: 1.0, color: new THREE.Color(0.3, 0.5, 0.8) }
+        ];
 
-        // Create particles with custom shader for circular points
-        const particles = new THREE.BufferGeometry();
+        // Create particles
+        const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(PARTICLE_COUNT * 3);
         const colors = new Float32Array(PARTICLE_COUNT * 3);
-        const velocities = new Float32Array(PARTICLE_COUNT * 3);
-        const clusters = new Float32Array(PARTICLE_COUNT);
         const sizes = new Float32Array(PARTICLE_COUNT);
+        const velocities = new Float32Array(PARTICLE_COUNT * 3);
+        const originalPositions = new Float32Array(PARTICLE_COUNT * 3);
 
         // Initialize particles
-        for(let i = 0; i < PARTICLE_COUNT * 3; i += 3) {
-            positions[i] = (Math.random() - 0.5) * 0.001;
-            positions[i + 1] = (Math.random() - 0.5) * 0.001;
-            positions[i + 2] = (Math.random() - 0.5) * 0.001;
+        for(let i = 0; i < PARTICLE_COUNT; i++) {
+            const i3 = i * 3;
 
-            colors[i] = 1;
-            colors[i + 1] = 1;
-            colors[i + 2] = 1;
+            // Start at singularity
+            positions[i3] = 0;
+            positions[i3 + 1] = 0;
+            positions[i3 + 2] = 0;
 
+            // Random explosion direction
             const theta = Math.random() * Math.PI * 2;
-            const phi = Math.random() * Math.PI;
-            velocities[i] = Math.sin(phi) * Math.cos(theta);
-            velocities[i + 1] = Math.sin(phi) * Math.sin(theta);
-            velocities[i + 2] = Math.cos(phi);
+            const phi = Math.acos(2 * Math.random() - 1);
+            const speed = 0.5 + Math.random() * 2;
 
-            clusters[i/3] = Math.floor(Math.random() * GALAXY_CLUSTERS);
-            sizes[i/3] = Math.random() * 2 + 1; // Larger size range
+            velocities[i3] = Math.sin(phi) * Math.cos(theta) * speed;
+            velocities[i3 + 1] = Math.sin(phi) * Math.sin(theta) * speed;
+            velocities[i3 + 2] = Math.cos(phi) * speed;
+
+            // Initial white color
+            colors[i3] = 1;
+            colors[i3 + 1] = 1;
+            colors[i3 + 2] = 1;
+
+            // Varying sizes
+            sizes[i] = Math.random() * 3 + 0.5;
+
+            // Store original positions for galaxy formation
+            const galaxyRadius = 15 + Math.random() * 25;
+            const galaxyTheta = Math.random() * Math.PI * 2;
+            originalPositions[i3] = Math.cos(galaxyTheta) * galaxyRadius;
+            originalPositions[i3 + 1] = (Math.random() - 0.5) * 10;
+            originalPositions[i3 + 2] = Math.sin(galaxyTheta) * galaxyRadius;
         }
 
-        particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        particles.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
-        // Custom shader material for circular particles
-        const particleMaterial = new THREE.ShaderMaterial({
+        // Custom shader for glowing particles
+        const shaderMaterial = new THREE.ShaderMaterial({
             uniforms: {
-                scale: { value: 1 }
+                time: { value: 0 },
+                phase: { value: 0 }
             },
             vertexShader: `
                 attribute float size;
                 varying vec3 vColor;
-                uniform float scale;
+                uniform float time;
+
                 void main() {
                     vColor = color;
                     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                    gl_PointSize = size * (300.0 / -mvPosition.z) * scale;
+                    gl_PointSize = size * (300.0 / -mvPosition.z);
                     gl_Position = projectionMatrix * mvPosition;
                 }
             `,
             fragmentShader: `
                 varying vec3 vColor;
+                uniform float phase;
+
                 void main() {
-                    vec2 xy = gl_PointCoord.xy - vec2(0.5);
-                    float r = length(xy);
-                    if (r > 0.5) discard;
-                    float alpha = 1.0 - smoothstep(0.45, 0.5, r);
-                    gl_FragColor = vec4(vColor, alpha);
+                    vec2 center = gl_PointCoord - vec2(0.5);
+                    float dist = length(center);
+
+                    if(dist > 0.5) discard;
+
+                    float glow = 1.0 - dist * 2.0;
+                    glow = pow(glow, 2.0);
+
+                    vec3 finalColor = vColor * (0.5 + phase * 0.5);
+                    float alpha = glow * (0.7 + phase * 0.3);
+
+                    gl_FragColor = vec4(finalColor * glow, alpha);
                 }
             `,
             transparent: true,
@@ -168,225 +231,193 @@
             depthWrite: false
         });
 
-        const points = new THREE.Points(particles, particleMaterial);
-        scene.add(points);
+        const particles = new THREE.Points(geometry, shaderMaterial);
+        scene.add(particles);
 
-        // Setup OrbitControls
+        // Add background stars
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsPositions = new Float32Array(2000 * 3);
+        for(let i = 0; i < 2000 * 3; i += 3) {
+            starsPositions[i] = (Math.random() - 0.5) * 500;
+            starsPositions[i + 1] = (Math.random() - 0.5) * 500;
+            starsPositions[i + 2] = (Math.random() - 0.5) * 500;
+        }
+        starsGeometry.setAttribute('position', new THREE.BufferAttribute(starsPositions, 3));
+        const starsMaterial = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 0.5,
+            transparent: true,
+            opacity: 0.6
+        });
+        const stars = new THREE.Points(starsGeometry, starsMaterial);
+        scene.add(stars);
+
+        // Add orbit controls for camera movement
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        controls.screenSpacePanning = false;
-        controls.minDistance = 1;
+        controls.enableZoom = true;
+        controls.minDistance = 10;
         controls.maxDistance = 100;
+        controls.enablePan = false;
 
-        // Handle window resize
+        // Get current phase
+        function getCurrentPhase(progress) {
+            for(let phase of phases) {
+                if(progress >= phase.start && progress < phase.end) {
+                    return phase;
+                }
+            }
+            return phases[phases.length - 1];
+        }
+
+        // Window resize handler
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Create control panel
-        const controlPanel = document.createElement('div');
-        controlPanel.className = 'control-panel';
-        
-        // Reset button
-        const resetButton = document.createElement('button');
-        resetButton.textContent = 'Reset Simulation';
-        resetButton.onclick = () => {
-            time = 0;
-            phase = 'singularity';
-            isPlaying = true;
-            timelineSlider.value = "0";
-            resetParticles();
-        };
-        
-        // Timeline slider
-        const timelineLabel = document.createElement('label');
-        timelineLabel.innerHTML = 'Timeline<br>';
-        const timelineSlider = document.createElement('input');
-        timelineSlider.type = 'range';
-        timelineSlider.min = '0';
-        timelineSlider.max = MAX_TIME.toString();
-        timelineSlider.step = '0.1';
-        timelineSlider.value = '0';
-        const timelineValue = document.createElement('div');
-        timelineValue.className = 'value-display';
-        timelineLabel.appendChild(timelineSlider);
-        timelineLabel.appendChild(timelineValue);
-        
-        timelineSlider.oninput = () => {
-            time = parseFloat(timelineSlider.value);
-            updatePhase();
-            resetParticles();
-        };
-        
-        // Speed control
-        const speedLabel = document.createElement('label');
-        speedLabel.innerHTML = 'Simulation Speed<br>';
-        const speedSlider = document.createElement('input');
-        speedSlider.type = 'range';
-        speedSlider.min = '0.1';
-        speedSlider.max = '5';
-        speedSlider.step = '0.1';
-        speedSlider.value = '1';
-        const speedValue = document.createElement('div');
-        speedValue.className = 'value-display';
-        speedLabel.appendChild(speedSlider);
-        speedLabel.appendChild(speedValue);
-        
-        speedSlider.oninput = () => {
-            SIMULATION_SPEED = parseFloat(speedSlider.value);
-            speedValue.textContent = `${SIMULATION_SPEED}x`;
-        };
-        
-        // Play/Pause button
-        const playPauseButton = document.createElement('button');
-        playPauseButton.textContent = 'Pause';
-        playPauseButton.onclick = () => {
+        // Controls
+        const playBtn = document.getElementById('playBtn');
+        const timeSlider = document.getElementById('timeSlider');
+
+        playBtn.addEventListener('click', () => {
             isPlaying = !isPlaying;
-            playPauseButton.textContent = isPlaying ? 'Pause' : 'Play';
-        };
-        
-        // Add elements to control panel
-        controlPanel.appendChild(resetButton);
-        controlPanel.appendChild(timelineLabel);
-        controlPanel.appendChild(speedLabel);
-        controlPanel.appendChild(playPauseButton);
-        document.body.appendChild(controlPanel);
-        
-        // Timeline display
-        const timelineDiv = document.createElement('div');
-        timelineDiv.style.position = 'fixed';
-        timelineDiv.style.bottom = '20px';
-        timelineDiv.style.left = '20px';
-        timelineDiv.style.color = 'white';
-        timelineDiv.style.fontFamily = 'Arial, sans-serif';
-        timelineDiv.style.fontSize = '16px';
-        timelineDiv.style.textShadow = '2px 2px 2px black';
-        document.body.appendChild(timelineDiv);
-
-        // Function to reset particles to initial state
-        function resetParticles() {
-            const positions = points.geometry.attributes.position.array;
-            const colors = points.geometry.attributes.color.array;
-            
-            for(let i = 0; i < PARTICLE_COUNT * 3; i += 3) {
-                if(phase === 'singularity') {
-                    positions[i] = (Math.random() - 0.5) * 0.001;
-                    positions[i + 1] = (Math.random() - 0.5) * 0.001;
-                    positions[i + 2] = (Math.random() - 0.5) * 0.001;
-                } else {
-                    const radius = time * 2;
-                    const theta = Math.random() * Math.PI * 2;
-                    const phi = Math.random() * Math.PI;
-                    positions[i] = radius * Math.sin(phi) * Math.cos(theta);
-                    positions[i + 1] = radius * Math.sin(phi) * Math.sin(theta);
-                    positions[i + 2] = radius * Math.cos(phi);
-                }
-                
-                colors[i] = 1;
-                colors[i + 1] = 1;
-                colors[i + 2] = 1;
+            playBtn.textContent = isPlaying ? '❚❚' : '▶';
+            if (isPlaying) {
+                startTime = Date.now() - (progress * CYCLE_DURATION);
             }
-            
-            points.geometry.attributes.position.needsUpdate = true;
-            points.geometry.attributes.color.needsUpdate = true;
-        }
+        });
 
-        // Function to update phase based on time
-        function updatePhase() {
-            if(time < 1) {
-                phase = 'singularity';
-            } else if(time < 3) {
-                phase = 'inflation';
-            } else if(time < 8) {
-                phase = 'expansion';
-            } else {
-                phase = 'formation';
-            }
-        }
+        timeSlider.addEventListener('input', (e) => {
+            progress = parseFloat(e.target.value);
+            startTime = Date.now() - (progress * CYCLE_DURATION);
+            isPlaying = false;
+            playBtn.textContent = '▶';
+        });
+
+        // Start with playing
+        playBtn.textContent = '❚❚';
 
         // Animation loop
         function animate() {
             requestAnimationFrame(animate);
-            
-            if(isPlaying) {
-                time += 0.016 * SIMULATION_SPEED;
-                time = Math.min(time, MAX_TIME);
-                timelineSlider.value = time.toString();
-                updatePhase();
+
+            // Calculate progress (0 to 1)
+            if (isPlaying) {
+                const elapsed = Date.now() - startTime;
+                progress = (elapsed % CYCLE_DURATION) / CYCLE_DURATION;
+                timeSlider.value = progress;
             }
 
-            const positions = points.geometry.attributes.position.array;
-            const colors = points.geometry.attributes.color.array;
+            // Get current phase
+            const currentPhase = getCurrentPhase(progress);
+            const phaseProgress = (progress - currentPhase.start) / (currentPhase.end - currentPhase.start);
 
-            // Update particles based on phase
-            for(let i = 0; i < positions.length; i += 3) {
-                switch(phase) {
-                    case 'singularity':
-                        positions[i] += (Math.random() - 0.5) * 0.0001;
-                        positions[i + 1] += (Math.random() - 0.5) * 0.0001;
-                        positions[i + 2] += (Math.random() - 0.5) * 0.0001;
-                        break;
+            // Update phase display
+            document.getElementById('phase').textContent = currentPhase.name;
 
-                    case 'inflation':
-                        positions[i] *= 1.1;
-                        positions[i + 1] *= 1.1;
-                        positions[i + 2] *= 1.1;
-                        break;
+            // Update shader uniforms
+            const elapsed = Date.now() - startTime;
+            shaderMaterial.uniforms.time.value = elapsed * 0.001;
+            shaderMaterial.uniforms.phase.value = progress;
 
-                    case 'expansion':
-                        positions[i] += velocities[i] * 0.01;
-                        positions[i + 1] += velocities[i + 1] * 0.01;
-                        positions[i + 2] += velocities[i + 2] * 0.01;
-                        
-                        colors[i] = Math.max(0.2, colors[i] - 0.01);
-                        colors[i + 1] = Math.max(0.1, colors[i + 1] - 0.02);
-                        colors[i + 2] = Math.max(0.3, colors[i + 2] - 0.005);
-                        break;
+            // Update particles
+            const positions = particles.geometry.attributes.position.array;
+            const colors = particles.geometry.attributes.color.array;
 
-                    case 'formation':
-                        const cluster = clusters[i/3];
-                        const center = galaxyCenters[cluster];
-                        
-                        positions[i] += (center.x - positions[i]) * 0.001;
-                        positions[i + 1] += (center.y - positions[i + 1]) * 0.001;
-                        positions[i + 2] += (center.z - positions[i + 2]) * 0.001;
-                        
-                        const toCenter = new THREE.Vector3(
-                            center.x - positions[i],
-                            center.y - positions[i + 1],
-                            center.z - positions[i + 2]
-                        );
-                        const rotationMatrix = new THREE.Matrix4();
-                        rotationMatrix.makeRotationAxis(
-                            center.rotationAxis,
-                            center.rotationSpeed
-                        );
-                        toCenter.applyMatrix4(rotationMatrix);
-                        
-                        positions[i] = center.x - toCenter.x;
-                        positions[i + 1] = center.y - toCenter.y;
-                        positions[i + 2] = center.z - toCenter.z;
-                        
-                        positions[i] += (Math.random() - 0.5) * 0.01;
-                        positions[i + 1] += (Math.random() - 0.5) * 0.01;
-                        positions[i + 2] += (Math.random() - 0.5) * 0.01;
-                        break;
+            for(let i = 0; i < PARTICLE_COUNT; i++) {
+                const i3 = i * 3;
+
+                if(progress < 0.05) {
+                    // Singularity - tight cluster with vibration
+                    positions[i3] = (Math.random() - 0.5) * 0.1;
+                    positions[i3 + 1] = (Math.random() - 0.5) * 0.1;
+                    positions[i3 + 2] = (Math.random() - 0.5) * 0.1;
+
+                    colors[i3] = 1;
+                    colors[i3 + 1] = 1;
+                    colors[i3 + 2] = 1;
+                } else if(progress < 0.15) {
+                    // Inflation - rapid expansion
+                    const expansionSpeed = phaseProgress * 50;
+                    positions[i3] = velocities[i3] * expansionSpeed;
+                    positions[i3 + 1] = velocities[i3 + 1] * expansionSpeed;
+                    positions[i3 + 2] = velocities[i3 + 2] * expansionSpeed;
+
+                    colors[i3] = 1;
+                    colors[i3 + 1] = 0.8 - phaseProgress * 0.3;
+                    colors[i3 + 2] = 0.3 + phaseProgress * 0.4;
+                } else if(progress < 0.3) {
+                    // Particle era - cooling and color shift
+                    const drift = 50 + phaseProgress * 20;
+                    positions[i3] = velocities[i3] * drift + Math.sin(elapsed * 0.001 + i) * 0.5;
+                    positions[i3 + 1] = velocities[i3 + 1] * drift + Math.cos(elapsed * 0.001 + i) * 0.5;
+                    positions[i3 + 2] = velocities[i3 + 2] * drift;
+
+                    colors[i3] = 0.5 + Math.sin(i) * 0.3;
+                    colors[i3 + 1] = 0.7 + Math.cos(i) * 0.2;
+                    colors[i3 + 2] = 1;
+                } else if(progress < 0.6) {
+                    // Structure formation - clumping
+                    const targetX = originalPositions[i3] + Math.sin(elapsed * 0.0005 + i) * 2;
+                    const targetY = originalPositions[i3 + 1] + Math.cos(elapsed * 0.0005 + i) * 2;
+                    const targetZ = originalPositions[i3 + 2];
+
+                    positions[i3] += (targetX - positions[i3]) * 0.02;
+                    positions[i3 + 1] += (targetY - positions[i3 + 1]) * 0.02;
+                    positions[i3 + 2] += (targetZ - positions[i3 + 2]) * 0.02;
+
+                    const colorVariation = Math.sin(i * 0.1);
+                    colors[i3] = 0.8 + colorVariation * 0.2;
+                    colors[i3 + 1] = 0.6 + colorVariation * 0.3;
+                    colors[i3 + 2] = 0.9;
+                } else {
+                    // Galaxy rotation
+                    const angle = elapsed * 0.0001 + i * 0.01;
+                    const radius = Math.sqrt(originalPositions[i3] * originalPositions[i3] +
+                                            originalPositions[i3 + 2] * originalPositions[i3 + 2]);
+
+                    positions[i3] = Math.cos(angle) * radius + Math.sin(elapsed * 0.001 + i) * 0.3;
+                    positions[i3 + 1] = originalPositions[i3 + 1] + Math.sin(elapsed * 0.002 + i) * 0.5;
+                    positions[i3 + 2] = Math.sin(angle) * radius;
+
+                    // Varied star colors
+                    const starType = i % 4;
+                    if(starType === 0) {
+                        // Blue giants
+                        colors[i3] = 0.6;
+                        colors[i3 + 1] = 0.7;
+                        colors[i3 + 2] = 1;
+                    } else if(starType === 1) {
+                        // Red giants
+                        colors[i3] = 1;
+                        colors[i3 + 1] = 0.4;
+                        colors[i3 + 2] = 0.3;
+                    } else if(starType === 2) {
+                        // Yellow stars
+                        colors[i3] = 1;
+                        colors[i3 + 1] = 0.9;
+                        colors[i3 + 2] = 0.6;
+                    } else {
+                        // White dwarfs
+                        colors[i3] = 0.9;
+                        colors[i3 + 1] = 0.9;
+                        colors[i3 + 2] = 1;
+                    }
                 }
             }
 
-            // Update timeline display
-            const timeInBillionYears = (time * 0.5).toFixed(2);
-            timelineDiv.textContent = `Phase: ${phase.toUpperCase()} | Time: ${timeInBillionYears} billion years`;
-            timelineValue.textContent = `${timeInBillionYears} billion years`;
-            speedValue.textContent = `${SIMULATION_SPEED}x`;
+            particles.geometry.attributes.position.needsUpdate = true;
+            particles.geometry.attributes.color.needsUpdate = true;
 
-            points.geometry.attributes.position.needsUpdate = true;
-            points.geometry.attributes.color.needsUpdate = true;
-            
+            // Update controls
             controls.update();
+
+            // Rotate background stars
+            stars.rotation.y += 0.0001;
+
             renderer.render(scene, camera);
         }
 

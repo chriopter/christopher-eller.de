@@ -53,18 +53,9 @@
             transform-origin: center;
         }
 
-        .coin.flipping {
-            animation: flip-coin 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
+        .coin.flipping { }
 
-        @keyframes flip-coin {
-            0% {
-                transform: rotateY(0) rotateX(0);
-            }
-            100% {
-                transform: rotateY(1440deg) rotateX(720deg);
-            }
-        }
+        /* coin animation now handled via Web Animations API in JS */
 
         .coin-face {
             position: absolute;
@@ -200,62 +191,59 @@
         const coin = document.getElementById('coin');
         const container = document.getElementById('coin-container');
         let isFlipping = false;
+        let currentSide = 'heads';
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function fairFlip() {
+            if (window.crypto && window.crypto.getRandomValues) {
+                const buf = new Uint32Array(1);
+                window.crypto.getRandomValues(buf);
+                return (buf[0] & 1) === 1; // true = heads, false = tails
+            }
+            return Math.random() < 0.5;
+        }
 
         function flipCoin() {
             if (isFlipping) return;
-            
-            isFlipping = true;
-            const result = Math.random() < 0.5;
-            
-            // Remove transition during flip
-            coin.style.transition = 'none';
-            
-            // Reset transform and force reflow
-            coin.style.transform = 'none';
-            void coin.offsetWidth;
-            
-            // Add flipping class which triggers the animation
-            coin.classList.add('flipping');
-            
-            // Modify the animation keyframes dynamically based on result
-            const keyframes = `
-                @keyframes flip-coin {
-                    0% {
-                        transform: rotateY(0) rotateX(0);
-                    }
-                    100% {
-                        transform: rotateY(${result ? 1440 : 1620}deg) rotateX(720deg);
-                    }
-                }
-            `;
-            
-            // Add or update the keyframes
-            const styleSheet = document.styleSheets[0];
-            const existingRule = Array.from(styleSheet.cssRules).find(rule => 
-                rule.type === CSSRule.KEYFRAMES_RULE && rule.name === 'flip-coin'
-            );
-            if (existingRule) {
-                styleSheet.deleteRule(Array.from(styleSheet.cssRules).indexOf(existingRule));
+
+            const resultIsHeads = fairFlip();
+            const startY = currentSide === 'heads' ? 0 : 180;
+            const targetSide = resultIsHeads ? 'heads' : 'tails';
+            const endBase = targetSide === 'heads' ? 0 : 180;
+
+            if (prefersReducedMotion) {
+                currentSide = targetSide;
+                coin.style.transform = `rotateX(0deg) rotateY(${endBase}deg)`;
+                return;
             }
-            styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
-            
-            // Maintain final state after animation
-            setTimeout(() => {
-                // Remove the flipping class first
+
+            isFlipping = true;
+
+            // Ensure we start from the resting orientation, not hover tilt
+            coin.style.transform = `rotateX(0deg) rotateY(${startY}deg)`;
+
+            // Build a natural-looking path: 4 full spins + orientation delta
+            const endY = startY + 1440 + (endBase === startY ? 0 : 180);
+
+            // Add class for shadow animation
+            coin.classList.add('flipping');
+
+            const animation = coin.animate([
+                { transform: `rotateX(0deg) rotateY(${startY}deg)` },
+                { transform: `rotateX(720deg) rotateY(${endY}deg)` }
+            ], {
+                duration: 3000,
+                easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                fill: 'forwards'
+            });
+
+            animation.onfinish = () => {
+                currentSide = targetSide;
                 coin.classList.remove('flipping');
-                
-                // Force a reflow before setting the final transform
-                void coin.offsetWidth;
-                
-                // Restore the transition
-                coin.style.transition = '';
-                
-                // Set the final transform state
-                const finalRotation = result ? 0 : 180;
-                coin.style.transform = `rotateY(${finalRotation}deg)`;
-                
+                // Normalize to a clean resting transform
+                coin.style.transform = `rotateX(0deg) rotateY(${endBase}deg)`;
                 isFlipping = false;
-            }, 3000);
+            };
         }
 
         // Event listeners
@@ -283,13 +271,14 @@
 
         container.addEventListener('mouseleave', () => {
             if (!isFlipping) {
-                coin.style.transform = 'rotateX(0) rotateY(0)';
+                const endBase = currentSide === 'heads' ? 0 : 180;
+                coin.style.transform = `rotateX(0deg) rotateY(${endBase}deg)`;
             }
         });
 
-        // Rain functionality
+        // Rain functionality (simple bursts, multi-press)
         const rainButton = document.getElementById('rain-button');
-        let isRaining = false;
+        let activeRainCount = 0;
 
         function createRainCoin() {
             const rainContainer = document.createElement('div');
@@ -305,47 +294,47 @@
             rainContainer.appendChild(rainCoin);
             document.body.appendChild(rainContainer);
 
-            // Random starting position
+            // Random starting position (top edge)
             const startX = Math.random() * window.innerWidth;
+            const startY = -50;
             rainContainer.style.left = `${startX}px`;
             rainContainer.style.top = '-50px';
 
             // Random rotation and movement
-            const duration = 2 + Math.random() * 2;
+            const duration = 1.6 + Math.random() * 1.6; // 1.6s..3.2s
             const endX = startX + (Math.random() * 200 - 100);
+            const endYDelta = window.innerHeight + 100; // fall past bottom
 
-            // Add continuous rotation animation
-            rainCoin.classList.add('flipping');
-            
-            // Add falling animation
-            rainContainer.style.transition = `all ${duration}s cubic-bezier(0.4, 0.2, 0.6, 1)`;
-            setTimeout(() => {
-                rainContainer.style.transform = `translateY(${window.innerHeight + 100}px) translateX(${endX - startX}px)`;
-            }, 50);
+            // Spin using WAAPI while falling
+            rainCoin.animate([
+                { transform: 'rotateX(0deg) rotateY(0deg)' },
+                { transform: 'rotateX(720deg) rotateY(1440deg)' }
+            ], {
+                duration: duration * 1000,
+                easing: 'linear',
+                fill: 'forwards'
+            });
+
+            // Add falling animation via CSS transition
+            activeRainCount++;
+            rainContainer.style.transition = `transform ${duration}s cubic-bezier(0.4, 0.2, 0.6, 1)`;
+            requestAnimationFrame(() => {
+                rainContainer.style.transform = `translateY(${endYDelta}px) translateX(${endX - startX}px)`;
+            });
 
             // Remove after animation
             setTimeout(() => {
-                document.body.removeChild(rainContainer);
-            }, duration * 1000);
+                rainContainer.remove();
+                activeRainCount = Math.max(0, activeRainCount - 1);
+            }, duration * 1000 + 60);
         }
 
-        function startRain() {
-            if (isRaining) return;
-            isRaining = true;
-            
-            let count = 0;
-            const totalCoins = 100;
-            const interval = setInterval(() => {
-                createRainCoin();
-                count++;
-                if (count >= totalCoins) {
-                    clearInterval(interval);
-                    isRaining = false;
-                }
-            }, 50);
+        function spawnRainBurst() {
+            const toSpawn = Math.max(10, Math.floor(activeRainCount / 2));
+            for (let i = 0; i < toSpawn; i++) createRainCoin();
         }
 
-        rainButton.addEventListener('click', startRain);
+        rainButton.addEventListener('click', spawnRainBurst);
     </script>
 </body>
 </html>
