@@ -1,0 +1,65 @@
+backend:
+  name: github
+  repo: chriopter/christopher-eller.de
+  branch: main
+
+media_folder: static/uploads
+public_folder: /uploads
+
+collections:
+  - name: posts
+    label: Posts
+    folder: content/posts
+    create: true
+    extension: md
+    slug: "{{slug}}"
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: date, label: Date, widget: datetime }
+      - { name: tags, label: Tags, widget: list, required: false }
+      - { name: body, label: Body, widget: markdown, required: false }
+
+  - name: links
+    label: Links
+    folder: content/links
+    create: true
+    format: yaml-frontmatter
+    extension: md
+    slug: "{{slug}}"
+    editor:
+      preview: false
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: date, label: Date, widget: datetime }
+      - { name: body, label: URL (body), widget: text }
+
+  - name: photos
+    label: Photos
+    folder: content/photos
+    create: true
+    format: toml-frontmatter
+    path: "{{slug}}/index"
+    media_folder: ""
+    public_folder: ""
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: date, label: Date, widget: datetime }
+      - { name: body, label: Caption, widget: markdown, required: false }
+
+  - name: places
+    label: Places
+    folder: content/places
+    create: true
+    format: toml-frontmatter
+    path: "{{slug}}/index"
+    media_folder: ""
+    public_folder: ""
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: lat, label: Latitude, widget: number, value_type: float, step: 0.0001 }
+      - { name: lng, label: Longitude, widget: number, value_type: float, step: 0.0001 }
+      - { name: tags, label: Tags, widget: list, required: false }
+      - { name: description, label: Description, widget: text, required: false }
+      - { name: urls, label: Website URL, widget: string, required: false }
+      - { name: body, label: Body, widget: markdown, required: false }
+

@@ -1,0 +1,10 @@
+{
+  "name": "admin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sveltia CMS (served at /admin)",
+  "dependencies": {
+    "@sveltia/cms": "*"
+  }
+}
+
