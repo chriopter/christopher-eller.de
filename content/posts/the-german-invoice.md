@@ -1,7 +1,7 @@
-+++
-date = '2025-03-06T10:41:55+01:00'
-title = 'The German Invoice'
-+++
+---
+date: "2025-03-06T10:41:55+01:00"
+title: "The German Invoice"
+---
 
 The [joke about Germans desperately asking for an invoice](https://x.com/fayazara/status/1897209898376785937) after an online purchase is a running gag among Small Business Owners and Entrepreneurs. You know, not just **any** invoice, but the real, German one with .pdf extension and full address!
 

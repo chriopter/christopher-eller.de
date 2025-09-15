@@ -1,7 +1,7 @@
-+++
-date = '2025-07-14T10:35:52+02:00'
-title = 'Cathedrals for Everyone'
-+++
+---
+date: "2025-07-14T10:35:52+02:00"
+title: "Cathedrals for Everyone"
+---
 
 It’s a triumph of the modern world that palaces once built through plunder and forced labor are now freely visited by everyone. Parking your car in front of Versailles is very much the most egalitarian thing you can do.
 

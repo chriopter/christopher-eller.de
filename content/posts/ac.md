@@ -1,7 +1,7 @@
-+++
-date = '2025-07-04T09:47:28+02:00'
-title = 'AC'
-+++
+---
+date: "2025-07-04T09:47:28+02:00"
+title: "AC"
+---
 
 With high morality, we look at the number of deaths by gun violence in the States and bask in the moral high ground we claim here. They just need to forbid assault weapons! Right?
 

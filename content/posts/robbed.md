@@ -1,7 +1,7 @@
-+++
-date = '2025-06-03T13:45:31+02:00'
-title = 'Robbed'
-+++
+---
+date: "2025-06-03T13:45:31+02:00"
+title: "Robbed"
+---
 
 They are robbing you in broad daylight. They tell you only those with the right parent household make it. They tell you that statistically you are not going to make it. That your heritage, your race, or your gender will hinder you. That there are great hidden powers, the wealthy, the powerful, robbing you and you have no chance.
 
