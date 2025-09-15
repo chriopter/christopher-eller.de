@@ -293,12 +293,15 @@ header .header-content {
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: color 0.2s ease, transform 0.2s ease;
+            transition: color 0.2s ease;
         }
 
-        /* Only scale top-level nav links (not dropdowns) */
-        .nav-links > a:hover {
-            transform: scale(1.1);
+        /* Hover: underline + color change (no scaling) */
+        .nav-links > a:hover,
+        .nav-links a:hover {
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            text-decoration-thickness: 1px;
         }
 
         .nav-links a:hover {
