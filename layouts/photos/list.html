@@ -166,7 +166,7 @@ body, html, main {
                 <img src="{{ $thumbnail.RelPermalink }}" alt="{{ $page.Title }}" loading="lazy" />
                 {{ if gt (len $images) 1 }}
                 <span class="photo-thumbs">
-                    {{ range $i, $extra := first 3 (after 1 $images) }}
+                    {{ range $i, $extra := first 5 (after 1 $images) }}
                         {{ $thumb := $extra }}
                         {{ if not (or (eq $extra.MediaType.SubType "heif") (eq $extra.MediaType.SubType "heic")) }}
                             {{ $thumb = $extra.Resize "200x" }}

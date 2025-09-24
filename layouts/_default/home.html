@@ -21,22 +21,20 @@
                                     {{ $thumbnail = $image.Resize "1000x" }}
                                 {{ end }}
                                 <img src="{{ $thumbnail.RelPermalink }}" alt="{{ .Title }}" loading="lazy" />
-                            </a>
-                            {{ if gt (len $images) 1 }}
-                            <div class="card-extras">
-                                {{ range $i, $extra := after 1 $images }}
-                                    {{ if lt $i 3 }}
+                                {{ if gt (len $images) 1 }}
+                                <span class="photo-thumbs">
+                                    {{ range $i, $extra := first 5 (after 1 $images) }}
                                         {{ $thumb := $extra }}
                                         {{ if not (or (eq $extra.MediaType.SubType "heif") (eq $extra.MediaType.SubType "heic")) }}
-                                            {{ $thumb = $extra.Fill "400x400 smart" }}
+                                            {{ $thumb = $extra.Resize "200x" }}
                                         {{ end }}
-                                        <a href="{{ $.RelPermalink }}" class="card-extra">
+                                        <span class="photo-thumb">
                                             <img src="{{ $thumb.RelPermalink }}" alt="" loading="lazy" />
-                                        </a>
+                                        </span>
                                     {{ end }}
+                                </span>
                                 {{ end }}
-                            </div>
-                            {{ end }}
+                            </a>
                         </div>
                     {{ end }}
                 {{ else if eq .Type "links" }}
@@ -246,6 +244,31 @@
 
 .photo-post a:hover img {
     transform: scale(1.02);
+}
+
+/* Small overlay thumbs for multi-image photo posts (match /photos) */
+.photo-thumbs {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.photo-thumb {
+    width: 105px;
+    height: 105px;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.photo-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 /* Pagination */

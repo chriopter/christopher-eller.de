@@ -10,8 +10,8 @@ html, body {
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100%;
-    overflow: hidden;
+    height: auto;
+    overflow: auto;
     background-color: #000 !important;
     color: #eee !important;
 }
@@ -62,7 +62,9 @@ main {
     .photo-main {
         grid-template-columns: minmax(0, 3fr) minmax(350px, 1.1fr);
         gap: 48px;
-        padding: 40px 60px;
+        padding: 40px 80px;
+        margin: 0 auto;
+        max-width: calc(100vw - 120px);
     }
 }
 
@@ -99,29 +101,30 @@ main {
     }
 }
 
-@media (max-width: 1199px) { .photo-main img { max-height: none; margin: 10px 0; } }
+@media (max-width: 1199px) { .photo-main img { max-height: none; height: auto; margin: 10px 0; } }
 
 .photo-info {
-    position: static;
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 80px;
+    width: 350px;
     text-align: left;
     padding: 0 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 18px;
-    align-self: center;
-    max-height: 85vh;
+    max-height: 80vh;
     overflow-y: auto;
 }
 
 @media (max-width: 1199px) {
     html, body { overflow: auto; height: auto; }
-    .photo-info { text-align: center; padding: 10px 16px; gap: 12px; max-height: none; overflow: visible; }
+    .photo-info { position: static; transform: none; right: auto; width: auto; max-width: none; text-align: center; padding: 10px 16px; gap: 12px; max-height: none; overflow: visible; }
     .photo-main { padding: 10px 10px 16px; gap: 10px; }
     .photo-main > div:first-child { padding: 0 16px 16px; }
     .photo-hero { padding: 0 16px; }
-    .photo-strip { padding: 0 16px; }
-    .photo-strip img { height: 60vh; }
     .photo-nav.prev, .photo-nav.next { position: static; transform: none; }
 }
 
@@ -190,8 +193,8 @@ main {
 
 .nav-container .photo-nav { pointer-events: auto; }
 
-.photo-nav.prev { position: fixed; left: 20px; transform: translateY(-50%); }
-.photo-nav.next { position: fixed; right: 20px; transform: translateY(-50%); }
+/* Remove old fixed arrow styles */
+.photo-nav.prev, .photo-nav.next { display: none; }
 
 .photo-nav-arrow {
     font-size: 24px;
@@ -257,16 +260,42 @@ main {
     color: #fff;
 }
 
+/* Desktop navigation buttons under EXIF */
+.photo-nav-desktop {
+    display: none;
+    gap: 20px;
+    margin-top: 30px;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+@media (min-width: 1200px) {
+    .photo-nav-desktop {
+        display: flex;
+    }
+}
+
+.photo-nav-btn {
+    background: transparent;
+    color: #999;
+    text-decoration: none;
+    padding: 8px 12px 8px 0;
+    transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    font-size: 32px;
+    font-weight: 600;
+    border: none;
+}
+
+.photo-nav-btn:hover {
+    color: #fff;
+}
+
 /* Horizontal strip for multi-image posts */
-.photo-strip { display: flex; gap: 16px; overflow-x: auto; padding: 0 40px; scroll-snap-type: x mandatory; align-items: center; }
-.photo-strip .strip-item { flex: 0 0 auto; scroll-snap-align: center; }
-.photo-strip img { height: 85vh; width: auto; object-fit: contain; display: block; }
+.photo-stack { display: flex; flex-direction: column; gap: 24px; }
 
-.photo-extras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; margin: 8px 0 0; }
-
-@media (max-width: 900px) { .photo-extras { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-
-@media (max-width: 560px) { .photo-extras { grid-template-columns: 1fr; } }
+/* (old thumbnails grid removed) */
 
 .photo-extra { display: block; border-radius: 8px; overflow: hidden; height: 110px; }
 
@@ -298,18 +327,18 @@ main {
         <div>
             {{ $images := .Resources.Match "*.{jpg,jpeg,png,gif,heic,heif}" }}
             {{ if gt (len $images) 1 }}
-            {{/* Multi-image: horizontal strip with all pictures */}}
-            <div class="photo-strip">
-                {{ range $images }}
-                    {{ $img := . }}
+            {{/* Multi-image: vertical stack of full-size photos with scroll */}}
+            {{ $first := index $images 0 }}
+            {{ with $first.Exif }}{{ $.Scratch.Set "exif" . }}{{ end }}
+            <div class="photo-stack">
+                {{ range $i, $img := $images }}
                     {{ if eq $img.MediaType.MainType "image" }}
                         {{ $display := $img }}
                         {{ if not (or (eq $img.MediaType.SubType "heif") (eq $img.MediaType.SubType "heic")) }}
                             {{ $display = $img.Resize "1600x" }}
                         {{ end }}
-                        {{ with $img.Exif }}{{ $.Scratch.Set "exif" . }}{{ end }}
-                        <a class="strip-item photo-item" href="{{ $img.RelPermalink }}" target="_blank">
-                            <img src="{{ $display.RelPermalink }}" alt="{{ $currentPage.Title }}" loading="lazy" />
+                        <a class="photo-item" href="{{ $img.RelPermalink }}" target="_blank">
+                            <img src="{{ $display.RelPermalink }}" alt="{{ $currentPage.Title }}" {{ if eq $i 0 }}loading="eager"{{ else }}loading="lazy"{{ end }} />
                         </a>
                     {{ end }}
                 {{ end }}
@@ -347,25 +376,7 @@ main {
                 {{ end }}
             </div>
 
-            {{/* extras shown under hero (left column) */}}
-            {{/* duplicate extras removed */}}
-            {{ if gt (len $images) 1 }}
-            <div class="photo-extras">
-                {{ range $i, $extra := after 1 $images }}
-                    {{ if lt $i 3 }}
-                        {{ if eq $extra.MediaType.MainType "image" }}
-                            {{ $thumb := $extra }}
-                            {{ if not (or (eq $extra.MediaType.SubType "heif") (eq $extra.MediaType.SubType "heic")) }}
-                                {{ $thumb = $extra.Fill "400x400 smart" }}
-                            {{ end }}
-                            <a href="{{ $extra.RelPermalink }}" class="photo-extra" target="_blank">
-                                <img src="{{ $thumb.RelPermalink }}" alt="{{ $.Title }}" loading="lazy" />
-                            </a>
-                        {{ end }}
-                    {{ end }}
-                {{ end }}
-            </div>
-            {{ end }}
+            {{/* extras removed in favor of stacked photos */}}
         </div>
         
         <div class="photo-info">
@@ -404,6 +415,20 @@ main {
             {{ range first 1 $images }}
             <a href="{{ .RelPermalink }}" class="full-size-link" target="_blank">View Full Size ↗</a>
             {{ end }}
+
+            <div class="photo-nav-desktop">
+                {{ with $.Scratch.Get "prevPage" }}
+                <a href="{{ .RelPermalink }}" class="photo-nav-btn prev" title="{{ .Title }}">
+                    <span class="photo-nav-arrow">←</span>
+                </a>
+                {{ end }}
+
+                {{ with $.Scratch.Get "nextPage" }}
+                <a href="{{ .RelPermalink }}" class="photo-nav-btn next" title="{{ .Title }}">
+                    <span class="photo-nav-arrow">→</span>
+                </a>
+                {{ end }}
+            </div>
             </div>
         </div>
 </div>
