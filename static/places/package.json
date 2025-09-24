@@ -1,18 +1,6 @@
 {
   "name": "places",
   "version": "1.0.0",
-  "description": "Interactive map feature for the Hugo site",
-  "private": true,
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "leaflet",
-    "maps",
-    "hugo"
-  ],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "leaflet": "*"
   }
