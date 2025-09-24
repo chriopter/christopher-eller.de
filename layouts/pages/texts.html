@@ -1,64 +1,83 @@
 {{ define "main" }}
 <div class="archive">
-    <section class="posts-section">
-        <h2 class="section-heading">Posts</h2>
-        {{ $allPosts := where .Site.RegularPages "Type" "posts" }}
-        {{ $regularPosts := where $allPosts "Params.categories" "!=" "Projects" }}
-        {{ range $regularPosts.GroupByDate "2006" }}
-        <div class="year-group">
-            <h3 class="year">{{ .Key }}</h3>
-            {{ range .Pages }}
-            <div class="archive-item">
-                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-            </div>
-            {{ end }}
-        </div>
-        {{ end }}
-    </section>
-
-    <section class="projects-section">
-        <h2 class="section-heading">Projects</h2>
-        {{ $projects := where (where .Site.RegularPages "Type" "posts") "Params.categories" "intersect" (slice "Projects") }}
-        {{ range $projects.GroupByDate "2006" }}
-        <div class="year-group">
-            <h3 class="year">{{ .Key }}</h3>
-            {{ range .Pages }}
-            <div class="archive-item">
-                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-            </div>
-            {{ end }}
-        </div>
-        {{ end }}
-    </section>
-
-    <section class="links-section">
-        <h2 class="section-heading">Links</h2>
-        {{ $links := where .Site.RegularPages "Type" "links" }}
-        {{ range $links.GroupByDate "2006" }}
-        <div class="year-group">
-            <h3 class="year">{{ .Key }}</h3>
-            {{ range .Pages }}
-            <div class="archive-item">
-                {{ $title := .Title }}
-                {{ with .RawContent }}
-                    {{ $content := . | replaceRE "(?s)^---.*?---\n" "" }}
-                    {{ $url := trim $content " \n\r\t" }}
-                    {{ $parsed := urls.Parse $url }}
-                    {{ $domain := strings.TrimPrefix "www." $parsed.Host }}
-                    <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">→ {{ $title }} ({{ $domain }})</a>
+    <div class="archive-columns">
+        <div class="left-column">
+            <section class="posts-section">
+                <h2 class="section-heading">Posts</h2>
+                {{ $allPosts := where .Site.RegularPages "Type" "posts" }}
+                {{ $regularPosts := where $allPosts "Params.categories" "!=" "Projects" }}
+                {{ range $regularPosts.GroupByDate "2006" }}
+                <div class="year-group">
+                    <h3 class="year">{{ .Key }}</h3>
+                    {{ range .Pages }}
+                    <div class="archive-item">
+                        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                    </div>
+                    {{ end }}
+                </div>
                 {{ end }}
-            </div>
-            {{ end }}
+            </section>
         </div>
-        {{ end }}
-    </section>
+
+        <div class="right-column">
+            <section class="projects-section">
+                <h2 class="section-heading">Projects</h2>
+                {{ $projects := where (where .Site.RegularPages "Type" "posts") "Params.categories" "intersect" (slice "Projects") }}
+                {{ range $projects.GroupByDate "2006" }}
+                <div class="year-group">
+                    <h3 class="year">{{ .Key }}</h3>
+                    {{ range .Pages }}
+                    <div class="archive-item">
+                        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                    </div>
+                    {{ end }}
+                </div>
+                {{ end }}
+            </section>
+
+            <section class="links-section">
+                <h2 class="section-heading">Links</h2>
+                {{ $links := where .Site.RegularPages "Type" "links" }}
+                {{ range $links.GroupByDate "2006" }}
+                <div class="year-group">
+                    <h3 class="year">{{ .Key }}</h3>
+                    {{ range .Pages }}
+                    <div class="archive-item">
+                        {{ $title := .Title }}
+                        {{ $truncatedTitle := $title }}
+                        {{ if gt (len $title) 25 }}
+                            {{ $truncatedTitle = printf "%s..." (substr $title 0 25) }}
+                        {{ end }}
+                        {{ with .RawContent }}
+                            {{ $content := . | replaceRE "(?s)^---.*?---\n" "" }}
+                            {{ $url := trim $content " \n\r\t" }}
+                            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" title="{{ $title }}">→ {{ $truncatedTitle }}</a>
+                        {{ end }}
+                    </div>
+                    {{ end }}
+                </div>
+                {{ end }}
+            </section>
+        </div>
+    </div>
 </div>
 
 <style>
 .archive {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 1rem;
+}
+
+.archive-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+}
+
+.left-column,
+.right-column {
+    min-width: 0; /* Prevent grid blowout */
 }
 
 .section-heading {
@@ -108,10 +127,22 @@
     text-decoration: underline !important;
 }
 
-/* Add spacing between sections */
-.projects-section,
+/* Add spacing between sections in right column */
 .links-section {
     margin-top: 3rem;
+}
+
+/* Mobile responsive - stack on smaller screens */
+@media (max-width: 768px) {
+    .archive-columns {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .projects-section,
+    .links-section {
+        margin-top: 3rem;
+    }
 }
 </style>
 {{ end }}
