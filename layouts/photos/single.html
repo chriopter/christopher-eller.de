@@ -10,12 +10,14 @@ html, body {
     margin: 0;
     padding: 0;
     width: 100%;
+    height: 100%;
+    overflow: hidden;
     background-color: #000 !important;
     color: #eee !important;
 }
 
 header {
-    border-bottom-color: #333 !important;
+    display: none !important;
 }
 
 .site-title,
@@ -24,38 +26,43 @@ header {
 }
 
 footer {
-    border-top-color: #333 !important;
+    display: none !important;
 }
 
 footer a {
     color: #999 !important;
 }
 
+main {
+    padding-top: 0 !important;
+}
+
+
 .photo-container {
     max-width: 100vw;
     margin: 0 auto;
     box-sizing: border-box;
-    min-height: calc(100vh - 80px);
     padding: 0;
     display: flex;
     align-items: center;
+    min-height: 100vh;
 }
 
 .photo-main {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 36px;
     margin: 0;
     align-items: center;
-    min-height: calc(100vh - 80px);
     width: 100%;
+    min-height: 100vh;
 }
 
 @media (min-width: 1200px) {
     .photo-main {
         grid-template-columns: minmax(0, 3fr) minmax(350px, 1.1fr);
-        gap: 40px;
-        padding: 40px;
+        gap: 48px;
+        padding: 40px 60px;
     }
 }
 
@@ -65,35 +72,57 @@ footer a {
     object-fit: contain;
 }
 
+.photo-main > div:first-child {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0 40px 24px;
+    box-sizing: border-box;
+}
+
+.photo-hero {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+}
+.photo-hero img { max-height: calc(90vh - 140px); }
+
 @media (min-width: 1200px) {
     .photo-main img {
         max-height: 85vh;
     }
 }
 
-@media (max-width: 1199px) {
-    .photo-main img {
-        max-height: calc(100vh - 180px);
-        margin: 20px 0;
-    }
-}
+@media (max-width: 1199px) { .photo-main img { max-height: none; margin: 10px 0; } }
 
 .photo-info {
-    position: sticky;
-    top: 40px;
+    position: static;
     text-align: left;
     padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 18px;
+    align-self: center;
+    max-height: 85vh;
+    overflow-y: auto;
 }
 
 @media (max-width: 1199px) {
-    .photo-info {
-        text-align: center;
-        padding: 10px 20px;
-    }
-    
-    .photo-main {
-        padding: 10px;
-    }
+    html, body { overflow: auto; height: auto; }
+    .photo-info { text-align: center; padding: 10px 16px; gap: 12px; max-height: none; overflow: visible; }
+    .photo-main { padding: 10px 10px 16px; gap: 10px; }
+    .photo-main > div:first-child { padding: 0 16px 16px; }
+    .photo-hero { padding: 0 16px; }
+    .photo-strip { padding: 0 16px; }
+    .photo-strip img { height: 60vh; }
+    .photo-nav.prev, .photo-nav.next { position: static; transform: none; }
 }
 
 .photo-title {
@@ -131,32 +160,38 @@ footer a {
 }
 
 .photo-nav {
-    position: fixed;
+    position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.5);
+    background: transparent;
     color: #fff;
     text-decoration: none;
     padding: 15px;
     border-radius: 5px;
-    transition: all 0.3s ease;
+    transition: opacity 0.2s ease;
     display: flex;
     align-items: center;
-    backdrop-filter: blur(5px);
     z-index: 10;
 }
 
-.photo-nav:hover {
-    background: rgba(0, 0, 0, 0.8);
+.photo-nav:hover { opacity: 0.8; }
+
+.nav-container {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transform: translateY(-50%);
+    pointer-events: none;
 }
 
-.photo-nav.prev {
-    left: 75px;
-}
+.nav-container .photo-nav { pointer-events: auto; }
 
-.photo-nav.next {
-    right: 75px;
-}
+.photo-nav.prev { position: fixed; left: 20px; transform: translateY(-50%); }
+.photo-nav.next { position: fixed; right: 20px; transform: translateY(-50%); }
 
 .photo-nav-arrow {
     font-size: 24px;
@@ -166,7 +201,7 @@ footer a {
     .photo-container {
         flex-direction: column;
         align-items: center;
-        padding-bottom: 70px;
+        padding: 20px 0 100px;
     }
 
     .photo-nav {
@@ -185,26 +220,11 @@ footer a {
     }
 
     .photo-main {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        padding: 20px 15px 60px;
+        gap: 20px;
     }
 
-    .nav-container {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        padding: 15px 20px;
-        box-sizing: border-box;
-        background: rgba(0, 0, 0, 0.75);
-        backdrop-filter: blur(5px);
-        z-index: 100;
-        margin: 0;
-    }
+    .nav-container { position: static; background: transparent; backdrop-filter: none; padding: 0 12px; margin: 0; display: flex; justify-content: space-between; align-items: center; width: 100%; }
 
     .nav-container:empty {
         display: none;
@@ -220,13 +240,8 @@ footer a {
 }
 
 @media (max-width: 768px) {
-    .photo-nav {
-        padding: 8px;
-    }
-    
-    .photo-nav-arrow {
-        font-size: 20px;
-    }
+    .photo-nav { padding: 8px; }
+    .photo-nav-arrow { font-size: 20px; }
 }
 
 .full-size-link {
@@ -241,9 +256,25 @@ footer a {
 .full-size-link:hover {
     color: #fff;
 }
+
+/* Horizontal strip for multi-image posts */
+.photo-strip { display: flex; gap: 16px; overflow-x: auto; padding: 0 40px; scroll-snap-type: x mandatory; align-items: center; }
+.photo-strip .strip-item { flex: 0 0 auto; scroll-snap-align: center; }
+.photo-strip img { height: 85vh; width: auto; object-fit: contain; display: block; }
+
+.photo-extras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; margin: 8px 0 0; }
+
+@media (max-width: 900px) { .photo-extras { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+@media (max-width: 560px) { .photo-extras { grid-template-columns: 1fr; } }
+
+.photo-extra { display: block; border-radius: 8px; overflow: hidden; height: 110px; }
+
+.photo-extra img { width: 100%; height: 100%; object-fit: cover; display: block; }
 </style>
 
 {{ $currentPage := . }}
+{{/* Build EXIF for inline mobile use as well */}}
 {{ $photos := where .Site.RegularPages "Section" "photos" }}
 {{ range $index, $page := $photos }}
     {{ if eq $page $currentPage }}
@@ -266,46 +297,75 @@ footer a {
     <div class="photo-main" id="photo-main">
         <div>
             {{ $images := .Resources.Match "*.{jpg,jpeg,png,gif,heic,heif}" }}
-            {{ range first 1 $images }}
-                {{ $image := . }}
-                {{ if eq $image.MediaType.MainType "image" }}
-                    {{ if or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic") }}
-                        <a href="{{ $image.RelPermalink }}" class="photo-item" target="_blank">
-                            <img src="{{ $image.RelPermalink }}" alt="{{ $currentPage.Title }}" />
-                        </a>
-                    {{ else }}
-                        {{ with $image.Exif }}
-                            {{ $.Scratch.Set "exif" . }}
+            {{ if gt (len $images) 1 }}
+            {{/* Multi-image: horizontal strip with all pictures */}}
+            <div class="photo-strip">
+                {{ range $images }}
+                    {{ $img := . }}
+                    {{ if eq $img.MediaType.MainType "image" }}
+                        {{ $display := $img }}
+                        {{ if not (or (eq $img.MediaType.SubType "heif") (eq $img.MediaType.SubType "heic")) }}
+                            {{ $display = $img.Resize "1600x" }}
                         {{ end }}
-                        {{ $thumbnail := $image }}
-                        {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
-                            {{ $thumbnail = $image.Resize "600x" }}
-                        {{ end }}
-                        <a href="{{ $image.RelPermalink }}" class="photo-item" target="_blank">
-                            <img 
-                                src="{{ $thumbnail.RelPermalink }}" 
-                                data-src="{{ $image.RelPermalink }}" 
-                                alt="{{ $currentPage.Title }}"
-                                loading="lazy"
-                            />
+                        {{ with $img.Exif }}{{ $.Scratch.Set "exif" . }}{{ end }}
+                        <a class="strip-item photo-item" href="{{ $img.RelPermalink }}" target="_blank">
+                            <img src="{{ $display.RelPermalink }}" alt="{{ $currentPage.Title }}" loading="lazy" />
                         </a>
                     {{ end }}
                 {{ end }}
+            </div>
+            {{ else }}
+            {{/* Single image: classic hero */}}
+            <div class="photo-hero">
+                {{ range first 1 $images }}
+                    {{ $image := . }}
+                    {{ if eq $image.MediaType.MainType "image" }}
+                        {{ with $image.Exif }}{{ $.Scratch.Set "exif" . }}{{ end }}
+                        {{ $hero := $image }}
+                        {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
+                            {{ $hero = $image.Resize "1600x" }}
+                        {{ end }}
+                        <a href="{{ $image.RelPermalink }}" class="photo-item" target="_blank">
+                            <img src="{{ $hero.RelPermalink }}" alt="{{ $currentPage.Title }}" loading="eager" />
+                        </a>
+                    {{ end }}
+                {{ end }}
+            </div>
             {{ end }}
             
             <div class="nav-container">
                 {{ with $.Scratch.Get "prevPage" }}
-                <a href="{{ .RelPermalink }}#photo-main" class="photo-nav prev" title="{{ .Title }}">
+                <a href="{{ .RelPermalink }}" class="photo-nav prev" title="{{ .Title }}">
                     <span class="photo-nav-arrow">←</span>
                 </a>
                 {{ end }}
                 
                 {{ with $.Scratch.Get "nextPage" }}
-                <a href="{{ .RelPermalink }}#photo-main" class="photo-nav next" title="{{ .Title }}">
+                <a href="{{ .RelPermalink }}" class="photo-nav next" title="{{ .Title }}">
                     <span class="photo-nav-arrow">→</span>
                 </a>
                 {{ end }}
             </div>
+
+            {{/* extras shown under hero (left column) */}}
+            {{/* duplicate extras removed */}}
+            {{ if gt (len $images) 1 }}
+            <div class="photo-extras">
+                {{ range $i, $extra := after 1 $images }}
+                    {{ if lt $i 3 }}
+                        {{ if eq $extra.MediaType.MainType "image" }}
+                            {{ $thumb := $extra }}
+                            {{ if not (or (eq $extra.MediaType.SubType "heif") (eq $extra.MediaType.SubType "heic")) }}
+                                {{ $thumb = $extra.Fill "400x400 smart" }}
+                            {{ end }}
+                            <a href="{{ $extra.RelPermalink }}" class="photo-extra" target="_blank">
+                                <img src="{{ $thumb.RelPermalink }}" alt="{{ $.Title }}" loading="lazy" />
+                            </a>
+                        {{ end }}
+                    {{ end }}
+                {{ end }}
+            </div>
+            {{ end }}
         </div>
         
         <div class="photo-info">
@@ -338,75 +398,56 @@ footer a {
                 
                 <p style="margin-top: 15px; font-size: 12px; opacity: 0.7;">Uploaded on {{ .Date.Format "2. January 2006" }}</p>
             </div>
-            
+
+            {{/* extras moved under hero (left column) */}}
+
             {{ range first 1 $images }}
             <a href="{{ .RelPermalink }}" class="full-size-link" target="_blank">View Full Size ↗</a>
             {{ end }}
+            </div>
         </div>
-    </div>
 </div>
 
 <script>
-// Lazy loading implementation
-document.addEventListener('DOMContentLoaded', function() {
-    const images = document.querySelectorAll('img[data-src]');
-    images.forEach(img => {
-        // Wait for thumbnail to load first
-        if (img.complete) {
-            loadFullSize(img);
-        } else {
-            img.onload = function() {
-                loadFullSize(img);
-            };
-        }
-    });
-});
-
-function loadFullSize(img) {
-    // Now load the full size image
-    const highRes = new Image();
-    highRes.onload = function() {
-        // Create a new image element to replace the thumbnail
-        const newImg = document.createElement('img');
-        newImg.src = img.dataset.src;
-        newImg.alt = img.alt;
-        newImg.loading = 'lazy';
-        
-        // Replace the thumbnail with the full size image
-        img.parentNode.replaceChild(newImg, img);
-    };
-    highRes.src = img.dataset.src;
-}
-
-// Scroll to photo-main on page load
-if (window.location.hash !== '#photo-main') {
-    window.location.hash = 'photo-main';
-}
-
+// Keyboard navigation
 document.addEventListener('keydown', function(e) {
-    // Left arrow key
     if (e.key === 'ArrowLeft') {
         const prevLink = document.querySelector('.photo-nav.prev');
-        if (prevLink) {
-            window.location.href = prevLink.href;
-        }
+        if (prevLink) window.location.href = prevLink.href;
     }
-    // Right arrow key
     if (e.key === 'ArrowRight') {
         const nextLink = document.querySelector('.photo-nav.next');
-        if (nextLink) {
-            window.location.href = nextLink.href;
-        }
+        if (nextLink) window.location.href = nextLink.href;
     }
 });
 
-// Remove #photo-main from URL without affecting scroll position
-window.addEventListener('load', function() {
-    if (window.location.hash === '#photo-main') {
-        const scrollPosition = window.scrollY;
-        history.replaceState(null, '', window.location.pathname + window.location.search);
-        window.scrollTo(0, scrollPosition);
+// Basic swipe navigation on touch devices
+(function() {
+  let startX = 0, startY = 0, startTime = 0;
+  const threshold = 50; // px
+  const restraint = 80; // allow some vertical movement
+  const allowedTime = 500; // ms
+
+  window.addEventListener('touchstart', function(e) {
+    const t = e.changedTouches[0];
+    startX = t.pageX; startY = t.pageY; startTime = Date.now();
+  }, { passive: true });
+
+  window.addEventListener('touchend', function(e) {
+    const t = e.changedTouches[0];
+    const distX = t.pageX - startX;
+    const distY = t.pageY - startY;
+    const elapsed = Date.now() - startTime;
+    if (elapsed <= allowedTime && Math.abs(distX) >= threshold && Math.abs(distY) <= restraint) {
+      if (distX < 0) {
+        const nextLink = document.querySelector('.photo-nav.next');
+        if (nextLink) window.location.href = nextLink.href;
+      } else {
+        const prevLink = document.querySelector('.photo-nav.prev');
+        if (prevLink) window.location.href = prevLink.href;
+      }
     }
-});
+  }, { passive: true });
+})();
 </script>
 {{ end }}

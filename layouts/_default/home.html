@@ -13,15 +13,30 @@
                     {{ with . }}
                         {{ $image := index $images 0 }}
                         <div class="photo-post">
-                            <h2><a href="{{ .RelPermalink }}#photo-main">{{ .Title }}</a></h2>
+                            <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
                             <time>✨ {{ .Date.Format "January 2, 2006" }}</time>
-                            <a href="{{ .RelPermalink }}#photo-main" class="photo-item">
+                            <a href="{{ .RelPermalink }}" class="photo-item">
                                 {{ $thumbnail := $image }}
                                 {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
                                     {{ $thumbnail = $image.Resize "1000x" }}
                                 {{ end }}
                                 <img src="{{ $thumbnail.RelPermalink }}" alt="{{ .Title }}" loading="lazy" />
                             </a>
+                            {{ if gt (len $images) 1 }}
+                            <div class="card-extras">
+                                {{ range $i, $extra := after 1 $images }}
+                                    {{ if lt $i 3 }}
+                                        {{ $thumb := $extra }}
+                                        {{ if not (or (eq $extra.MediaType.SubType "heif") (eq $extra.MediaType.SubType "heic")) }}
+                                            {{ $thumb = $extra.Fill "400x400 smart" }}
+                                        {{ end }}
+                                        <a href="{{ $.RelPermalink }}" class="card-extra">
+                                            <img src="{{ $thumb.RelPermalink }}" alt="" loading="lazy" />
+                                        </a>
+                                    {{ end }}
+                                {{ end }}
+                            </div>
+                            {{ end }}
                         </div>
                     {{ end }}
                 {{ else if eq .Type "links" }}
@@ -124,6 +139,14 @@
 .post:last-child {
     border-bottom: none;
 }
+
+.photo-item { position: relative; display: inline-block; }
+
+.card-extras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+.card-extra { display: block; border-radius: 6px; overflow: hidden; }
+.card-extra img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+@media (max-width: 700px) { .card-extras { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 .post h2 {
     margin-bottom: 0.75rem;
@@ -278,27 +301,24 @@
     opacity: 0.7;
 }
 
+
 .photos-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 1rem;
     margin-bottom: 1.5rem;
-    overflow-x: auto;
-    overflow-y: hidden;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .photos-grid {
-        display: flex;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-    
-    .photos-grid .photo-item {
-        flex: 0 0 calc(50% - 0.5rem);
-        scroll-snap-align: start;
+}
+
+@media (max-width: 600px) {
+    .photos-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
     }
 }
 
@@ -334,9 +354,9 @@
     left: 0;
     right: 0;
     background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
-    padding: 1rem 0.75rem 0.75rem;
+    padding: 0.75rem 0.6rem;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.25s ease;
 }
 
 .photo-item:hover .photo-overlay {
@@ -369,6 +389,20 @@
     text-decoration: underline;
     text-underline-offset: 2px;
     text-decoration-thickness: 1px;
+}
+
+/* Badge for multi-image count in Recent Photos */
+.photo-count {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 </style>
 {{ end }}

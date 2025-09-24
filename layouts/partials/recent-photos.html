@@ -5,6 +5,7 @@
   <h2><a href="/photos/">Recent Photos</a></h2>
   <div class="photos-grid">
     {{ range $recentPhotos }}
+      {{ $images := .Resources.ByType "image" }}
       <article class="photo-item">
         <a href="{{ .Permalink }}">
           {{ with .Resources.GetMatch "*.jpeg" }}
@@ -15,6 +16,10 @@
               {{ $thumbnail := .Resize "300x300" }}
               <img src="{{ $thumbnail.RelPermalink }}" alt="{{ $.Title }}" loading="lazy">
             {{ end }}
+          {{ end }}
+          {{ $extra := sub (len $images) 1 }}
+          {{ if gt $extra 0 }}
+          <span class="photo-count">+{{ $extra }}</span>
           {{ end }}
           <div class="photo-overlay">
             <h3>{{ .Title }}</h3>

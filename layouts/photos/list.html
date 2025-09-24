@@ -126,6 +126,30 @@ body, html, main {
     font-size: 14px;
     opacity: 0.8;
 }
+
+.photo-thumbs {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.photo-thumb {
+    width: 105px;
+    height: 105px;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.photo-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
 </style>
 
 <div class="photo-grid">
@@ -138,8 +162,21 @@ body, html, main {
             {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
                 {{ $thumbnail = $image.Resize "1000x" }}
             {{ end }}
-            <a href="{{ $page.RelPermalink }}#photo-main" class="photo-item">
+            <a href="{{ $page.RelPermalink }}" class="photo-item">
                 <img src="{{ $thumbnail.RelPermalink }}" alt="{{ $page.Title }}" loading="lazy" />
+                {{ if gt (len $images) 1 }}
+                <span class="photo-thumbs">
+                    {{ range $i, $extra := first 3 (after 1 $images) }}
+                        {{ $thumb := $extra }}
+                        {{ if not (or (eq $extra.MediaType.SubType "heif") (eq $extra.MediaType.SubType "heic")) }}
+                            {{ $thumb = $extra.Resize "200x" }}
+                        {{ end }}
+                        <span class="photo-thumb">
+                            <img src="{{ $thumb.RelPermalink }}" alt="" loading="lazy" />
+                        </span>
+                    {{ end }}
+                </span>
+                {{ end }}
                 <div class="photo-info">
                     <div class="title">{{ $page.Title }}</div>
                     <div class="date">{{ $page.Date.Format "January 2, 2006" }}</div>
