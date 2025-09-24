@@ -3,6 +3,7 @@ title = "Bad Kreuznach"
 lat = 49.8467
 lng = 7.8667
 tags = ["unvisited", "nature"]
+region = "Rheinland-Pfalz"
 description = "Historic spa town with bridge houses and salt works"
 urls = "https://www.bad-kreuznach-tourist.de/"
 +++

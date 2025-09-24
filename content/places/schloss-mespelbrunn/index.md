@@ -3,6 +3,7 @@ title = "Schloss Mespelbrunn"
 lat = 49.9333
 lng = 9.2833
 tags = ["unvisited", "nature"]
+region = "Bavaria"
 description = "Romantic moated castle in Spessart forest"
 urls = "https://www.schloss-mespelbrunn.de/"
 +++

@@ -3,6 +3,7 @@ title = "Laacher See"
 lat = 50.4100
 lng = 7.2700
 tags = ["unvisited", "nature"]
+region = "Rheinland-Pfalz"
 description = "Volcanic crater lake with abbey and hiking trails"
 urls = "https://www.laacher-see.de/"
 +++

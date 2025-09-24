@@ -3,6 +3,7 @@ title = "Eberbach Kloster Weihnachtsmarkt"
 lat = 50.041960
 lng = 8.046760
 tags = ["unvisited", "nature"]
+region = "Odenwald"
 description = "Peaceful Christmas market at historic Cistercian monastery"
 urls = "https://kloster-eberbach.de/de/vor-ort/klosterrundgang/eberbacher-weihnacht"
 +++

@@ -3,6 +3,7 @@ title = "Mineralienhalde Grube Clara"
 lat = 48.3167
 lng = 8.1833
 tags = ["unvisited", "nature"]
+region = "Schwarzwald"
 description = "Former mine with mineral collecting opportunities"
 urls = "https://www.clara-schwarzwald.info/"
 +++

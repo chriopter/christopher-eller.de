@@ -3,6 +3,7 @@ title = "Ardennen"
 lat = 50.2500
 lng = 5.7500
 tags = ["unvisited", "hiking", "nature"]
+region = "Belgium"
 description = "Forested highlands spanning Belgium, Luxembourg and France"
 urls = "https://www.ardennen.be/"
 +++

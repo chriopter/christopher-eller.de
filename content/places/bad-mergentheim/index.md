@@ -3,6 +3,7 @@ title = "Bad Mergentheim"
 lat = 49.4917
 lng = 9.7733
 tags = ["unvisited", "nature"]
+region = "Baden-Württemberg"
 description = "Historic spa town and former Teutonic Order headquarters"
 urls = "https://www.bad-mergentheim.de/"
 +++

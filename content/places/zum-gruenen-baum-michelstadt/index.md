@@ -3,6 +3,7 @@ title = "Zum Grünen Baum Michelstadt"
 lat = 49.6779
 lng = 9.0033
 tags = ["unvisited", "cuisine"]
+region = "Odenwald"
 description = "Historic 340-year-old Odenwald inn"
 urls = "https://www.gruenerbaum-michelstadt.com/"
 +++

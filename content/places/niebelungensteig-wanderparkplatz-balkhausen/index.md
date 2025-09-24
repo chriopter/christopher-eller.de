@@ -3,6 +3,7 @@ title = "Niebelungensteig / Wanderparkplatz Balkhausen"
 lat = 49.73417
 lng = 8.65889
 tags = ["hiking"]
+region = "Odenwald"
 description = "Hiking parking lot on the Nibelungensteig trail"
 urls = "https://www.komoot.com/de-de/highlight/6200356"
 +++

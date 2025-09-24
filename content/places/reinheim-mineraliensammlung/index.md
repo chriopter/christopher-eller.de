@@ -3,6 +3,7 @@ title = "Reinheim Mineraliensammlung"
 lat = 49.8267
 lng = 8.8333
 tags = ["unvisited", "nature"]
+region = "Odenwald"
 description = "Steuck's mineral collection focused on Odenwald geology"
 urls = "https://www.darmstadt-dieburg-entdecken.de/detail/id=61eeb85b04344d54c9c6a278"
 +++

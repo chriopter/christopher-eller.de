@@ -3,6 +3,7 @@ title = "Junghans Fabrik"
 lat = 48.0833
 lng = 8.4167
 tags = ["unvisited", "nature"]
+region = "Schwarzwald"
 description = "Historic clock factory museum in Schramberg"
 urls = "https://www.junghans-uhren.de/"
 +++

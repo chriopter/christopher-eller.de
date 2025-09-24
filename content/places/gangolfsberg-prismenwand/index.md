@@ -3,6 +3,7 @@ title = "Gangolfsberg Prismenwand"
 lat = 50.5167
 lng = 10.1167
 tags = ["unvisited", "hiking", "nature"]
+region = "Rhön"
 description = "Spectacular basalt columnar formations"
 urls = ""
 +++

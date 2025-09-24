@@ -3,6 +3,7 @@ title = "Von Reichelsheim nach Lindenfels wandern"
 lat = 49.7167
 lng = 8.8333
 tags = ["unvisited", "hiking"]
+region = "Odenwald"
 description = "Nibelungentour hiking trail between historic towns"
 urls = "https://www.ich-geh-wandern.de/nibelungentour-reichelsheim-odenwald"
 +++

@@ -3,6 +3,7 @@ title = "Restaurante Bar La Casella"
 lat = 39.111572
 lng = -0.342023
 tags = ["cuisine"]
+region = "Spain"
 description = "Sehr gute Tapas, abgelegen am Wald für Wanderung empfohlen"
 urls = ""
 resources = [

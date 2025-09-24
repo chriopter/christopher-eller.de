@@ -3,6 +3,7 @@ title = "Liebliches Taubertal"
 lat = 49.3833
 lng = 9.9167
 tags = ["unvisited", "cycling", "nature"]
+region = "Baden-Württemberg"
 description = "Romantic valley with cycling route and medieval towns"
 urls = "https://www.liebliches-taubertal.de/"
 +++

@@ -3,6 +3,7 @@ title = "Bäckerei Heist"
 lat = 49.7402184
 lng = 8.9196861
 tags = ["unvisited", "bakery"]
+region = "Odenwald"
 description = "Local German bakery"
 urls = "https://maps.app.goo.gl/xms3gF1PZX9t9o28A"
 resources = [

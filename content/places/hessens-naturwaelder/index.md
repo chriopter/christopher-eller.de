@@ -3,6 +3,7 @@ title = "Hessens Naturwälder"
 lat = 50.6520
 lng = 9.1624
 tags = ["unvisited", "nature", "collection"]
+region = "Hessen"
 description = "24 pristine nature forests across Hesse"
 urls = "https://hessen.nabu.de/naturundlandschaft/waelder/naturwaelder/hessensnaturwaelder/index.html"
 +++

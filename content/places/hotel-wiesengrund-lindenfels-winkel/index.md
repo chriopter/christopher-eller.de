@@ -3,6 +3,7 @@ title = "Hotel Wiesengrund Lindenfels Winkel"
 lat = 49.683155
 lng = 8.779639
 tags = ["unvisited", "cuisine"]
+region = "Odenwald"
 description = "Odenwald star hotel in peaceful location"
 urls = "https://www.hotel-wiesengrund.de/"
 +++

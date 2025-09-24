@@ -3,6 +3,7 @@ title = "Erlebnisradweg Hohenzollern"
 lat = 49.4521
 lng = 11.0767
 tags = ["unvisited", "cycling", "history"]
+region = "Baden-Württemberg"
 description = "95km themed cycling route with AR history app"
 urls = "https://www.erlebnisradweg-hohenzollern.de/startseite/"
 +++

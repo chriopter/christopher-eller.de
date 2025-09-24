@@ -3,6 +3,7 @@ title = "La Finca Brensbach"
 lat = 49.7833
 lng = 8.9167
 tags = ["unvisited", "cuisine"]
+region = "Odenwald"
 description = "Spanish restaurant in Wallbach"
 urls = "https://www.lafinca-wallbach.com/"
 +++

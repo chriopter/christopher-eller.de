@@ -3,6 +3,7 @@ title = "Festung Breuberg"
 lat = 49.8
 lng = 9.067
 tags = ["unvisited", "hiking", "nature"]
+region = "Odenwald"
 description = "Best-preserved 12th century castle in southern Germany"
 urls = "https://www.schloesser-hessen.de/en/breuberg"
 +++

@@ -3,6 +3,7 @@ title = "Vinotéka Dlouhá 93"
 lat = 48.811710
 lng = 14.314396
 tags = ["wine"]
+region = "Czech Republic"
 description = "Sehr schöne kleine Weinstube"
 urls = ""
 resources = [

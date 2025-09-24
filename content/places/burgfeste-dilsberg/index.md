@@ -3,6 +3,7 @@ title = "Burgfeste Dilsberg"
 lat = 49.3967
 lng = 8.8167
 tags = ["unvisited", "hiking", "nature"]
+region = "Baden-Württemberg"
 description = "12th-century hilltop castle ruins with 360° Neckar valley views"
 urls = "https://www.burgfeste-dilsberg.de/en/"
 +++

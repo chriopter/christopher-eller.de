@@ -3,6 +3,7 @@ title = "Ockstadt im Frühjahr"
 lat = 50.3167
 lng = 8.7333
 tags = ["unvisited", "nature"]
+region = "Hessen"
 description = "Springtime cherry blossom village near Friedberg"
 urls = ""
 +++

@@ -3,6 +3,7 @@ title = "Eberstädter Tropfsteinhöhle"
 lat = 51.0333
 lng = 10.2167
 tags = ["unvisited", "nature"]
+region = "Odenwald"
 description = "Germany's northernmost dripstone cave with guided tours"
 urls = "https://www.hoehlen-erlebnis-zentrum.de/"
 +++

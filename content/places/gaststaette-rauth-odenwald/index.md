@@ -3,6 +3,7 @@ title = "Gaststätte Rauth Odenwald"
 lat = 49.798866
 lng = 8.823036
 tags = ["unvisited", "cuisine"]
+region = "Odenwald"
 description = "Traditional restaurant and butcher shop"
 urls = "https://www.rauth-rodau.de/"
 +++

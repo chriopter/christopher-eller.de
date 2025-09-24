@@ -3,6 +3,7 @@ title = "Brauerei Krug Geisfeld"
 lat = 49.9167
 lng = 10.9167
 tags = ["unvisited", "cuisine"]
+region = "Bavaria"
 description = "Traditional Franconian brewery with beer garden"
 urls = "https://www.brauerei-krug.de/"
 +++

@@ -3,6 +3,7 @@ title = "Welt der Kristalle"
 lat = 47.7500
 lng = 7.8500
 tags = ["unvisited", "nature"]
+region = "Germany"
 description = "Crystal and mineral museum in the Black Forest"
 urls = "https://www.welt-der-kristalle.com/"
 +++

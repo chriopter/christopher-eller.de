@@ -3,6 +3,7 @@ title = "BASF Besucherzentrum"
 lat = 49.49599
 lng = 8.43097
 tags = ["unvisited", "nature"]
+region = "Rheinland-Pfalz"
 description = "Interactive chemistry museum and site tours"
 urls = "https://www.visitorcenter.basf.com/"
 +++
