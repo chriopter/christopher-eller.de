@@ -135,7 +135,7 @@ main {
 
 .photo-date {
     color: #999;
-    margin-bottom: 32px;
+    margin-bottom: 16px;
     font-size: 15px;
 }
 
@@ -327,17 +327,31 @@ main {
         <div>
             {{ $images := .Resources.Match "*.{jpg,jpeg,png,gif,heic,heif}" }}
             {{ if gt (len $images) 1 }}
-            {{/* Multi-image: vertical stack of full-size photos with scroll */}}
+            {{/* Multi-image: vertical stack of full-size photos with scroll-based EXIF */}}
             {{ $first := index $images 0 }}
             {{ with $first.Exif }}{{ $.Scratch.Set "exif" . }}{{ end }}
-            <div class="photo-stack">
+            <div class="photo-stack" data-multi-photo="true">
                 {{ range $i, $img := $images }}
                     {{ if eq $img.MediaType.MainType "image" }}
                         {{ $display := $img }}
                         {{ if not (or (eq $img.MediaType.SubType "heif") (eq $img.MediaType.SubType "heic")) }}
                             {{ $display = $img.Resize "1600x" }}
                         {{ end }}
-                        <a class="photo-item" href="{{ $img.RelPermalink }}" target="_blank">
+                        <a class="photo-item" href="{{ $img.RelPermalink }}" target="_blank"
+                           data-index="{{ $i }}"
+                           {{ with $img.Exif }}
+                               {{ with .Tags.Model }}data-model="{{ . }}"{{ end }}
+                               {{ with .Tags.LensModel }}data-lens="{{ if $img.Exif.Tags.Model }}{{ replaceRE (printf "%s ?(.+)" $img.Exif.Tags.Model) "$1" . }}{{ else }}{{ . }}{{ end }}"{{ end }}
+                               {{ with .Tags.DateTimeOriginal }}
+                                   {{ $dateStr := . }}
+                                   {{ $dateStr := replaceRE "^([0-9]{4}):([0-9]{2}):([0-9]{2})" "$1-$2-$3" $dateStr }}
+                                   {{ $dateStr := replaceRE ":([0-9]{2}):([0-9]{2})" " $1:$2" $dateStr }}
+                                   {{ $dateStr := replaceRE " ([0-9]{2}) ([0-9]{2}):([0-9]{2})" " $1:$2:$3" $dateStr }}
+                                   {{ $parsedDate := time $dateStr }}
+                                   data-date="{{ $parsedDate.Format "2. January 2006" }}"
+                               {{ end }}
+                               data-settings="{{ with .Tags.FocalLength }}{{ $focalNum := float . }}{{ printf "%.0f" $focalNum }}mm{{ with $img.Exif.Tags.FocalLengthIn35mmFormat }} ({{ . }}mm){{ end }}{{ end }}{{ with .Tags.FNumber }}{{ $fnum := . }}{{ $fnumFloat := float $fnum }} • ƒ/{{ printf "%.1f" $fnumFloat }}{{ end }}{{ with .Tags.ExposureTime }}{{ if . }}{{ $parts := split . "/" }}{{ if eq (len $parts) 2 }}{{ $numerator := index $parts 0 }}{{ $denominator := index $parts 1 }}{{ $denominator := div (float $denominator) (float $numerator) }}{{ $roundedDenominator := math.Round $denominator }} • 1/{{ $roundedDenominator }}s{{ else }} • {{ . }}s{{ end }}{{ end }}{{ end }}{{ with .Tags.ISO }} • ISO {{ . }}{{ else }}{{ with .Tags.ISOSpeedRatings }} • ISO {{ . }}{{ end }}{{ end }}"
+                           {{ end }}>
                             <img src="{{ $display.RelPermalink }}" alt="{{ $currentPage.Title }}" {{ if eq $i 0 }}loading="eager"{{ else }}loading="lazy"{{ end }} />
                         </a>
                     {{ end }}
@@ -445,6 +459,48 @@ document.addEventListener('keydown', function(e) {
         if (nextLink) window.location.href = nextLink.href;
     }
 });
+
+// Update EXIF on scroll for multi-photo posts
+if (document.querySelector('.photo-stack[data-multi-photo="true"]')) {
+  function updateExif() {
+    const photos = document.querySelectorAll('.photo-stack .photo-item');
+    const windowCenter = window.innerHeight / 2;
+
+    let currentPhoto = null;
+    let minDistance = Infinity;
+
+    photos.forEach(photo => {
+      const rect = photo.getBoundingClientRect();
+      const photoCenter = rect.top + rect.height / 2;
+      const distance = Math.abs(photoCenter - windowCenter);
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        currentPhoto = photo;
+      }
+    });
+
+    if (currentPhoto) {
+      const date = currentPhoto.dataset.date;
+      const model = currentPhoto.dataset.model;
+      const lens = currentPhoto.dataset.lens;
+      const settings = currentPhoto.dataset.settings;
+
+      const dateEl = document.querySelector('.photo-date');
+      const modelEl = document.querySelector('.photo-metadata p:nth-child(1)');
+      const lensEl = document.querySelector('.photo-metadata p:nth-child(2)');
+      const settingsEl = document.querySelector('.photo-metadata p:nth-child(3)');
+
+      if (dateEl && date) dateEl.textContent = date;
+      if (modelEl) modelEl.innerHTML = model ? '📷 ' + model : '';
+      if (lensEl) lensEl.innerHTML = lens ? '🔭 ' + lens : '';
+      if (settingsEl) settingsEl.innerHTML = settings ? '⚙️ ' + settings : '';
+    }
+  }
+
+  window.addEventListener('scroll', updateExif);
+  updateExif(); // Initial update
+}
 
 // Basic swipe navigation on touch devices
 (function() {
