@@ -1,5 +1,5 @@
 {{- $photos := where .Site.RegularPages "Section" "photos" -}}
-{{- $recentPhotos := first 6 $photos -}}
+{{- $recentPhotos := first 4 $photos -}}
 {{- if $recentPhotos -}}
 <section class="recent-photos">
   <h2><a href="/photos/">Recent Photos</a></h2>
