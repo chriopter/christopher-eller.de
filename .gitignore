@@ -22,3 +22,4 @@
 
 # Node modules (should never be committed)
 node_modules/
+package-lock.json
