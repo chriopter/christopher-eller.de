@@ -1,10 +1,6 @@
-{{ $variant := "default" }}
-{{ $mode := "normal" }}
 {{ $site := .Site }}
 {{ $page := . }}
 {{ if reflect.IsMap . }}
-    {{ $variant = .variant | default "default" }}
-    {{ $mode = .mode | default "normal" }}
     {{ if .Site }}
         {{ $site = .Site }}
     {{ end }}
@@ -12,7 +8,7 @@
         {{ $page = .Page }}
     {{ end }}
 {{ end }}
-<div class="header-content header-content--{{ $mode }}{{ if eq $variant "floating" }} header-content--floating{{ end }}">
+<div class="header-content">
     <div class="site-title">
         <div style="display: flex; flex-direction: column;">
             <div style="display: flex; align-items: center;">
@@ -32,7 +28,7 @@
     </div>
     <nav class="nav-links">
         <a href="/feed"{{ if eq $page.Section "feed" }} class="active"{{ end }}>all</a>
-        <a href="/photos"{{ if eq $page.Section "photos" }} class="active"{{ end }}>photos</a>
+        <a href="/"{{ if eq $page.Kind "home" }} class="active"{{ end }}>photos</a>
         <a href="/places"{{ if eq $page.Section "places" }} class="active"{{ end }}>places</a>
         <a href="/texts"{{ if or (eq $page.Section "posts") (and (eq $page.Section "pages") (and $page.File (eq $page.File.BaseFileName "texts"))) }} class="active"{{ end }}>texts</a>
         <div class="dropdown" id="bitsDropdown">
