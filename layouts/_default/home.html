@@ -1,252 +1,125 @@
 {{ define "main" }}
-<div class="home-content">
-    {{- if .Content -}}
-        {{ .Content }}
-    {{- end -}}
-    {{- partial "recent-photos.html" . -}}
-    <div class="posts">
-        {{ $paginator := .Paginate (where .Site.RegularPages "Type" "in" (slice "posts" "photos" "links")) }}
-        {{ range $paginator.Pages }}
-            <article class="post">
-                {{ if eq .Type "photos" }}
-                    {{ $images := .Resources.ByType "image" }}
-                    {{ with . }}
-                        {{ $image := index $images 0 }}
-                        <div class="photo-post">
-                            <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-                            <time>✨ {{ .Date.Format "January 2, 2006" }}</time>
-                            <a href="{{ .RelPermalink }}" class="photo-item">
-                                {{ $thumbnail := $image }}
-                                {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
-                                    {{ $thumbnail = $image.Resize "1000x" }}
-                                {{ end }}
-                                <img src="{{ $thumbnail.RelPermalink }}" alt="{{ .Title }}" loading="lazy" />
-                                {{ if gt (len $images) 1 }}
-                                <span class="photo-thumbs">
-                                    {{ range $i, $extra := first 5 (after 1 $images) }}
-                                        {{ $thumb := $extra }}
-                                        {{ if not (or (eq $extra.MediaType.SubType "heif") (eq $extra.MediaType.SubType "heic")) }}
-                                            {{ $thumb = $extra.Resize "200x" }}
-                                        {{ end }}
-                                        <span class="photo-thumb">
-                                            <img src="{{ $thumb.RelPermalink }}" alt="" loading="lazy" />
-                                        </span>
-                                    {{ end }}
-                                </span>
-                                {{ end }}
-                            </a>
-                        </div>
-                    {{ end }}
-                {{ else if eq .Type "links" }}
-                    {{ $title := .Title }}
-                    {{ $date := .Date }}
-                    {{ with .RawContent }}
-                        <div class="link-post">
-                            {{ $content := . | replaceRE "(?s)^---.*?---\n" "" }}
-                            {{ $url := trim $content " \n\r\t" }}
-                            {{ $parsed := urls.Parse $url }}
-                            {{ $domain := strings.TrimPrefix "www." $parsed.Host }}
-                            <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="link-url">
-                                → {{ $title }} ({{ $domain }})
-                            </a>
-                            <time>✨ {{ $date.Format "January 2, 2006" }}</time>
-                        </div>
-                    {{ end }}
-                {{ else }}
-                    <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-                    <time>✨ {{ .Date.Format "January 2, 2006" }}</time>
-                    <div class="post-summary post-content">
-                        {{ .Summary | safeHTML }}
-                    </div>
-                    {{ if .Truncated }}
-                        <a href="{{ .RelPermalink }}">Read more...</a>
-                    {{ end }}
-                {{ end }}
-            </article>
-        {{ end }}
-    </div>
-
-    {{ if gt $paginator.TotalPages 1 }}
-    <div class="pagination">
-        {{ if $paginator.HasPrev }}
-            <a href="{{ $paginator.Prev.URL }}" class="prev">← Previous</a>
-        {{ end }}
-        
-        <span class="page-numbers">
-            {{ $paginator.PageNumber }} / {{ $paginator.TotalPages }}
-        </span>
-
-        {{ if $paginator.HasNext }}
-            <a href="{{ $paginator.Next.URL }}" class="next">Next →</a>
-        {{ end }}
-    </div>
-    {{ end }}
-</div>
-
 <style>
-/* Layout */
-.home-content {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0 20px;
-    color: var(--text-color);
+/* Force dark mode styles regardless of theme */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
 }
 
-@media (max-width: 768px) {
-    .home-content {
-        margin: 0;
-        padding: 20px;
+body {
+    background-color: #000 !important;
+    color: #eee !important;
+    position: relative;
+}
+
+header {
+    border-bottom-color: #333 !important;
+}
+
+.site-title,
+.nav-links a {
+    color: #eee !important;
+}
+
+footer {
+    border-top-color: #333 !important;
+}
+
+footer a {
+    color: #999 !important;
+}
+
+/* Override default layout constraints */
+main {
+    max-width: none !important;
+    padding: 0 !important;
+}
+
+.photo-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-rows: 10px;
+    grid-auto-flow: row dense;
+    gap: 8px;
+    padding: 8px;
+    width: 100vw;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* Media queries for responsive columns */
+@media (min-width: 600px) {
+    .photo-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
-.posts {
-    margin-bottom: 4rem;
+@media (min-width: 1280px) {
+    .photo-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
-/* Post styling */
-.post {
-    margin-bottom: 3rem;
-    padding-bottom: 3rem;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text-color);
+/* Ensure the grid container takes full width */
+body, html, main {
+    width: 100vw;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
 }
 
-.post-summary {
-    color: var(--text-color);
-    line-height: 1.6;
-    margin: 1rem 0;
-}
-
-.post-summary p {
-    margin: 1rem 0;
-}
-
-
-.post-summary a {
-    color: var(--link-color);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    text-decoration-thickness: 1px;
-}
-
-.post-summary a:hover {
-    color: var(--link-hover-color);
-    opacity: 0.7;
-}
-
-.post:last-child {
-    border-bottom: none;
-}
-
-.photo-item { position: relative; display: inline-block; }
-
-.card-extras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
-.card-extra { display: block; border-radius: 6px; overflow: hidden; }
-.card-extra img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-@media (max-width: 700px) { .card-extras { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-
-.post h2 {
-    margin-bottom: 0.75rem;
-    font-size: 1.8rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-}
-
-.post time {
+.photo-item {
+    position: relative;
+    overflow: hidden;
     display: block;
-    color: var(--secondary-text);
-    margin-bottom: 1.5rem;
-    font-size: 0.95rem;
-}
-
-/* Links */
-.home-content a {
-    color: var(--link-color);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    text-decoration-thickness: 1px;
-    transition: opacity 0.2s ease;
-}
-
-.home-content a:hover {
-    color: var(--link-hover-color);
-    opacity: 0.7;
-}
-
-/* Title links should not be underlined */
-.post h2 a {
     text-decoration: none;
 }
 
-/* Link posts */
-.link-post {
-    margin: 1.5rem 0;
-}
-
-.link-post .link-url {
+.photo-item img {
+    width: 100%;
+    height: auto;
     display: block;
-    font-size: 1.2rem;
-    line-height: 1.4;
-    margin-bottom: 0.5rem;
-    word-break: break-word;
-    color: var(--link-color);
-    text-decoration: none;
-}
-
-.link-post .link-url:hover {
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    text-decoration-thickness: 1px;
-}
-
-.link-post time {
-    margin-bottom: 0;
-    margin-top: 0.5rem;
-}
-
-/* Read more link */
-.post a[href$="Read more..."] {
-    display: inline-block;
-    margin-top: 1rem;
-    font-size: 0.95rem;
-    text-decoration: none;
-}
-
-.post a[href$="Read more..."]:hover {
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    text-decoration-thickness: 1px;
-}
-
-/* Photo posts */
-.photo-post .photo-item {
-    width: 80%;
-    max-height: 60vh;
-    margin: 1rem auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.photo-post img {
-    max-width: 100%;
-    max-height: 60vh;
-    display: block;
-    border-radius: 8px;
-    object-fit: contain;
     transition: transform 0.3s ease;
 }
 
-.photo-post a {
-    text-decoration: none;
+.photo-item:hover img {
+    transform: scale(1.03);
 }
 
-.photo-post a:hover img {
-    transform: scale(1.02);
+.photo-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 25%;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: white;
+    padding: 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 
-/* Small overlay thumbs for multi-image photo posts (match /photos) */
+.photo-item:hover .photo-info {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.photo-info .title {
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.photo-info .date {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
 .photo-thumbs {
     position: absolute;
     bottom: 20px;
@@ -270,162 +143,49 @@
     object-fit: cover;
     display: block;
 }
-
-/* Pagination */
-.pagination {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 3rem;
-    padding: 1.5rem 0;
-    border-top: 1px solid var(--border-color);
-}
-
-.pagination a {
-    font-weight: 500;
-    padding: 0.5rem 0;
-    transition: opacity 0.2s ease;
-    text-decoration: none;
-    color: var(--text-color);
-}
-
-.pagination a:hover {
-    opacity: 0.7;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    text-decoration-thickness: 1px;
-}
-
-.page-numbers {
-    color: var(--secondary-text);
-    font-size: 0.95rem;
-}
-
-/* Recent Photos Section */
-.recent-photos {
-    margin: 0 0 4rem 0;
-    padding: 0 0 2rem 0;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.recent-photos h2 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin: 0 0 1.5rem 0;
-}
-
-.recent-photos h2 a {
-    color: inherit;
-    text-decoration: none;
-}
-
-.recent-photos h2 a:hover {
-    opacity: 0.7;
-}
-
-
-.photos-grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-@media (max-width: 900px) {
-    .photos-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 600px) {
-    .photos-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.75rem;
-    }
-}
-
-.photo-item {
-    position: relative;
-    aspect-ratio: 1;
-    overflow: hidden;
-    border-radius: 8px;
-    background: var(--bg-secondary);
-}
-
-.photo-item a {
-    display: block;
-    width: 100%;
-    height: 100%;
-    text-decoration: none;
-}
-
-.photo-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.photo-item:hover img {
-    transform: scale(1.05);
-}
-
-.photo-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
-    padding: 0.75rem 0.6rem;
-    opacity: 0;
-    transition: opacity 0.25s ease;
-}
-
-.photo-item:hover .photo-overlay {
-    opacity: 1;
-}
-
-.photo-overlay h3 {
-    color: white;
-    font-size: 0.85rem;
-    font-weight: 500;
-    margin: 0 0 0.25rem 0;
-    line-height: 1.2;
-}
-
-.photo-overlay time {
-    color: rgba(255,255,255,0.8);
-    font-size: 0.75rem;
-    margin: 0;
-}
-
-.recent-photos .view-all {
-    display: inline-block;
-    font-size: 0.95rem;
-    color: var(--link-color);
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.recent-photos .view-all:hover {
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    text-decoration-thickness: 1px;
-}
-
-/* Badge for multi-image count in Recent Photos */
-.photo-count {
-    position: absolute;
-    bottom: 12px;
-    right: 12px;
-    background: rgba(0, 0, 0, 0.6);
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-}
 </style>
+
+<div class="photo-grid">
+    {{ $photos := where .Site.RegularPages "Section" "photos" }}
+    {{ range $photos.ByDate.Reverse }}
+        {{ $page := . }}
+        {{ $images := .Resources.ByType "image" }}
+        {{ with index $images 0 }}
+            {{ $image := . }}
+            {{ $thumbnail := $image }}
+            {{ if not (or (eq $image.MediaType.SubType "heif") (eq $image.MediaType.SubType "heic")) }}
+                {{ $thumbnail = $image.Resize "1000x" }}
+            {{ end }}
+            {{ $aspectRatio := div (float $image.Height) (float $image.Width) }}
+            {{ $rowSpan := 20 }}
+            {{ if gt $aspectRatio 1.2 }}
+                {{ $rowSpan = 30 }}
+            {{ else if gt $aspectRatio 0.8 }}
+                {{ $rowSpan = 25 }}
+            {{ else if lt $aspectRatio 0.7 }}
+                {{ $rowSpan = 15 }}
+            {{ end }}
+            <a href="{{ $page.RelPermalink }}" class="photo-item" style="grid-row-end: span {{ $rowSpan }};">
+                <img src="{{ $thumbnail.RelPermalink }}" alt="{{ $page.Title }}" loading="lazy" />
+                {{ if gt (len $images) 1 }}
+                <span class="photo-thumbs">
+                    {{ range $i, $extra := first 5 (after 1 $images) }}
+                        {{ $thumb := $extra }}
+                        {{ if not (or (eq $extra.MediaType.SubType "heif") (eq $extra.MediaType.SubType "heic")) }}
+                            {{ $thumb = $extra.Resize "200x" }}
+                        {{ end }}
+                        <span class="photo-thumb">
+                            <img src="{{ $thumb.RelPermalink }}" alt="" loading="lazy" />
+                        </span>
+                    {{ end }}
+                </span>
+                {{ end }}
+                <div class="photo-info">
+                    <div class="title">{{ $page.Title }}</div>
+                    <div class="date">{{ $page.Date.Format "January 2, 2006" }}</div>
+                </div>
+            </a>
+        {{ end }}
+    {{ end }}
+</div>
 {{ end }}
