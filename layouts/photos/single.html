@@ -10,10 +10,22 @@ html, body {
     margin: 0;
     padding: 0;
     width: 100%;
-    height: auto;
-    overflow: auto;
     background-color: #000 !important;
     color: #eee !important;
+}
+
+/* Single photo: lock viewport on desktop only */
+@media (min-width: 1200px) {
+    .single-photo-body {
+        height: 100vh;
+        overflow: hidden;
+    }
+}
+
+/* Multi-photo: allow scrolling */
+.multi-photo-body {
+    height: auto;
+    overflow: auto;
 }
 
 header {
@@ -70,7 +82,7 @@ main {
 
 .photo-main img {
     width: 100%;
-    max-height: 85vh;
+    max-height: 90vh;
     object-fit: contain;
 }
 
@@ -91,12 +103,16 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 0;
+    height: 100%;
 }
-.photo-hero img { max-height: calc(90vh - 140px); }
+.photo-hero img {
+    max-height: 90vh;
+    max-width: 100%;
+    object-fit: contain;
+}
 
 @media (min-width: 1200px) {
-    .photo-main img {
+    .photo-hero img {
         max-height: 85vh;
     }
 }
@@ -116,7 +132,7 @@ main {
     justify-content: center;
     gap: 18px;
     max-height: 80vh;
-    overflow-y: auto;
+    overflow-y: hidden;
 }
 
 @media (max-width: 1199px) {
@@ -130,13 +146,67 @@ main {
 
 .photo-title {
     font-size: 24px;
-    margin-bottom: 10px;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    cursor: default;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.photo-number {
+    font-size: 18px;
+    color: #666;
+    font-weight: normal;
+}
+
+.date-container {
+    height: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    color: #999;
+    font-size: 14px;
+    position: relative;
 }
 
 .photo-date {
-    color: #999;
-    margin-bottom: 16px;
-    font-size: 15px;
+    transition: opacity 0.2s ease;
+}
+
+.upload-date-inline {
+    position: absolute;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.date-separator {
+    color: rgba(255, 255, 255, 0.3);
+    margin: 0 4px;
+}
+
+.full-size-inline {
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s ease;
+    position: relative;
+    z-index: 10;
+}
+
+.full-size-inline:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.photo-title:hover ~ .date-container .photo-date {
+    display: none;
+}
+
+.photo-title:hover ~ .date-container .upload-date-inline {
+    position: static;
+    opacity: 1;
 }
 
 .photo-metadata {
@@ -146,19 +216,24 @@ main {
 
 .photo-metadata p {
     margin: 5px 0;
+    display: flex;
+    align-items: center;
 }
 
-.back-to-gallery {
-    display: block;
-    margin-bottom: 20px;
+.photo-metadata p:before {
+    font-size: 16px;
+    margin-right: 6px;
+}
+
+.back-to-gallery-btn {
     color: #999;
-    text-decoration: none;
+    text-decoration: underline;
     font-size: 14px;
-    transition: color 0.3s ease;
-    opacity: 0.7;
+    transition: color 0.2s ease;
+    text-underline-offset: 2px;
 }
 
-.back-to-gallery:hover {
+.back-to-gallery-btn:hover {
     color: #fff;
 }
 
@@ -249,29 +324,32 @@ main {
 
 .full-size-link {
     display: inline-block;
-    margin-top: 15px;
-    color: #999;
+    margin-top: 20px;
+    color: rgba(255, 255, 255, 0.5);
     text-decoration: none;
-    font-size: 14px;
-    transition: color 0.3s ease;
+    font-size: 12px;
+    transition: all 0.2s ease;
 }
 
 .full-size-link:hover {
-    color: #fff;
+    color: rgba(255, 255, 255, 0.8);
 }
 
-/* Desktop navigation buttons under EXIF */
+/* Navigation buttons under EXIF */
 .photo-nav-desktop {
-    display: none;
-    gap: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-top: 30px;
     justify-content: flex-start;
     width: 100%;
 }
 
-@media (min-width: 1200px) {
+@media (max-width: 1199px) {
     .photo-nav-desktop {
-        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        padding: 10px 0;
     }
 }
 
@@ -279,17 +357,28 @@ main {
     background: transparent;
     color: #999;
     text-decoration: none;
-    padding: 8px 12px 8px 0;
+    padding: 0;
     transition: color 0.2s ease;
     display: inline-flex;
     align-items: center;
-    font-size: 32px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
     border: none;
 }
 
 .photo-nav-btn:hover {
     color: #fff;
+}
+
+.photo-nav-btn.disabled {
+    color: #444;
+    cursor: not-allowed;
+}
+
+.nav-separator {
+    color: #666;
+    margin: 0 4px;
 }
 
 /* Horizontal strip for multi-image posts */
@@ -339,6 +428,7 @@ main {
                         {{ end }}
                         <a class="photo-item" href="{{ $img.RelPermalink }}" target="_blank"
                            data-index="{{ $i }}"
+                           data-fullsize="{{ $img.RelPermalink }}"
                            {{ with $img.Exif }}
                                {{ with .Tags.Model }}data-model="{{ . }}"{{ end }}
                                {{ with .Tags.LensModel }}data-lens="{{ if $img.Exif.Tags.Model }}{{ replaceRE (printf "%s ?(.+)" $img.Exif.Tags.Model) "$1" . }}{{ else }}{{ . }}{{ end }}"{{ end }}
@@ -394,60 +484,71 @@ main {
         </div>
         
         <div class="photo-info">
-            <a href="/photos" class="back-to-gallery">← Back to Gallery</a>
-            <h1 class="photo-title">{{ .Title }}</h1>
+            <h1 class="photo-title">{{ .Title }} <span id="photo-number" class="photo-number"></span></h1>
             {{ $exif := $.Scratch.Get "exif" }}
-            {{ if $exif }}
-                {{ with $exif.Tags.DateTimeOriginal }}
-                    {{ $dateStr := . }}
-                    {{ $dateStr := replaceRE "^([0-9]{4}):([0-9]{2}):([0-9]{2})" "$1-$2-$3" $dateStr }}
-                    {{ $dateStr := replaceRE ":([0-9]{2}):([0-9]{2})" " $1:$2" $dateStr }}
-                    {{ $dateStr := replaceRE " ([0-9]{2}) ([0-9]{2}):([0-9]{2})" " $1:$2:$3" $dateStr }}
-                    {{ $parsedDate := time $dateStr }}
-                    <div class="photo-date">{{ $parsedDate.Format "2. January 2006" }}</div>
+            <div class="date-container">
+                {{ if $exif }}
+                    {{ with $exif.Tags.DateTimeOriginal }}
+                        {{ $dateStr := . }}
+                        {{ $dateStr := replaceRE "^([0-9]{4}):([0-9]{2}):([0-9]{2})" "$1-$2-$3" $dateStr }}
+                        {{ $dateStr := replaceRE ":([0-9]{2}):([0-9]{2})" " $1:$2" $dateStr }}
+                        {{ $dateStr := replaceRE " ([0-9]{2}) ([0-9]{2}):([0-9]{2})" " $1:$2:$3" $dateStr }}
+                        {{ $parsedDate := time $dateStr }}
+                        <span class="photo-date">{{ $parsedDate.Format "2. January 2006" }}</span>
+                    {{ end }}
                 {{ end }}
-            {{ end }}
+                <span class="upload-date-inline">Uploaded on {{ .Date.Format "2. January 2006" }}</span>
+                <span class="date-separator"> • </span>
+                <a href="{{ (index $images 0).RelPermalink }}" id="full-size-link" class="full-size-inline" target="_blank">Full Size ↗</a>
+            </div>
             <div class="photo-metadata">
                 {{ if $exif }}
                     {{ with $exif.Tags.Model }}
-                    <p>📷 {{ . }}</p>
+                    <p id="exif-model">📷 {{ . }}</p>
                     {{ end }}
-                    
-                    {{ with $exif.Tags.LensModel }}
-                    <p>🔭 {{ if $exif.Tags.Model }}{{ replaceRE (printf "%s ?(.+)" $exif.Tags.Model) "$1" . }}{{ else }}{{ . }}{{ end }}</p>
-                    {{ end }}
-                    
-                    <p>⚙️ {{ with $exif.Tags.FocalLength }}{{ $focalNum := float . }}{{ printf "%.0f" $focalNum }}mm{{ with $exif.Tags.FocalLengthIn35mmFormat }} ({{ . }}mm){{ end }}{{ end }}{{ with $exif.Tags.FNumber }}{{ $fnum := . }}{{ $fnumFloat := float $fnum }} • ƒ/{{ printf "%.1f" $fnumFloat }}{{ end }}{{ with $exif.Tags.ExposureTime }}{{ if . }}{{ $parts := split . "/" }}{{ if eq (len $parts) 2 }}{{ $numerator := index $parts 0 }}{{ $denominator := index $parts 1 }}{{ $denominator := div (float $denominator) (float $numerator) }}{{ $roundedDenominator := math.Round $denominator }} • 1/{{ $roundedDenominator }}s{{ else }} • {{ . }}s{{ end }}{{ end }}{{ end }}{{ with $exif.Tags.ISO }} • ISO {{ . }}{{ else }}{{ with $exif.Tags.ISOSpeedRatings }} • ISO {{ . }}{{ end }}{{ end }}
+
+                    <p id="exif-settings">⚙️ {{ with $exif.Tags.FocalLength }}{{ $focalNum := float . }}{{ printf "%.0f" $focalNum }}mm{{ with $exif.Tags.FocalLengthIn35mmFormat }} ({{ . }}mm){{ end }}{{ end }}{{ with $exif.Tags.FNumber }}{{ $fnum := . }}{{ $fnumFloat := float $fnum }} • ƒ/{{ printf "%.1f" $fnumFloat }}{{ end }}{{ with $exif.Tags.ExposureTime }}{{ if . }}{{ $parts := split . "/" }}{{ if eq (len $parts) 2 }}{{ $numerator := index $parts 0 }}{{ $denominator := index $parts 1 }}{{ $denominator := div (float $denominator) (float $numerator) }}{{ $roundedDenominator := math.Round $denominator }} • 1/{{ $roundedDenominator }}s{{ else }} • {{ . }}s{{ end }}{{ end }}{{ end }}{{ with $exif.Tags.ISO }} • ISO {{ . }}{{ else }}{{ with $exif.Tags.ISOSpeedRatings }} • ISO {{ . }}{{ end }}{{ end }}
                     </p>
+
+                    {{ if $exif.Tags.LensModel }}
+                    <p id="exif-lens">🔭 {{ if $exif.Tags.Model }}{{ replaceRE (printf "%s ?(.+)" $exif.Tags.Model) "$1" $exif.Tags.LensModel }}{{ else }}{{ $exif.Tags.LensModel }}{{ end }}</p>
+                    {{ else }}
+                    <p id="exif-lens" style="opacity: 0;">🔭</p>
+                    {{ end }}
                 {{ end }}
-                
-                <p style="margin-top: 15px; font-size: 12px; opacity: 0.7;">Uploaded on {{ .Date.Format "2. January 2006" }}</p>
+
             </div>
 
             {{/* extras moved under hero (left column) */}}
 
-            {{ range first 1 $images }}
-            <a href="{{ .RelPermalink }}" class="full-size-link" target="_blank">View Full Size ↗</a>
-            {{ end }}
-
             <div class="photo-nav-desktop">
                 {{ with $.Scratch.Get "prevPage" }}
-                <a href="{{ .RelPermalink }}" class="photo-nav-btn prev" title="{{ .Title }}">
-                    <span class="photo-nav-arrow">←</span>
-                </a>
+                <a href="{{ .RelPermalink }}" class="photo-nav-btn prev" title="{{ .Title }}"><</a>
+                {{ else }}
+                <span class="photo-nav-btn disabled"><</span>
                 {{ end }}
 
                 {{ with $.Scratch.Get "nextPage" }}
-                <a href="{{ .RelPermalink }}" class="photo-nav-btn next" title="{{ .Title }}">
-                    <span class="photo-nav-arrow">→</span>
-                </a>
+                <a href="{{ .RelPermalink }}" class="photo-nav-btn next" title="{{ .Title }}">></a>
+                {{ else }}
+                <span class="photo-nav-btn disabled">></span>
                 {{ end }}
+
+                <a href="/photos" class="back-to-gallery-btn">Gallery</a>
             </div>
             </div>
         </div>
 </div>
 
 <script>
+// Add body class for single/multi photo
+{{ $images := .Resources.Match "*.{jpg,jpeg,png,gif,heic,heif}" }}
+{{ if gt (len $images) 1 }}
+document.body.classList.add('multi-photo-body');
+{{ else }}
+document.body.classList.add('single-photo-body');
+{{ end }}
+
 // Keyboard navigation
 document.addEventListener('keydown', function(e) {
     if (e.key === 'ArrowLeft') {
@@ -462,14 +563,17 @@ document.addEventListener('keydown', function(e) {
 
 // Update EXIF on scroll for multi-photo posts
 if (document.querySelector('.photo-stack[data-multi-photo="true"]')) {
+  const photos = document.querySelectorAll('.photo-stack .photo-item');
+  const totalPhotos = photos.length;
+
   function updateExif() {
-    const photos = document.querySelectorAll('.photo-stack .photo-item');
     const windowCenter = window.innerHeight / 2;
 
     let currentPhoto = null;
+    let currentIndex = 0;
     let minDistance = Infinity;
 
-    photos.forEach(photo => {
+    photos.forEach((photo, index) => {
       const rect = photo.getBoundingClientRect();
       const photoCenter = rect.top + rect.height / 2;
       const distance = Math.abs(photoCenter - windowCenter);
@@ -477,6 +581,7 @@ if (document.querySelector('.photo-stack[data-multi-photo="true"]')) {
       if (distance < minDistance) {
         minDistance = distance;
         currentPhoto = photo;
+        currentIndex = index;
       }
     });
 
@@ -485,16 +590,29 @@ if (document.querySelector('.photo-stack[data-multi-photo="true"]')) {
       const model = currentPhoto.dataset.model;
       const lens = currentPhoto.dataset.lens;
       const settings = currentPhoto.dataset.settings;
+      const fullsize = currentPhoto.dataset.fullsize;
 
       const dateEl = document.querySelector('.photo-date');
-      const modelEl = document.querySelector('.photo-metadata p:nth-child(1)');
-      const lensEl = document.querySelector('.photo-metadata p:nth-child(2)');
-      const settingsEl = document.querySelector('.photo-metadata p:nth-child(3)');
+      const modelEl = document.getElementById('exif-model');
+      const settingsEl = document.getElementById('exif-settings');
+      const lensEl = document.getElementById('exif-lens');
+      const fullsizeEl = document.getElementById('full-size-link');
+      const numberEl = document.getElementById('photo-number');
 
       if (dateEl && date) dateEl.textContent = date;
       if (modelEl) modelEl.innerHTML = model ? '📷 ' + model : '';
-      if (lensEl) lensEl.innerHTML = lens ? '🔭 ' + lens : '';
       if (settingsEl) settingsEl.innerHTML = settings ? '⚙️ ' + settings : '';
+      if (lensEl) {
+        if (lens) {
+          lensEl.innerHTML = '🔭 ' + lens;
+          lensEl.style.opacity = '1';
+        } else {
+          lensEl.innerHTML = '🔭';
+          lensEl.style.opacity = '0';
+        }
+      }
+      if (fullsizeEl && fullsize) fullsizeEl.href = fullsize;
+      if (numberEl) numberEl.textContent = `${currentIndex + 1} / ${totalPhotos}`;
     }
   }
 
