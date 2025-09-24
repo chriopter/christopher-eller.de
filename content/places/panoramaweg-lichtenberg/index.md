@@ -2,7 +2,7 @@
 title = "Panoramaweg Lichtenberg"
 lat = 49.7000
 lng = 8.8500
-tags = ["unvisited", "hiking", "nature"]
+tags = ["unvisited", "hiking"]
 region = "Odenwald"
 description = "Scenic hiking trail F1 through Fischbachtal"
 urls = "https://www.ich-geh-wandern.de/panoramaweg-fischbachtal"

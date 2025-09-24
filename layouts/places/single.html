@@ -1,342 +1,199 @@
 {{ define "main" }}
-<div class="places-section place-single-view" id="places-section">
-    <!-- Full Viewport Map -->
-    <div class="map-container" id="places-map"></div>
-    
-    <!-- Menu Pill -->
-    <div class="menu-pill" id="menu-pill">
-        {{ partial "header.html" . }}
-    </div>
-    
-    <!-- Mobile Overlay -->
-    <div class="mobile-overlay" id="mobile-overlay"></div>
-    
-    <!-- Side Panel -->
-    <div class="side-panel" id="side-panel">
-        <!-- Panel toggle button -->
-        <div class="panel-hide-toggle" id="panel-hide-toggle" title="Hide Panel">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M15 18l-6-6 6-6"></path>
-            </svg>
-        </div>
+<style>
+.place-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
 
-        <!-- Back Button -->
-        <div class="place-detail-header">
-            <a href="/places/" class="back-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 12H5"></path>
-                    <path d="M12 19l-7-7 7-7"></path>
-                </svg>
-                <span>Back to list</span>
-            </a>
-        </div>
+.place-map {
+    height: 400px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
 
-        <!-- Place Content -->
-        <article class="place-detail">
-            <!-- Content for JavaScript to parse -->
-            <div class="place-header">
-                <h1>{{ .Title }}</h1>
-                {{ with .Description }}<p class="place-description">{{ . }}</p>{{ end }}
-            </div>
+.place-photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.5rem;
+    margin: 2rem 0;
+}
 
-            {{ with .Resources.ByType "image" }}
-            <div class="place-photos">
-                <div class="photos-grid">
-                    {{ range . }}
-                    <div class="photo-item" data-src="{{ .RelPermalink }}">
-                        <img src="{{ .RelPermalink }}" alt="{{ .Name }}" loading="lazy">
-                    </div>
-                    {{ end }}
-                </div>
-            </div>
+.place-photos img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.place-photos img:hover {
+    transform: scale(1.05);
+}
+
+.place-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.place-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.place-actions button, .place-actions a {
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--secondary-text);
+    font-size: 1.2rem;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.place-actions button:hover, .place-actions a:hover {
+    color: var(--text-color);
+}
+
+/* Lightbox */
+.lightbox {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox.active {
+    display: flex;
+}
+
+.lightbox img {
+    max-width: 90%;
+    max-height: 90vh;
+    object-fit: contain;
+}
+
+.lightbox-close, .lightbox-prev, .lightbox-next {
+    position: absolute;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.lightbox-close {
+    top: 20px;
+    right: 40px;
+}
+
+.lightbox-prev {
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.lightbox-next {
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+@media (max-width: 768px) {
+    .place-container {
+        padding: 0 1rem;
+    }
+}
+</style>
+
+<div class="place-container">
+    <a href="/places/" style="display: inline-block; margin-bottom: 1rem; color: var(--secondary-text); text-decoration: none;">← Back to places</a>
+
+    <div class="place-title">
+        <h1>{{ .Title }}</h1>
+        <div class="place-actions">
+            <button onclick="navigator.clipboard.writeText(location.href)" title="Copy Link">📋</button>
+            {{ with .Params.urls }}
+            <a href="{{ . }}" target="_blank" title="Visit Website">🌐</a>
             {{ end }}
+        </div>
+    </div>
 
-            <div class="place-actions">
-                <button class="action-btn action-btn-icon copy-btn" title="Copy link to clipboard">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                </button>
-                <button class="action-btn action-btn-icon share-btn" title="Share this place">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                        <polyline points="16,6 12,2 8,6"></polyline>
-                        <line x1="12" y1="2" x2="12" y2="15"></line>
-                    </svg>
-                </button>
-                {{ with .Params.urls }}
-                <a href="{{ . }}" class="action-btn web-btn" target="_blank" rel="noopener noreferrer" title="Visit website">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                    </svg>
-                    Web
-                </a>
-                {{ end }}
-            </div>
+    {{ with .Resources.ByType "image" }}
+    <div class="place-photos">
+        {{ range $i, $img := . }}
+        <img src="{{ $img.RelPermalink }}" alt="" loading="lazy" data-index="{{ $i }}">
+        {{ end }}
+    </div>
+    {{ end }}
 
-            <div class="place-content-body">
-                {{ .Content }}
-            </div>
+    {{ with .Description }}<p>{{ . }}</p>{{ end }}
 
-        </article>
+    <div class="place-content">
+        {{ .Content }}
     </div>
-    
-    <!-- Lightbox -->
-    <div class="lightbox">
-        <img src="" alt="">
-        <div class="lightbox-close">&times;</div>
-        <div class="lightbox-nav lightbox-prev">&larr;</div>
-        <div class="lightbox-nav lightbox-next">&rarr;</div>
-    </div>
-    
-    <!-- Mobile Toggle Button -->
-    <div class="panel-toggle" id="panel-toggle">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-    </div>
-    
-    <!-- Show Panel Button -->
-    <div class="panel-show-toggle hidden" id="panel-show-toggle" title="Show Panel">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 18l6-6-6-6"></path>
-        </svg>
-    </div>
+
+    <div id="map" class="place-map"></div>
 </div>
 
-<!-- Dependencies -->
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+    <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+    <span class="lightbox-prev" onclick="changePhoto(-1)">&#10094;</span>
+    <span class="lightbox-next" onclick="changePhoto(1)">&#10095;</span>
+    <img src="" alt="">
+</div>
+
 <link rel="stylesheet" href="/places/node_modules/leaflet/dist/leaflet.css">
-<link rel="stylesheet" href="/places/css/main.css">
 <script src="/places/node_modules/leaflet/dist/leaflet.js"></script>
-<script type="module">
-document.addEventListener('DOMContentLoaded', function() {
-    // Lightbox functionality
-    const lightbox = document.querySelector('.lightbox');
-    const lightboxImg = lightbox.querySelector('img');
-    const closeBtn = lightbox.querySelector('.lightbox-close');
-    const prevBtn = lightbox.querySelector('.lightbox-prev');
-    const nextBtn = lightbox.querySelector('.lightbox-next');
-    const photoItems = document.querySelectorAll('.photo-item');
-    let currentPhotoIndex = 0;
+<script>
+var map = L.map('map').setView([{{ .Params.lat }}, {{ .Params.lng }}], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+L.marker([{{ .Params.lat }}, {{ .Params.lng }}]).bindPopup('{{ .Title }}').addTo(map);
 
-    function openLightbox(index) {
-        currentPhotoIndex = index;
-        const src = photoItems[index].dataset.src;
-        lightboxImg.src = src;
+// Lightbox
+var photos = document.querySelectorAll('.place-photos img');
+var lightbox = document.getElementById('lightbox');
+var lightboxImg = lightbox.querySelector('img');
+var currentIndex = 0;
+
+photos.forEach((photo, i) => {
+    photo.onclick = () => {
+        currentIndex = i;
+        lightboxImg.src = photo.src;
         lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeLightbox() {
-        lightbox.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-
-    function showPrevPhoto() {
-        currentPhotoIndex = (currentPhotoIndex - 1 + photoItems.length) % photoItems.length;
-        lightboxImg.src = photoItems[currentPhotoIndex].dataset.src;
-    }
-
-    function showNextPhoto() {
-        currentPhotoIndex = (currentPhotoIndex + 1) % photoItems.length;
-        lightboxImg.src = photoItems[currentPhotoIndex].dataset.src;
-    }
-
-    photoItems.forEach((item, index) => {
-        item.addEventListener('click', () => openLightbox(index));
-    });
-
-    closeBtn.addEventListener('click', closeLightbox);
-    prevBtn.addEventListener('click', showPrevPhoto);
-    nextBtn.addEventListener('click', showNextPhoto);
-
-    // Close lightbox on escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeLightbox();
-        if (e.key === 'ArrowLeft') showPrevPhoto();
-        if (e.key === 'ArrowRight') showNextPhoto();
-    });
-
-    // Close lightbox on click outside image
-    lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) closeLightbox();
-    });
-
-    // Initialize map
-    const placeData = {
-        lat: parseFloat("{{ .Params.lat }}"),
-        lng: parseFloat("{{ .Params.lng }}"),
-        title: "{{ .Title }}"
     };
-
-    const map = L.map('places-map').setView([placeData.lat, placeData.lng], 13);
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-    
-    L.marker([placeData.lat, placeData.lng])
-        .bindPopup(placeData.title)
-        .addTo(map);
-
-    // Panel toggle functionality - Same as list view
-    const panel = document.getElementById('side-panel');
-    const toggleBtn = document.getElementById('panel-toggle');
-    const showPanelBtn = document.getElementById('panel-show-toggle');
-    const hidePanelBtn = document.getElementById('panel-hide-toggle');
-    const overlay = document.getElementById('mobile-overlay');
-
-    function togglePanel() {
-        // Check if we're on mobile (based on window width)
-        if (window.innerWidth <= 768) {
-            // Mobile: toggle sidebar with proper state management
-            if (panel.classList.contains('visible')) {
-                // Hide sidebar - user manually hiding it
-                panel.classList.remove('visible');
-                panel.classList.add('hidden-by-user');
-                if (overlay) {
-                    overlay.classList.remove('visible');
-                }
-            } else {
-                // Show sidebar - remove user hide state
-                panel.classList.add('visible');
-                panel.classList.remove('hidden-by-user');
-                if (overlay) {
-                    overlay.classList.add('visible');
-                }
-            }
-        } else {
-            // Desktop: hide/show sidebar
-            panel.classList.toggle('hidden');
-            showPanelBtn.classList.toggle('hidden');
-        }
-        
-        // Update map size after transition
-        setTimeout(() => {
-            if (map) {
-                map.invalidateSize();
-            }
-        }, 300);
-    }
-
-    function hidePanel() {
-        if (window.innerWidth <= 768) {
-            panel.classList.remove('visible');
-            panel.classList.add('hidden-by-user');
-            if (overlay) {
-                overlay.classList.remove('visible');
-            }
-        } else {
-            panel.classList.add('hidden');
-            showPanelBtn.classList.remove('hidden');
-        }
-        
-        setTimeout(() => {
-            if (map) {
-                map.invalidateSize();
-            }
-        }, 300);
-    }
-
-    toggleBtn.addEventListener('click', togglePanel);
-    showPanelBtn.addEventListener('click', togglePanel);
-    hidePanelBtn.addEventListener('click', hidePanel);
-    
-    // Close panel when clicking overlay
-    if (overlay) {
-        overlay.addEventListener('click', hidePanel);
-    }
-
-    // Set initial state - show sidebar on mobile for single view
-    function setInitialState() {
-        if (window.innerWidth <= 768) {
-            // Mobile: show sidebar by default for single view
-            panel.classList.add('visible');
-            if (overlay) {
-                overlay.classList.add('visible');
-            }
-        } else {
-            // Desktop: hide desktop show button initially
-            showPanelBtn.classList.add('hidden');
-        }
-    }
-    
-    // Set initial state on load
-    setInitialState();
-
-    // Handle window resize to ensure proper behavior
-    window.addEventListener('resize', () => {
-        if (window.innerWidth > 768) {
-            // Reset mobile classes when switching to desktop
-            panel.classList.remove('visible');
-            if (overlay) {
-                overlay.classList.remove('visible');
-            }
-        } else {
-            // Reset desktop classes when switching to mobile
-            panel.classList.remove('hidden');
-            showPanelBtn.classList.add('hidden');
-            // Ensure sidebar is visible on mobile
-            panel.classList.add('visible');
-            if (overlay) {
-                overlay.classList.add('visible');
-            }
-        }
-        
-        // Invalidate map size on resize
-        setTimeout(() => {
-            if (map) {
-                map.invalidateSize();
-            }
-        }, 100);
-    });
-
-    // Share and Copy button functionality
-    const copyBtn = document.querySelector('.copy-btn');
-    const shareBtn = document.querySelector('.share-btn');
-
-    function showCopiedFeedback(button) {
-        const icon = button.querySelector('svg').outerHTML;
-        const originalText = button.innerHTML;
-        button.innerHTML = `${icon} Copied`;
-        setTimeout(() => {
-            button.innerHTML = originalText;
-        }, 2000);
-    }
-
-    // Initialize copy button
-    if (copyBtn) {
-        copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(window.location.href)
-                .then(() => showCopiedFeedback(copyBtn))
-                .catch(err => console.error('Error copying text to clipboard:', err));
-        });
-    }
-
-    // Initialize share button with Web Share API
-    if (shareBtn) {
-        shareBtn.style.removeProperty('display');
-        shareBtn.addEventListener('click', async () => {
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: "{{ .Title }}",
-                        text: "{{ with .Description }}{{ . }}{{ else }}Check out this place I found!{{ end }}",
-                        url: window.location.href
-                    });
-                } catch (error) {
-                    if (error.name !== 'AbortError') {
-                        console.error('Error sharing:', error);
-                    }
-                }
-            }
-        });
-    }
 });
+
+function closeLightbox() {
+    lightbox.classList.remove('active');
+}
+
+function changePhoto(direction) {
+    currentIndex = (currentIndex + direction + photos.length) % photos.length;
+    lightboxImg.src = photos[currentIndex].src;
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('active')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') changePhoto(-1);
+    if (e.key === 'ArrowRight') changePhoto(1);
+});
+
+// Close on background click
+lightbox.onclick = (e) => {
+    if (e.target === lightbox) closeLightbox();
+};
 </script>
 {{ end }}

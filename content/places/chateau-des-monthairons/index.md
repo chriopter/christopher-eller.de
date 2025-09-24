@@ -2,7 +2,7 @@
 title = "Château des Monthairons"
 lat = 49.049
 lng = 5.411
-tags = ["hotel", "cuisine"]
+tags = ["hotel"]
 region = "France"
 description = "Schlosshotel mit Michelin-Restaurant in historischem Ambiente"
 urls = "https://chateaudesmonthairons.fr"

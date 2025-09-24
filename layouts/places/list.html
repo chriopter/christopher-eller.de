@@ -1,149 +1,524 @@
 {{ define "main" }}
-<style>
-    /* Override main content styles from base template */
-    main {
-        max-width: none;
-        margin: 0;
-        padding: 0;
-    }
-    header {
-        padding: 0;
-        margin: 0;
-    }
-</style>
-<div class="places-section" id="places-section">
-    <!-- Full Viewport Map -->
-    <div class="map-container" id="places-map"></div>
-    
-    <!-- Unified Header in Pill Mode -->
-    {{ partial "header.html" (dict "mode" "pill" "Site" .Site "Page" .) }}
-    
-    <!-- Mobile Overlay -->
-    <div class="mobile-overlay" id="mobile-overlay"></div>
-    
-    <!-- Side Panel -->
-    <div class="side-panel" id="side-panel">
-        <!-- Panel toggle button -->
-        <div class="panel-hide-toggle" id="panel-hide-toggle" title="Hide Panel">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M15 18l-6-6 6-6"></path>
-            </svg>
-        </div>
-        
-        <header class="side-panel-header">
-            <h1>Places</h1>
-            {{ with .Description }}<p>{{ . }}</p>{{ end }}
-        </header>
-        
-        <!-- Search and Filters -->
-        <div class="search-container">
-            <input type="text" id="search-input" class="search-input" placeholder="Search places...">
+<link rel="stylesheet" href="/places/node_modules/leaflet/dist/leaflet.css">
+<script src="/places/node_modules/leaflet/dist/leaflet.js"></script>
+
+<div class="places-container">
+    <div class="places-list">
+        <!-- Visited/Unvisited Toggle -->
+        <div class="visit-toggle">
+            <span class="toggle-option {{ if eq .Params.show "unvisited" }}{{ else }}active{{ end }}" onclick="setFilter(true)">Visited</span>
+            <span class="toggle-divider">·</span>
+            <span class="toggle-option {{ if eq .Params.show "unvisited" }}active{{ end }}" onclick="setFilter(false)">Unvisited</span>
         </div>
 
-        <!-- Visit Status Toggle -->
-        <div class="visit-status-toggle" id="visit-status-toggle">
-            <div class="segmented-control">
-                <input type="radio" name="visit-status" id="visited-option" value="visited" checked>
-                <label for="visited-option" class="segment-label">Visited</label>
-                
-                <input type="radio" name="visit-status" id="unvisited-option" value="unvisited">
-                <label for="unvisited-option" class="segment-label">Unvisited</label>
-                
-                <div class="segment-slider"></div>
-            </div>
-        </div>
-        
-        <div class="tag-filters" id="tag-filters">
-            {{ $allTags := slice }}
-            {{ range .Pages }}
-                {{ range .Params.tags }}
-                    {{ $allTags = $allTags | append . }}
-                {{ end }}
+        {{ $places := .Pages }}
+
+        <!-- Germany with sub-regions -->
+        {{ $odenwaldPlaces := where $places "Params.region" "Odenwald" }}
+        {{ $otherGermanRegions := slice "Bavaria" "Baden-Württemberg" "Taubertal" "Rheinland-Pfalz" "Rhön" "Hessen" "Schwarzwald" "Germany" }}
+        {{ $otherGermanPlaces := where $places "Params.region" "in" $otherGermanRegions }}
+        {{ $allGermanPlaces := $odenwaldPlaces | union $otherGermanPlaces }}
+
+        {{ if $allGermanPlaces }}
+        {{ $hasUnvisitedGerman := false }}
+        {{ range $allGermanPlaces }}
+            {{ if in .Params.tags "unvisited" }}
+                {{ $hasUnvisitedGerman = true }}
             {{ end }}
-            
-            {{ range $allTags | uniq }}
-                {{ if ne . "unvisited" }}
-                    <span class="tag-filter" data-tag="{{ . }}">{{ . }}</span>
+        {{ end }}
+        <section class="germany-section" data-has-unvisited="{{ $hasUnvisitedGerman }}" onmouseover="showRegionOnMap('germany')">
+            <h2 class="section-title" onclick="toggle('germany')">Germany</h2>
+            <div id="germany" class="section-content" style="display:none;">
+                {{ if $odenwaldPlaces }}
+                {{ $hasUnvisitedOdenwald := false }}
+                {{ range $odenwaldPlaces }}
+                    {{ if in .Params.tags "unvisited" }}
+                        {{ $hasUnvisitedOdenwald = true }}
+                    {{ end }}
                 {{ end }}
-            {{ end }}
-        </div>
-        
-        
-        <!-- Places List -->
-        <div class="places-content" id="places-content">
-            <div class="places-list" id="places-list">
-                {{ range .Pages }}
-                <div class="place-item" data-lat="{{ .Params.lat }}" data-lng="{{ .Params.lng }}">
-                    <div class="place-content">
-                        <h3 class="place-title">{{ .Title }}</h3>
-                        {{ with .Params.description }}<p class="place-description">{{ . }}</p>{{ end }}
+                <div class="subsection" data-has-unvisited="{{ $hasUnvisitedOdenwald }}" onmouseover="event.stopPropagation(); showRegionOnMap('Odenwald')">
+                    <h3 class="subsection-title" onclick="event.stopPropagation(); toggle('odenwald')">Odenwald</h3>
+                    <div id="odenwald" class="subsection-content" style="display:none;">
+                        {{ $taggedPlaces := dict }}
+                        {{ $untaggedPlaces := slice }}
+                        {{ range $odenwaldPlaces }}
+                            {{ $place := . }}
+                            {{ $mainTag := "" }}
+                            {{ range .Params.tags }}
+                                {{ if and (ne . "unvisited") (eq $mainTag "") }}
+                                    {{ $mainTag = . }}
+                                {{ end }}
+                            {{ end }}
+                            {{ if eq $mainTag "" }}
+                                {{ $untaggedPlaces = $untaggedPlaces | append $place }}
+                            {{ else }}
+                                {{ $existing := index $taggedPlaces $mainTag }}
+                                {{ if $existing }}
+                                    {{ $taggedPlaces = merge $taggedPlaces (dict $mainTag ($existing | append $place)) }}
+                                {{ else }}
+                                    {{ $taggedPlaces = merge $taggedPlaces (dict $mainTag (slice $place)) }}
+                                {{ end }}
+                            {{ end }}
+                        {{ end }}
+                        {{ range $tag, $places := $taggedPlaces }}
+                        <div class="tag-group">
+                            <span class="tag-heading">{{ $tag }}</span>
+                            {{ range $places }}
+                            <div class="place-item {{ if in .Params.tags "unvisited" }}unvisited-place{{ else }}visited-place{{ end }}"
+                                 data-visited="{{ if not (in .Params.tags "unvisited") }}true{{ else }}false{{ end }}">
+                                <a href="{{ .RelPermalink }}" onmouseover="showOnMap({{.Params.lat}}, {{.Params.lng}}, '{{.Title}}')">{{ .Title }}</a>
+                            </div>
+                            {{ end }}
+                        </div>
+                        {{ end }}
+                        {{ range $untaggedPlaces }}
+                        <div class="place-item {{ if in .Params.tags "unvisited" }}unvisited-place{{ else }}visited-place{{ end }}"
+                             data-visited="{{ if not (in .Params.tags "unvisited") }}true{{ else }}false{{ end }}">
+                            <a href="{{ .RelPermalink }}" onmouseover="showOnMap({{.Params.lat}}, {{.Params.lng}}, '{{.Title}}')">{{ .Title }}</a>
+                        </div>
+                        {{ end }}
                     </div>
-                    {{ with .Resources.Match "*.jpeg" }}
-                    <div class="place-images-gallery">
-                        {{ range . }}
-                        {{ $thumbnail := .Resize "160x" }}
-                        <div class="place-image-pin">
-                            <img src="{{ $thumbnail.RelPermalink }}" alt="{{ .Name }}" loading="lazy">
+                </div>
+                {{ end }}
+
+                {{ if $otherGermanPlaces }}
+                {{ $hasUnvisitedOther := false }}
+                {{ range $otherGermanPlaces }}
+                    {{ if in .Params.tags "unvisited" }}
+                        {{ $hasUnvisitedOther = true }}
+                    {{ end }}
+                {{ end }}
+                <div class="subsection" data-has-unvisited="{{ $hasUnvisitedOther }}" onmouseover="event.stopPropagation(); showRegionOnMap('Germany-Other')">
+                    <h3 class="subsection-title" onclick="event.stopPropagation(); toggle('germany-other')">Other</h3>
+                    <div id="germany-other" class="subsection-content" style="display:none;">
+                        {{ $taggedPlaces := dict }}
+                        {{ $untaggedPlaces := slice }}
+                        {{ range $otherGermanPlaces }}
+                            {{ $place := . }}
+                            {{ $mainTag := "" }}
+                            {{ range .Params.tags }}
+                                {{ if and (ne . "unvisited") (eq $mainTag "") }}
+                                    {{ $mainTag = . }}
+                                {{ end }}
+                            {{ end }}
+                            {{ if eq $mainTag "" }}
+                                {{ $untaggedPlaces = $untaggedPlaces | append $place }}
+                            {{ else }}
+                                {{ $existing := index $taggedPlaces $mainTag }}
+                                {{ if $existing }}
+                                    {{ $taggedPlaces = merge $taggedPlaces (dict $mainTag ($existing | append $place)) }}
+                                {{ else }}
+                                    {{ $taggedPlaces = merge $taggedPlaces (dict $mainTag (slice $place)) }}
+                                {{ end }}
+                            {{ end }}
+                        {{ end }}
+                        {{ range $tag, $places := $taggedPlaces }}
+                        <div class="tag-group">
+                            <span class="tag-heading">{{ $tag }}</span>
+                            {{ range $places }}
+                            <div class="place-item {{ if in .Params.tags "unvisited" }}unvisited-place{{ else }}visited-place{{ end }}"
+                                 data-visited="{{ if not (in .Params.tags "unvisited") }}true{{ else }}false{{ end }}">
+                                <a href="{{ .RelPermalink }}" onmouseover="showOnMap({{.Params.lat}}, {{.Params.lng}}, '{{.Title}}')">{{ .Title }}</a>
+                            </div>
+                            {{ end }}
+                        </div>
+                        {{ end }}
+                        {{ range $untaggedPlaces }}
+                        <div class="place-item {{ if in .Params.tags "unvisited" }}unvisited-place{{ else }}visited-place{{ end }}"
+                             data-visited="{{ if not (in .Params.tags "unvisited") }}true{{ else }}false{{ end }}">
+                            <a href="{{ .RelPermalink }}" onmouseover="showOnMap({{.Params.lat}}, {{.Params.lng}}, '{{.Title}}')">{{ .Title }}</a>
+                        </div>
+                        {{ end }}
+                    </div>
+                </div>
+                {{ end }}
+            </div>
+        </section>
+        {{ end }}
+
+        <!-- Other countries -->
+        {{ $otherCountries := slice "France" "Czech Republic" "Croatia" "Belgium" "Denmark" "Cyprus" "Ireland" "Spain" }}
+        {{ range $country := $otherCountries }}
+            {{ $countryPlaces := where $places "Params.region" $country }}
+            {{ if $countryPlaces }}
+            {{ $hasUnvisited := false }}
+            {{ range $countryPlaces }}
+                {{ if in .Params.tags "unvisited" }}
+                    {{ $hasUnvisited = true }}
+                {{ end }}
+            {{ end }}
+            <section data-has-unvisited="{{ $hasUnvisited }}" onmouseover="showRegionOnMap('{{ $country }}')">
+                <h2 class="section-title" onclick="toggle('{{ $country | urlize }}')">{{ $country }}</h2>
+                <div id="{{ $country | urlize }}" class="section-content" style="display:none;">
+                    {{ $taggedPlaces := dict }}
+                    {{ $untaggedPlaces := slice }}
+                    {{ range $countryPlaces }}
+                        {{ $place := . }}
+                        {{ $mainTag := "" }}
+                        {{ range .Params.tags }}
+                            {{ if and (ne . "unvisited") (eq $mainTag "") }}
+                                {{ $mainTag = . }}
+                            {{ end }}
+                        {{ end }}
+                        {{ if eq $mainTag "" }}
+                            {{ $untaggedPlaces = $untaggedPlaces | append $place }}
+                        {{ else }}
+                            {{ $existing := index $taggedPlaces $mainTag }}
+                            {{ if $existing }}
+                                {{ $taggedPlaces = merge $taggedPlaces (dict $mainTag ($existing | append $place)) }}
+                            {{ else }}
+                                {{ $taggedPlaces = merge $taggedPlaces (dict $mainTag (slice $place)) }}
+                            {{ end }}
+                        {{ end }}
+                    {{ end }}
+                    {{ range $tag, $places := $taggedPlaces }}
+                    <div class="tag-group">
+                        <span class="tag-heading">{{ $tag }}</span>
+                        {{ range $places }}
+                        <div class="place-item {{ if in .Params.tags "unvisited" }}unvisited-place{{ else }}visited-place{{ end }}"
+                             data-visited="{{ if not (in .Params.tags "unvisited") }}true{{ else }}false{{ end }}">
+                            <a href="{{ .RelPermalink }}" onmouseover="showOnMap({{.Params.lat}}, {{.Params.lng}}, '{{.Title}}')">{{ .Title }}</a>
                         </div>
                         {{ end }}
                     </div>
                     {{ end }}
+                    {{ range $untaggedPlaces }}
+                    <div class="place-item {{ if in .Params.tags "unvisited" }}unvisited-place{{ else }}visited-place{{ end }}"
+                         data-visited="{{ if not (in .Params.tags "unvisited") }}true{{ else }}false{{ end }}">
+                        <a href="{{ .RelPermalink }}" onmouseover="showOnMap({{.Params.lat}}, {{.Params.lng}}, '{{.Title}}')">{{ .Title }}</a>
+                    </div>
+                    {{ end }}
+                </div>
+            </section>
+            {{ end }}
+        {{ end }}
+
+        <!-- Places without region (if any) -->
+        {{ $noRegion := where $places "Params.region" "eq" nil }}
+        {{ if $noRegion }}
+        {{ $hasUnvisited := false }}
+        {{ range $noRegion }}
+            {{ if in .Params.tags "unvisited" }}
+                {{ $hasUnvisited = true }}
+            {{ end }}
+        {{ end }}
+        <section data-has-unvisited="{{ $hasUnvisited }}">
+            <h2 class="section-title" onclick="toggle('other')">Other</h2>
+            <div id="other" class="section-content" style="display:none;">
+                {{ range $noRegion }}
+                <div class="place-item {{ if in .Params.tags "unvisited" }}unvisited-place{{ else }}visited-place{{ end }}"
+                     data-visited="{{ if not (in .Params.tags "unvisited") }}true{{ else }}false{{ end }}">
+                    <a href="{{ .RelPermalink }}" onmouseover="showOnMap({{.Params.lat}}, {{.Params.lng}}, '{{.Title}}')">{{ .Title }}</a>
+                    {{ if .Params.tags }}
+                    <span class="place-tags">
+                        {{ range .Params.tags }}
+                            {{ if ne . "unvisited" }}
+                            <span class="tag">{{ . }}</span>
+                            {{ end }}
+                        {{ end }}
+                    </span>
+                    {{ end }}
                 </div>
                 {{ end }}
             </div>
-        </div>
-    </div>
-    
-    <!-- Mobile Toggle Button -->
-    <div class="panel-toggle" id="panel-toggle">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-    </div>
-    
-    <!-- Show Panel Button -->
-    <div class="panel-show-toggle hidden" id="panel-show-toggle" title="Show Panel">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 18l6-6-6-6"></path>
-        </svg>
+        </section>
+        {{ end }}
     </div>
 
-    <!-- Places Data -->
-    <script type="application/json" id="places-data">
-        [
-            {{ $first := true }}
-            {{ range .Pages }}
-                {{ if $first }}{{ $first = false }}{{ else }},{{ end }}
-                {
-                    "title": {{ .Title | jsonify }},
-                    "description": {{ .Params.description | jsonify }},
-                    "lat": {{ .Params.lat }},
-                    "lng": {{ .Params.lng }},
-                    "tags": {{ .Params.tags | jsonify }},
-                    "urls": {{ .Params.urls | jsonify }},
-                    "permalink": {{ .RelPermalink | jsonify }},
-                    "images": [
-                        {{ $first := true }}
-                        {{ range .Resources.Match "*.jpeg" }}
-                            {{ if $first }}{{ $first = false }}{{ else }},{{ end }}
-                            {{ $thumbnail := .Resize "160x" }}
-                            {
-                                "path": {{ $thumbnail.RelPermalink | jsonify }},
-                                "name": {{ .Name | jsonify }}
-                            }
-                        {{ end }}
-                    ]
-                }
-            {{ end }}
-        ]
-    </script>
+    <div class="map-box">
+        <div id="map"></div>
+    </div>
 </div>
 
-<!-- Dependencies -->
-<link rel="stylesheet" href="/places/node_modules/leaflet/dist/leaflet.css">
-<link rel="stylesheet" href="/places/css/main.css">
-<script src="/places/node_modules/leaflet/dist/leaflet.js"></script>
-<script type="module" src="/places/js/places.js" defer></script>
+<style>
+.places-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 3rem;
+}
+
+.places-list {
+    text-align: left;
+}
+
+/* Text-like Toggle */
+.visit-toggle {
+    margin-bottom: 1.5rem;
+    font-size: 1em;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.toggle-option {
+    color: var(--secondary-text);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.toggle-option:hover {
+    color: var(--text-color);
+}
+
+.toggle-option.active {
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.toggle-divider {
+    color: var(--secondary-text);
+}
+
+/* Section styles */
+.section-title {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin: 1rem 0 0.5rem;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.section-title:hover {
+    opacity: 0.7;
+}
+
+.section-content {
+    margin-bottom: 1rem;
+    margin-left: 0.75rem;
+}
+
+.subsection {
+    margin-left: 0.75rem;
+}
+
+.subsection-title {
+    font-size: 0.95em;
+    font-weight: 500;
+    margin: 0.75rem 0 0.25rem;
+    color: var(--secondary-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.subsection-title:hover {
+    color: var(--text-color);
+}
+
+.subsection-content {
+    margin-left: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.place-item {
+    margin: 0.25rem 0;
+    line-height: 1.4;
+}
+
+.place-item a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.place-item a:hover {
+    text-decoration: underline;
+}
+
+/* Tag groups */
+.tag-group {
+    margin-bottom: 0.75rem;
+}
+
+.tag-heading {
+    font-size: 0.85em;
+    color: var(--secondary-text);
+    font-style: italic;
+    display: block;
+    margin-bottom: 0.25rem;
+    margin-left: 0.5rem;
+}
+
+.tag-group .place-item {
+    margin-left: 1rem;
+}
+
+/* Hide based on toggle */
+.place-item.hidden {
+    display: none;
+}
+
+.map-box {
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
+}
+
+#map {
+    height: 400px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .places-container {
+        grid-template-columns: 1fr;
+    }
+
+    .map-box {
+        position: static;
+    }
+
+    #map {
+        height: 300px;
+    }
+}
+</style>
+
+<script>
+var map = L.map('map').setView([50, 10], 5);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+var currentMarker = null;
+var showingVisited = true;
+
+// Add all markers
+var markers = [];
+{{ range .Pages }}
+{{ $region := .Params.region }}
+{{ $actualRegion := $region }}
+{{ if or (eq $region "Bavaria") (eq $region "Baden-Württemberg") (eq $region "Taubertal") (eq $region "Rheinland-Pfalz") (eq $region "Rhön") (eq $region "Hessen") (eq $region "Schwarzwald") (eq $region "Germany") }}
+    {{ $actualRegion = "Germany-Other" }}
+{{ end }}
+markers.push({
+    lat: {{.Params.lat}},
+    lng: {{.Params.lng}},
+    title: '{{.Title}}',
+    url: '{{.RelPermalink}}',
+    region: '{{ $actualRegion }}',
+    visited: {{ if not (in .Params.tags "unvisited") }}true{{ else }}false{{ end }},
+    marker: L.marker([{{.Params.lat}}, {{.Params.lng}}])
+        .bindTooltip('{{.Title}}', {permanent: false, direction: 'top'})
+        .bindPopup('<a href="{{.RelPermalink}}" target="_blank">{{.Title}}</a><br><small>Click pin to open</small>')
+        .on('click', function() { window.open('{{.RelPermalink}}', '_blank'); })
+        .addTo(map)
+});
+{{ end }}
+
+function showOnMap(lat, lng, title) {
+    if (currentMarker) {
+        map.removeLayer(currentMarker);
+    }
+    currentMarker = L.marker([lat, lng]).addTo(map).bindPopup(title).openPopup();
+    map.setView([lat, lng], 10);
+}
+
+var lastHoveredRegion = null;
+
+function showRegionOnMap(region) {
+    // Only zoom if we're hovering a different region than the last one
+    if (region === lastHoveredRegion) {
+        return;
+    }
+
+    lastHoveredRegion = region;
+
+    var regionMarkers = markers.filter(function(m) {
+        if (region === 'germany') {
+            return m.region === 'Odenwald' || m.region === 'Germany-Other';
+        }
+        return m.region === region;
+    });
+
+    if (regionMarkers.length > 0) {
+        var visibleMarkers = regionMarkers.filter(function(m) {
+            return showingVisited ? m.visited : !m.visited;
+        });
+
+        if (visibleMarkers.length > 0) {
+            var bounds = L.latLngBounds(visibleMarkers.map(function(m) {
+                return [m.lat, m.lng];
+            }));
+            map.fitBounds(bounds, { padding: [50, 50] });
+        }
+    }
+}
+
+function toggle(id) {
+    var element = document.getElementById(id);
+    element.style.display = element.style.display === "none" ? "block" : "none";
+}
+
+function setFilter(visitedMode) {
+    showingVisited = visitedMode;
+
+    // Update toggle appearance
+    var options = document.querySelectorAll('.toggle-option');
+    if (visitedMode) {
+        options[0].classList.add('active');
+        options[1].classList.remove('active');
+    } else {
+        options[0].classList.remove('active');
+        options[1].classList.add('active');
+    }
+
+    // Hide/show place items
+    var places = document.querySelectorAll('.place-item');
+    places.forEach(function(place) {
+        if (showingVisited) {
+            place.classList.toggle('hidden', place.dataset.visited === 'false');
+        } else {
+            place.classList.toggle('hidden', place.dataset.visited === 'true');
+        }
+    });
+
+    // Hide/show sections and subsections based on whether they have unvisited places
+    if (!visitedMode) {
+        // Hide sections without unvisited places
+        document.querySelectorAll('section[data-has-unvisited="false"]').forEach(function(section) {
+            section.style.display = 'none';
+        });
+        document.querySelectorAll('section[data-has-unvisited="true"]').forEach(function(section) {
+            section.style.display = 'block';
+        });
+
+        // Hide subsections without unvisited places
+        document.querySelectorAll('.subsection[data-has-unvisited="false"]').forEach(function(subsection) {
+            subsection.style.display = 'none';
+        });
+        document.querySelectorAll('.subsection[data-has-unvisited="true"]').forEach(function(subsection) {
+            subsection.style.display = 'block';
+        });
+    } else {
+        // Show all sections and subsections in visited mode
+        document.querySelectorAll('section').forEach(function(section) {
+            section.style.display = 'block';
+        });
+        document.querySelectorAll('.subsection').forEach(function(subsection) {
+            subsection.style.display = 'block';
+        });
+    }
+
+    // Update map markers
+    markers.forEach(function(m) {
+        if (showingVisited) {
+            if (m.visited) {
+                m.marker.addTo(map);
+            } else {
+                map.removeLayer(m.marker);
+            }
+        } else {
+            if (!m.visited) {
+                m.marker.addTo(map);
+            } else {
+                map.removeLayer(m.marker);
+            }
+        }
+    });
+}
+</script>
 {{ end }}

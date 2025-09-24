@@ -2,7 +2,7 @@
 title = "Kaiserturm Odenwald"
 lat = 49.6700
 lng = 8.7800
-tags = ["unvisited", "hiking", "nature"]
+tags = ["unvisited", "hiking"]
 region = "Odenwald"
 description = "34m observation tower on Neunkircher Höhe with highest pub in Odenwald"
 urls = "https://www.ich-geh-wandern.de/wandern/kaiserturm-odenwald"

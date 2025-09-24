@@ -2,7 +2,7 @@
 title = "Kaiserstuhl Naturgebiet"
 lat = 48.1000
 lng = 7.6500
-tags = ["unvisited", "hiking", "nature"]
+tags = ["unvisited", "hiking"]
 region = "Baden-Württemberg"
 description = "Volcanic hills with vineyards and unique flora"
 urls = "https://www.naturgarten-kaiserstuhl.de/"

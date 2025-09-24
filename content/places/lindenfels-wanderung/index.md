@@ -2,7 +2,7 @@
 title = "Lindenfels Wanderung"
 lat = 49.683155
 lng = 8.779639
-tags = ["unvisited", "hiking", "nature"]
+tags = ["unvisited", "hiking"]
 region = "Odenwald"
 description = "Erlebniswanderweg around medieval castle with scenic views"
 urls = "https://www.ich-geh-wandern.de/wandern/lindenfels"

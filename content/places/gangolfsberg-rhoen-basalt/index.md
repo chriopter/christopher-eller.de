@@ -2,7 +2,7 @@
 title = "Gangolfsberg Rhön Basalt"
 lat = 50.5167
 lng = 10.1167
-tags = ["unvisited", "hiking", "nature"]
+tags = ["unvisited", "hiking"]
 region = "Rhön"
 description = "Volcanic peak with basalt columns and panoramic views"
 urls = ""

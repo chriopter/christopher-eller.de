@@ -2,7 +2,7 @@
 title = "Wasserburgruine Friedewald"
 lat = 50.8833
 lng = 9.9500
-tags = ["unvisited", "hiking", "nature"]
+tags = ["unvisited", "hiking"]
 region = "Odenwald"
 description = "Medieval water castle ruins in picturesque setting"
 urls = ""
