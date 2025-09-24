@@ -59,6 +59,26 @@
     color: var(--text-color);
 }
 
+.copy-message {
+    position: absolute;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    top: -2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.copy-message.show {
+    opacity: 1;
+}
+
 /* Lightbox */
 .lightbox {
     display: none;
@@ -121,9 +141,20 @@
     <div class="place-title">
         <h1>{{ .Title }}</h1>
         <div class="place-actions">
-            <button onclick="navigator.clipboard.writeText(location.href)" title="Copy Link">📋</button>
+            <button onclick="copyLink(this)" title="Copy Link" style="position: relative;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+            </button>
             {{ with .Params.urls }}
-            <a href="{{ . }}" target="_blank" title="Visit Website">🌐</a>
+            <a href="{{ . }}" target="_blank" title="Visit Website">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+            </a>
             {{ end }}
         </div>
     </div>
@@ -195,5 +226,22 @@ document.addEventListener('keydown', (e) => {
 lightbox.onclick = (e) => {
     if (e.target === lightbox) closeLightbox();
 };
+
+// Copy link function
+function copyLink(button) {
+    navigator.clipboard.writeText(location.href);
+
+    // Create and show message
+    const message = document.createElement('div');
+    message.className = 'copy-message';
+    message.textContent = 'Link copied!';
+    button.appendChild(message);
+
+    setTimeout(() => message.classList.add('show'), 10);
+    setTimeout(() => {
+        message.classList.remove('show');
+        setTimeout(() => button.removeChild(message), 300);
+    }, 2000);
+}
 </script>
 {{ end }}
