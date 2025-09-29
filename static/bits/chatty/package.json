@@ -1,0 +1,8 @@
+{
+  "name": "chatty",
+  "version": "1.0.0",
+  "description": "Browser-based chat with AI",
+  "dependencies": {
+    "@xenova/transformers": "*"
+  }
+}
