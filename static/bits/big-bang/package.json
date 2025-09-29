@@ -1,7 +1,7 @@
 {
   "name": "big_bang",
-  "version": "1.0.0",
-  "description": "## Update Dependencies Check for updates: ```bash npm outdated ```",
+  "version": "2.0.0",
+  "description": "Advanced Big Bang and cosmic evolution simulation with galaxies, black holes, and cosmic web",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "three": "*"
+    "three": "*",
+    "simplex-noise": "*",
+    "stats.js": "*"
   }
 }
