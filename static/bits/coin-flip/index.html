@@ -5,175 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>3D Coin Flip</title>
     <style>
-        /* Theme variables */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
             --bg-color: #ffffff;
             --text-color: #000;
-            --shadow-color: rgba(0, 0, 0, 0.3);
         }
 
         .dark-mode {
             --bg-color: #111;
             --text-color: #fff;
-            --shadow-color: rgba(0, 0, 0, 0.5);
         }
 
-        /* Base styles */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 2rem;
+            padding: 0;
             color: var(--text-color);
             background-color: var(--bg-color);
-            -webkit-font-smoothing: antialiased;
             transition: background-color 0.5s ease, color 0.5s ease;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding-top: 15vh;
             overflow: hidden;
         }
 
-        .container {
-            perspective: 3000px;
-            position: relative;
-            width: 200px;
-            height: 200px;
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: block;
             cursor: pointer;
         }
 
-        .coin {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-origin: center;
-        }
-
-        .coin.flipping { }
-
-        /* coin animation now handled via Web Animations API in JS */
-
-        .coin-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            backface-visibility: hidden;
+        .ui-overlay {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            box-sizing: border-box;
-            border: 8px solid #888;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+            gap: 1rem;
+            pointer-events: none;
+            z-index: 100;
         }
 
-        .coin-face.heads {
-            transform: translateZ(10px);
-            background-image: url('head.png');
-        }
-
-        .coin-face.tails {
-            transform: translateZ(-10px) rotateY(180deg);
-            background-image: url('tail.png');
-        }
-
-        .coin-shadow {
-            position: absolute;
-            width: 100%;
-            height: 20px;
-            background: var(--shadow-color);
-            border-radius: 50%;
-            bottom: -30px;
-            filter: blur(10px);
-            transform: rotateX(90deg);
-            opacity: 0.5;
-            transition: all 0.3s ease;
-        }
-
-        .coin.flipping + .coin-shadow {
-            animation: shadow-animation 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-
-        @keyframes shadow-animation {
-            0%, 100% { transform: rotateX(90deg) scale(1); opacity: 0.5; }
-            50% { transform: rotateX(90deg) scale(0.5); opacity: 0.3; }
+        .ui-overlay > * {
+            pointer-events: auto;
         }
 
         .instructions {
             text-align: center;
-            margin-top: 2rem;
             font-size: 0.9rem;
             color: var(--text-color);
             opacity: 0.7;
+            text-shadow: 0 0 10px var(--bg-color);
         }
 
         .rain-button {
-            margin-top: 4rem;
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.5rem;
             font-size: 1rem;
             background: #4a90e2;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         .rain-button:hover {
             background: #357abd;
+            transform: translateY(-2px);
         }
 
-        .rain-coin {
+        .result-text {
             position: fixed;
-            width: 50px;
-            height: 50px;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-color);
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            opacity: 0;
             pointer-events: none;
-            transform-style: preserve-3d;
+            transition: opacity 0.5s ease;
+            z-index: 200;
+        }
+
+        .result-text.show {
+            opacity: 1;
         }
 
         @media (max-width: 600px) {
-            .container {
-                width: 150px;
-                height: 150px;
+            .result-text {
+                font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container" id="coin-container">
-        <div class="coin" id="coin">
-            <div class="coin-face heads"></div>
-            <div class="coin-face tails"></div>
-        </div>
-        <div class="coin-shadow"></div>
-    </div>
-    <button class="rain-button" id="rain-button">Make It Rain!</button>
-    <div class="instructions">Click or press spacebar to flip</div>
+    <div id="canvas-container"></div>
 
-    <script>
+    <div class="ui-overlay">
+        <div class="instructions">Click coin or press SPACE to flip • Mouse to rotate view</div>
+        <button class="rain-button" id="rain-button">Make It Rain! 🪙</button>
+    </div>
+
+    <div class="result-text" id="result-text"></div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "./node_modules/three/build/three.module.js",
+                "three/addons/": "./node_modules/three/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
         // Theme handling
         function initTheme() {
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             const storedTheme = localStorage.getItem('darkMode');
             const shouldBeDark = storedTheme === 'true' || (storedTheme === null && prefersDark);
-            
             if (shouldBeDark) {
                 document.documentElement.classList.add('dark-mode');
                 document.body.classList.add('dark-mode');
             }
         }
-
-        // Initialize theme
         initTheme();
 
-        // Listen for theme changes from parent
         window.addEventListener('message', (event) => {
             if (event.data.type === 'theme') {
                 const isDark = event.data.theme === 'dark';
@@ -184,70 +150,514 @@
                     document.documentElement.classList.remove('dark-mode');
                     document.body.classList.remove('dark-mode');
                 }
+                updateSceneBackground();
             }
         });
 
-        // Coin flip functionality
-        const coin = document.getElementById('coin');
-        const container = document.getElementById('coin-container');
+        // Audio setup
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioContext;
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new AudioContext();
+            }
+        }
+
+        function playThonk(velocity) {
+            initAudio();
+            const now = audioContext.currentTime;
+            const osc1 = audioContext.createOscillator();
+            const osc2 = audioContext.createOscillator();
+            const osc3 = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+
+            osc1.connect(filter);
+            osc2.connect(filter);
+            osc3.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioContext.destination);
+
+            osc1.type = 'triangle';
+            osc1.frequency.value = 180;
+            osc2.type = 'sine';
+            osc2.frequency.value = 240;
+            osc3.type = 'square';
+            osc3.frequency.value = 90;
+
+            osc1.frequency.exponentialRampToValueAtTime(120, now + 0.05);
+            osc2.frequency.exponentialRampToValueAtTime(160, now + 0.05);
+
+            filter.type = 'bandpass';
+            filter.frequency.value = 400;
+            filter.Q.value = 2;
+
+            const volume = Math.min(Math.abs(velocity) * 0.5, 0.3);
+            gain.gain.setValueAtTime(volume, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+            osc1.start(now);
+            osc2.start(now);
+            osc3.start(now);
+            osc1.stop(now + 0.15);
+            osc2.stop(now + 0.15);
+            osc3.stop(now + 0.15);
+        }
+
+        // Three.js setup
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+
+        const camera = new THREE.PerspectiveCamera(
+            50,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        camera.position.set(0, 3, 10);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        // Lighting - bright daylight
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+        scene.add(ambientLight);
+
+        // Main sunlight from window
+        const sunLight = new THREE.DirectionalLight(0xfff8e8, 2.0);
+        sunLight.position.set(15, 10, 10);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 2048;
+        sunLight.shadow.mapSize.height = 2048;
+        sunLight.shadow.camera.left = -15;
+        sunLight.shadow.camera.right = 15;
+        sunLight.shadow.camera.top = 15;
+        sunLight.shadow.camera.bottom = -15;
+        scene.add(sunLight);
+
+        // Sky hemisphere light
+        const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0xd4a574, 1.0);
+        scene.add(hemiLight);
+
+        // Overhead table light
+        const spotlight = new THREE.SpotLight(0xfff4e0, 1.5);
+        spotlight.position.set(0, 12, 0);
+        spotlight.target.position.set(0, -2, 0);
+        spotlight.angle = Math.PI / 4;
+        spotlight.penumbra = 0.3;
+        spotlight.decay = 1.5;
+        spotlight.distance = 20;
+        scene.add(spotlight);
+        scene.add(spotlight.target);
+
+        // Load textures
+        const textureLoader = new THREE.TextureLoader();
+        const headsTexture = textureLoader.load('head.png');
+        const tailsTexture = textureLoader.load('tail.png');
+        headsTexture.colorSpace = THREE.SRGBColorSpace;
+        tailsTexture.colorSpace = THREE.SRGBColorSpace;
+
+        // Calculate edge color from texture
+        let edgeColor = 0xc9b037;
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            let r = 0, g = 0, b = 0, count = 0;
+            for (let i = 0; i < data.length; i += 40) {
+                r += data[i];
+                g += data[i + 1];
+                b += data[i + 2];
+                count++;
+            }
+            r = Math.floor(r / count);
+            g = Math.floor(g / count);
+            b = Math.floor(b / count);
+            edgeColor = (r << 16) | (g << 8) | b;
+            if (mainCoin && mainCoin.children[0]) {
+                mainCoin.children[0].material.color.setHex(edgeColor);
+            }
+        };
+        img.src = 'head.png';
+
+        // Create 3D coin
+        function createCoin(radius = 1.5, thickness = 0.15) {
+            const coin = new THREE.Group();
+
+            // Edge cylinder
+            const edgeGeometry = new THREE.CylinderGeometry(radius, radius, thickness, 64);
+            const edgeMaterial = new THREE.MeshStandardMaterial({
+                color: edgeColor,
+                metalness: 0.7,
+                roughness: 0.3
+            });
+            const edge = new THREE.Mesh(edgeGeometry, edgeMaterial);
+            edge.castShadow = true;
+            edge.receiveShadow = true;
+            coin.add(edge);
+
+            // Heads face (raised disc with thickness)
+            const faceThickness = thickness * 0.1; // 10% of coin thickness for raised detail
+            const headsFaceGeometry = new THREE.CylinderGeometry(radius * 0.99, radius * 0.99, faceThickness, 64);
+            const headsMaterial = new THREE.MeshStandardMaterial({
+                map: headsTexture,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            const heads = new THREE.Mesh(headsFaceGeometry, headsMaterial);
+            heads.position.y = thickness / 2 + faceThickness / 2;
+            heads.castShadow = true;
+            heads.receiveShadow = true;
+            coin.add(heads);
+
+            // Tails face (raised disc with thickness)
+            const tailsFaceGeometry = new THREE.CylinderGeometry(radius * 0.99, radius * 0.99, faceThickness, 64);
+            const tailsMaterial = new THREE.MeshStandardMaterial({
+                map: tailsTexture,
+                metalness: 0.6,
+                roughness: 0.4
+            });
+            const tails = new THREE.Mesh(tailsFaceGeometry, tailsMaterial);
+            tails.position.y = -thickness / 2 - faceThickness / 2;
+            tails.castShadow = true;
+            tails.receiveShadow = true;
+            coin.add(tails);
+
+            return coin;
+        }
+
+        // Main coin
+        const mainCoin = createCoin();
+        mainCoin.position.set(0, 0, 0);
+        scene.add(mainCoin);
+
+        // Poker table
+        const tableGroup = new THREE.Group();
+
+        // Table surface (green felt)
+        const tableGeometry = new THREE.CylinderGeometry(8, 8, 0.3, 32);
+        const tableMaterial = new THREE.MeshStandardMaterial({
+            color: 0x0a5f38,
+            roughness: 0.9,
+            metalness: 0.0
+        });
+        const tableTop = new THREE.Mesh(tableGeometry, tableMaterial);
+        tableTop.position.y = -2;
+        tableTop.receiveShadow = true;
+        tableTop.castShadow = true;
+        tableGroup.add(tableTop);
+
+        // Table edge (wood)
+        const edgeGeometry = new THREE.TorusGeometry(8, 0.25, 16, 32);
+        const woodMaterial = new THREE.MeshStandardMaterial({
+            color: 0x3d2817,
+            roughness: 0.7,
+            metalness: 0.1
+        });
+        const tableEdge = new THREE.Mesh(edgeGeometry, woodMaterial);
+        tableEdge.position.y = -2;
+        tableEdge.rotation.x = Math.PI / 2;
+        tableEdge.castShadow = true;
+        tableGroup.add(tableEdge);
+
+        // Table legs
+        const legGeometry = new THREE.CylinderGeometry(0.2, 0.25, 3, 16);
+        const legPositions = [
+            { x: 5, z: 5 },
+            { x: -5, z: 5 },
+            { x: 5, z: -5 },
+            { x: -5, z: -5 }
+        ];
+        legPositions.forEach(pos => {
+            const leg = new THREE.Mesh(legGeometry, woodMaterial);
+            leg.position.set(pos.x, -3.5, pos.z);
+            leg.castShadow = true;
+            tableGroup.add(leg);
+        });
+
+        scene.add(tableGroup);
+        const ground = tableTop; // Reference for collision
+
+        // Room floor (light wood)
+        const floorGeometry = new THREE.PlaneGeometry(50, 50);
+        const floorMaterial = new THREE.MeshStandardMaterial({
+            color: 0xc4a574,
+            roughness: 0.7,
+            metalness: 0.1
+        });
+        const roomFloor = new THREE.Mesh(floorGeometry, floorMaterial);
+        roomFloor.rotation.x = -Math.PI / 2;
+        roomFloor.position.y = -5;
+        roomFloor.receiveShadow = true;
+        scene.add(roomFloor);
+
+        // Room walls (light cream)
+        const wallMaterial = new THREE.MeshStandardMaterial({
+            color: 0xe8dcc8,
+            roughness: 0.9,
+            metalness: 0.0
+        });
+
+        const backWallGeometry = new THREE.PlaneGeometry(50, 20);
+        const backWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+        backWall.position.set(0, 5, -25);
+        backWall.receiveShadow = true;
+        scene.add(backWall);
+
+        const rightWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+        rightWall.position.set(25, 5, 0);
+        rightWall.rotation.y = -Math.PI / 2;
+        rightWall.receiveShadow = true;
+        scene.add(rightWall);
+
+        // Left wall with windows
+        const leftWallMaterial = new THREE.MeshStandardMaterial({
+            color: 0xe8dcc8,
+            roughness: 0.9,
+            metalness: 0.0
+        });
+
+        // Wall segments around windows
+        const wallSegmentGeometry = new THREE.PlaneGeometry(50, 5);
+        const leftWallBottom = new THREE.Mesh(wallSegmentGeometry, leftWallMaterial);
+        leftWallBottom.position.set(-25, 2.5, 0);
+        leftWallBottom.rotation.y = Math.PI / 2;
+        leftWallBottom.receiveShadow = true;
+        scene.add(leftWallBottom);
+
+        const leftWallTop = new THREE.Mesh(wallSegmentGeometry, leftWallMaterial);
+        leftWallTop.position.set(-25, 12.5, 0);
+        leftWallTop.rotation.y = Math.PI / 2;
+        leftWallTop.receiveShadow = true;
+        scene.add(leftWallTop);
+
+        // Windows
+        const windowGeometry = new THREE.PlaneGeometry(12, 8);
+        const windowMaterial = new THREE.MeshStandardMaterial({
+            color: 0x87ceeb,
+            roughness: 0.1,
+            metalness: 0.3,
+            transparent: true,
+            opacity: 0.6,
+            emissive: 0x87ceeb,
+            emissiveIntensity: 0.3
+        });
+
+        // Three large windows
+        for (let i = 0; i < 3; i++) {
+            const window = new THREE.Mesh(windowGeometry, windowMaterial);
+            window.position.set(-24.9, 7.5, -15 + i * 15);
+            window.rotation.y = Math.PI / 2;
+            scene.add(window);
+
+            // Window frame
+            const frameMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                roughness: 0.4,
+                metalness: 0.2
+            });
+            const frameThickness = 0.1;
+            const frameDepth = 0.2;
+
+            // Horizontal frames
+            const hFrameGeom = new THREE.BoxGeometry(frameDepth, frameThickness, 12);
+            const topFrame = new THREE.Mesh(hFrameGeom, frameMaterial);
+            topFrame.position.set(-24.8, 11.5, -15 + i * 15);
+            topFrame.rotation.y = Math.PI / 2;
+            scene.add(topFrame);
+
+            const bottomFrame = new THREE.Mesh(hFrameGeom, frameMaterial);
+            bottomFrame.position.set(-24.8, 3.5, -15 + i * 15);
+            bottomFrame.rotation.y = Math.PI / 2;
+            scene.add(bottomFrame);
+
+            // Vertical frames
+            const vFrameGeom = new THREE.BoxGeometry(frameDepth, 8, frameThickness);
+            const leftFrame = new THREE.Mesh(vFrameGeom, frameMaterial);
+            leftFrame.position.set(-24.8, 7.5, -15 + i * 15 - 6);
+            leftFrame.rotation.y = Math.PI / 2;
+            scene.add(leftFrame);
+
+            const rightFrame = new THREE.Mesh(vFrameGeom, frameMaterial);
+            rightFrame.position.set(-24.8, 7.5, -15 + i * 15 + 6);
+            rightFrame.rotation.y = Math.PI / 2;
+            scene.add(rightFrame);
+        }
+
+        // Ceiling light fixture
+        const fixtureGeometry = new THREE.CylinderGeometry(1.5, 2, 0.5, 32);
+        const fixtureMaterial = new THREE.MeshStandardMaterial({
+            color: 0xcccccc,
+            roughness: 0.3,
+            metalness: 0.5,
+            emissive: 0xffffee,
+            emissiveIntensity: 0.2
+        });
+        const fixture = new THREE.Mesh(fixtureGeometry, fixtureMaterial);
+        fixture.position.set(0, 12, 0);
+        scene.add(fixture);
+
+        // Update scene background now that ground exists
+        function updateSceneBackground() {
+            // Bright daylight room
+            scene.background = new THREE.Color(0xd4e8f4);
+            scene.fog = new THREE.Fog(0xd4e8f4, 30, 60);
+        }
+        updateSceneBackground();
+
+        // Controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 3;
+        controls.maxDistance = 20;
+        controls.maxPolarAngle = Math.PI / 2 + 0.3;
+        controls.target.set(0, 0, 0);
+
+        // Physics
+        const GROUND_Y = -2;
+        const COIN_RADIUS = 1.5;
+        const COIN_THICKNESS = 0.15;
+        const FACE_THICKNESS = COIN_THICKNESS * 0.1; // Raised face thickness
+        const TOTAL_THICKNESS = COIN_THICKNESS + FACE_THICKNESS * 2; // Total with both raised faces
         let isFlipping = false;
-        let currentSide = 'heads';
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let velocity = { x: 0, y: 0, z: 0 };
+        let angularVelocity = { x: 0, y: 0, z: 0 };
+        const GRAVITY = -0.035; // Heavier gravity for metal coin
+        const DAMPING = 0.97; // Slightly less damping for heavier feel
+        let hasPlayedSound = false;
+
+        // Calculate how far the coin extends below its center based on rotation
+        function getCoinLowestPoint(coin) {
+            // Get rotation in radians
+            const rx = coin.rotation.x % (Math.PI * 2);
+            const rz = coin.rotation.z % (Math.PI * 2);
+
+            // Calculate how much the coin "sticks out" below its center
+            // When flat (rx=0), it's the total thickness including raised faces
+            // When on edge (rx=90°), it's the radius
+            const tiltX = Math.abs(Math.sin(rx));
+            const tiltZ = Math.abs(Math.sin(rz));
+            const maxTilt = Math.max(tiltX, tiltZ);
+
+            // Interpolate between total_thickness/2 (flat) and radius (edge)
+            const lowestPoint = TOTAL_THICKNESS / 2 + (COIN_RADIUS - TOTAL_THICKNESS / 2) * maxTilt;
+
+            return lowestPoint;
+        }
 
         function fairFlip() {
             if (window.crypto && window.crypto.getRandomValues) {
                 const buf = new Uint32Array(1);
                 window.crypto.getRandomValues(buf);
-                return (buf[0] & 1) === 1; // true = heads, false = tails
+                return (buf[0] & 1) === 1;
             }
             return Math.random() < 0.5;
         }
 
         function flipCoin() {
             if (isFlipping) return;
-
-            const resultIsHeads = fairFlip();
-            const startY = currentSide === 'heads' ? 0 : 180;
-            const targetSide = resultIsHeads ? 'heads' : 'tails';
-            const endBase = targetSide === 'heads' ? 0 : 180;
-
-            if (prefersReducedMotion) {
-                currentSide = targetSide;
-                coin.style.transform = `rotateX(0deg) rotateY(${endBase}deg)`;
-                return;
-            }
+            initAudio();
 
             isFlipping = true;
+            hasPlayedSound = false;
+            controls.enabled = false;
 
-            // Ensure we start from the resting orientation, not hover tilt
-            coin.style.transform = `rotateX(0deg) rotateY(${startY}deg)`;
+            mainCoin.position.set(0, 0, 0);
+            mainCoin.rotation.set(0, 0, 0);
 
-            // Build a natural-looking path: 4 full spins + orientation delta
-            const endY = startY + 1440 + (endBase === startY ? 0 : 180);
+            const resultIsHeads = fairFlip();
+            const spinDir = Math.random() < 0.5 ? 1 : -1;
 
-            // Add class for shadow animation
-            coin.classList.add('flipping');
+            angularVelocity.x = (35 + Math.random() * 20) * spinDir;
+            angularVelocity.y = (Math.random() - 0.5) * 18;
+            angularVelocity.z = (Math.random() - 0.5) * 8;
 
-            const animation = coin.animate([
-                { transform: `rotateX(0deg) rotateY(${startY}deg)` },
-                { transform: `rotateX(720deg) rotateY(${endY}deg)` }
-            ], {
-                duration: 3000,
-                easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-                fill: 'forwards'
-            });
+            velocity.y = 0.55;
+            velocity.x = (Math.random() - 0.5) * 0.12;
+            velocity.z = (Math.random() - 0.5) * 0.12;
 
-            animation.onfinish = () => {
-                currentSide = targetSide;
-                coin.classList.remove('flipping');
-                // Normalize to a clean resting transform
-                coin.style.transform = `rotateX(0deg) rotateY(${endBase}deg)`;
-                isFlipping = false;
-            };
+            setTimeout(() => {
+                showResult(resultIsHeads ? 'HEADS' : 'TAILS');
+            }, 2500);
         }
 
-        // Event listeners
-        container.addEventListener('click', flipCoin);
+        function showResult(result) {
+            const resultText = document.getElementById('result-text');
+            resultText.textContent = result;
+            resultText.classList.add('show');
+            setTimeout(() => resultText.classList.remove('show'), 2000);
+        }
+
+        // Rain coins
+        const rainCoins = [];
+        const RAIN_COIN_RADIUS = 0.4;
+        const RAIN_COIN_THICKNESS = 0.04;
+        const RAIN_FACE_THICKNESS = RAIN_COIN_THICKNESS * 0.1;
+        const RAIN_TOTAL_THICKNESS = RAIN_COIN_THICKNESS + RAIN_FACE_THICKNESS * 2;
+
+        function getCoinLowestPointRain(coin, radius, totalThickness) {
+            const rx = coin.rotation.x % (Math.PI * 2);
+            const rz = coin.rotation.z % (Math.PI * 2);
+            const tiltX = Math.abs(Math.sin(rx));
+            const tiltZ = Math.abs(Math.sin(rz));
+            const maxTilt = Math.max(tiltX, tiltZ);
+            return totalThickness / 2 + (radius - totalThickness / 2) * maxTilt;
+        }
+
+        function createRainCoin() {
+            if (rainCoins.length >= 50) return;
+            const coin = createCoin(RAIN_COIN_RADIUS, RAIN_COIN_THICKNESS);
+            coin.position.set(
+                (Math.random() - 0.5) * 30,
+                15 + Math.random() * 5,
+                (Math.random() - 0.5) * 15
+            );
+            coin.rotation.set(
+                Math.random() * Math.PI * 2,
+                Math.random() * Math.PI * 2,
+                Math.random() * Math.PI * 2
+            );
+            const data = {
+                mesh: coin,
+                vel: {
+                    y: 0,
+                    x: (Math.random() - 0.5) * 0.05,
+                    z: (Math.random() - 0.5) * 0.05
+                },
+                ang: {
+                    x: (Math.random() - 0.5) * 3,
+                    y: (Math.random() - 0.5) * 3,
+                    z: (Math.random() - 0.5) * 3
+                },
+                hasPlayedSound: false
+            };
+            scene.add(coin);
+            rainCoins.push(data);
+        }
+
+        document.getElementById('rain-button').addEventListener('click', () => {
+            initAudio();
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => createRainCoin(), i * 50);
+            }
+        });
+
+        container.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'BUTTON') flipCoin();
+        });
+
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
@@ -255,86 +665,233 @@
             }
         });
 
-        // Enhanced wobble effect on hover
-        container.addEventListener('mousemove', (e) => {
-            if (isFlipping) return;
-            
-            const rect = container.getBoundingClientRect();
-            const x = e.clientX - rect.left - rect.width / 2;
-            const y = e.clientY - rect.top - rect.height / 2;
-            
-            const tiltX = (y / rect.height) * 40;
-            const tiltY = -(x / rect.width) * 40;
-            
-            coin.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        container.addEventListener('mouseleave', () => {
-            if (!isFlipping) {
-                const endBase = currentSide === 'heads' ? 0 : 180;
-                coin.style.transform = `rotateX(0deg) rotateY(${endBase}deg)`;
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isFlipping) {
+                // Apply gravity first
+                velocity.y += GRAVITY;
+
+                // Apply air damping to angular velocity
+                angularVelocity.x *= DAMPING;
+                angularVelocity.y *= DAMPING;
+                angularVelocity.z *= DAMPING;
+
+                // Update rotation
+                mainCoin.rotation.x += angularVelocity.x * (Math.PI / 180);
+                mainCoin.rotation.y += angularVelocity.y * (Math.PI / 180);
+                mainCoin.rotation.z += angularVelocity.z * (Math.PI / 180);
+
+                // Update position
+                mainCoin.position.x += velocity.x;
+                mainCoin.position.y += velocity.y;
+                mainCoin.position.z += velocity.z;
+
+                // Ground collision detection
+                const lowestPoint = getCoinLowestPoint(mainCoin);
+                const coinBottom = mainCoin.position.y - lowestPoint;
+
+                // Only correct if coin is penetrating ground
+                if (coinBottom < GROUND_Y) {
+                    // How far did we penetrate?
+                    const penetration = GROUND_Y - coinBottom;
+
+                    // Push coin up out of ground
+                    mainCoin.position.y += penetration;
+
+                    // Play sound on first impact
+                    if (!hasPlayedSound && Math.abs(velocity.y) > 0.02) {
+                        playThonk(velocity.y);
+                        hasPlayedSound = true;
+                    }
+
+                    // Bounce with energy loss (metal doesn't bounce much)
+                    if (velocity.y < 0) {
+                        velocity.y *= -0.35;
+                    }
+
+                    // Apply friction when in contact with ground (metal on concrete)
+                    const FRICTION = 0.80;
+                    velocity.x *= FRICTION;
+                    velocity.z *= FRICTION;
+                    angularVelocity.x *= FRICTION;
+                    angularVelocity.y *= FRICTION;
+                    angularVelocity.z *= FRICTION;
+
+                    // Apply gravity torque to tip coin over when on edge
+                    // Calculate how tilted the coin is (0 = flat, 1 = on edge)
+                    const rx = mainCoin.rotation.x % (Math.PI * 2);
+                    const rz = mainCoin.rotation.z % (Math.PI * 2);
+
+                    // Normalize angles to -PI to PI
+                    const normalizedRx = ((rx + Math.PI) % (Math.PI * 2)) - Math.PI;
+                    const normalizedRz = ((rz + Math.PI) % (Math.PI * 2)) - Math.PI;
+
+                    // Calculate tilt from horizontal (closer to 0 or PI is flatter)
+                    const tiltX = Math.abs(Math.abs(normalizedRx) - Math.PI / 2);
+                    const tiltZ = Math.abs(Math.abs(normalizedRz) - Math.PI / 2);
+
+                    // If coin is tilted (not flat), apply torque to tip it over (heavier coin tips faster)
+                    const TORQUE_STRENGTH = 1.2;
+
+                    // Apply torque in direction that tips coin toward flat
+                    if (tiltX < Math.PI / 4) { // If tilted on X axis
+                        const torqueDir = normalizedRx > 0 ? 1 : -1;
+                        angularVelocity.x += torqueDir * TORQUE_STRENGTH;
+                    }
+
+                    if (tiltZ < Math.PI / 4) { // If tilted on Z axis
+                        const torqueDir = normalizedRz > 0 ? 1 : -1;
+                        angularVelocity.z += torqueDir * TORQUE_STRENGTH;
+                    }
+
+                    // Check if coin has settled
+                    const totalVelocity = Math.sqrt(
+                        velocity.x * velocity.x +
+                        velocity.y * velocity.y +
+                        velocity.z * velocity.z
+                    );
+                    const totalAngularVel = Math.sqrt(
+                        angularVelocity.x * angularVelocity.x +
+                        angularVelocity.y * angularVelocity.y +
+                        angularVelocity.z * angularVelocity.z
+                    );
+
+                    if (totalVelocity < 0.02 && totalAngularVel < 3) {
+                        isFlipping = false;
+                        controls.enabled = true;
+
+                        // Snap to nearest flat orientation
+                        const snapRx = Math.round(mainCoin.rotation.x / Math.PI) * Math.PI;
+                        const snapRz = Math.round(mainCoin.rotation.z / Math.PI) * Math.PI;
+                        mainCoin.rotation.x = snapRx;
+                        mainCoin.rotation.z = snapRz;
+
+                        // Final position adjustment
+                        const finalLowest = getCoinLowestPoint(mainCoin);
+                        mainCoin.position.y = GROUND_Y + finalLowest;
+                        velocity = { x: 0, y: 0, z: 0 };
+                        angularVelocity = { x: 0, y: 0, z: 0 };
+                    }
+                }
+            } else {
+                mainCoin.rotation.y += 0.005;
+                // Keep coin resting on ground
+                const restLowest = getCoinLowestPoint(mainCoin);
+                mainCoin.position.y = GROUND_Y + restLowest;
             }
-        });
 
-        // Rain functionality (simple bursts, multi-press)
-        const rainButton = document.getElementById('rain-button');
-        let activeRainCount = 0;
+            // Update rain coins with full physics
+            for (let i = rainCoins.length - 1; i >= 0; i--) {
+                const r = rainCoins[i];
 
-        function createRainCoin() {
-            const rainContainer = document.createElement('div');
-            rainContainer.className = 'container rain-coin';
-            
-            const rainCoin = document.createElement('div');
-            rainCoin.className = 'coin';
-            rainCoin.innerHTML = `
-                <div class="coin-face heads"></div>
-                <div class="coin-face tails"></div>
-            `;
-            
-            rainContainer.appendChild(rainCoin);
-            document.body.appendChild(rainContainer);
+                // Apply gravity
+                r.vel.y += GRAVITY;
 
-            // Random starting position (top edge)
-            const startX = Math.random() * window.innerWidth;
-            const startY = -50;
-            rainContainer.style.left = `${startX}px`;
-            rainContainer.style.top = '-50px';
+                // Apply air damping to angular velocity
+                r.ang.x *= DAMPING;
+                r.ang.y *= DAMPING;
+                r.ang.z *= DAMPING;
 
-            // Random rotation and movement
-            const duration = 1.6 + Math.random() * 1.6; // 1.6s..3.2s
-            const endX = startX + (Math.random() * 200 - 100);
-            const endYDelta = window.innerHeight + 100; // fall past bottom
+                // Update rotation
+                r.mesh.rotation.x += r.ang.x * (Math.PI / 180);
+                r.mesh.rotation.y += r.ang.y * (Math.PI / 180);
+                r.mesh.rotation.z += r.ang.z * (Math.PI / 180);
 
-            // Spin using WAAPI while falling
-            rainCoin.animate([
-                { transform: 'rotateX(0deg) rotateY(0deg)' },
-                { transform: 'rotateX(720deg) rotateY(1440deg)' }
-            ], {
-                duration: duration * 1000,
-                easing: 'linear',
-                fill: 'forwards'
-            });
+                // Update position
+                r.mesh.position.x += r.vel.x;
+                r.mesh.position.y += r.vel.y;
+                r.mesh.position.z += r.vel.z;
 
-            // Add falling animation via CSS transition
-            activeRainCount++;
-            rainContainer.style.transition = `transform ${duration}s cubic-bezier(0.4, 0.2, 0.6, 1)`;
-            requestAnimationFrame(() => {
-                rainContainer.style.transform = `translateY(${endYDelta}px) translateX(${endX - startX}px)`;
-            });
+                // Ground collision detection
+                const lowestPoint = getCoinLowestPointRain(r.mesh, RAIN_COIN_RADIUS, RAIN_TOTAL_THICKNESS);
+                const coinBottom = r.mesh.position.y - lowestPoint;
 
-            // Remove after animation
-            setTimeout(() => {
-                rainContainer.remove();
-                activeRainCount = Math.max(0, activeRainCount - 1);
-            }, duration * 1000 + 60);
+                if (coinBottom < GROUND_Y) {
+                    // Calculate penetration and push out
+                    const penetration = GROUND_Y - coinBottom;
+                    r.mesh.position.y += penetration;
+
+                    // Play quiet thonk sound on first impact
+                    if (!r.hasPlayedSound && Math.abs(r.vel.y) > 0.03) {
+                        playThonk(r.vel.y * 0.3); // Quieter than main coin
+                        r.hasPlayedSound = true;
+                    }
+
+                    // Bounce with energy loss
+                    if (r.vel.y < 0) {
+                        r.vel.y *= -0.4; // Less bouncy than main coin
+                    }
+
+                    // Apply friction
+                    const RAIN_FRICTION = 0.88;
+                    r.vel.x *= RAIN_FRICTION;
+                    r.vel.z *= RAIN_FRICTION;
+                    r.ang.x *= RAIN_FRICTION;
+                    r.ang.y *= RAIN_FRICTION;
+                    r.ang.z *= RAIN_FRICTION;
+
+                    // Apply gravity torque (same as main coin)
+                    const rx = r.mesh.rotation.x % (Math.PI * 2);
+                    const rz = r.mesh.rotation.z % (Math.PI * 2);
+                    const normalizedRx = ((rx + Math.PI) % (Math.PI * 2)) - Math.PI;
+                    const normalizedRz = ((rz + Math.PI) % (Math.PI * 2)) - Math.PI;
+                    const tiltX = Math.abs(Math.abs(normalizedRx) - Math.PI / 2);
+                    const tiltZ = Math.abs(Math.abs(normalizedRz) - Math.PI / 2);
+                    const TORQUE = 0.5; // Slightly weaker torque for rain coins
+
+                    if (tiltX < Math.PI / 4) {
+                        const torqueDir = normalizedRx > 0 ? 1 : -1;
+                        r.ang.x += torqueDir * TORQUE;
+                    }
+                    if (tiltZ < Math.PI / 4) {
+                        const torqueDir = normalizedRz > 0 ? 1 : -1;
+                        r.ang.z += torqueDir * TORQUE;
+                    }
+
+                    // Check if coin has settled - remove if it has
+                    const totalVel = Math.sqrt(r.vel.x * r.vel.x + r.vel.y * r.vel.y + r.vel.z * r.vel.z);
+                    const totalAngVel = Math.sqrt(r.ang.x * r.ang.x + r.ang.y * r.ang.y + r.ang.z * r.ang.z);
+
+                    if (totalVel < 0.015 && totalAngVel < 2) {
+                        // Snap to flat
+                        const snapRx = Math.round(r.mesh.rotation.x / Math.PI) * Math.PI;
+                        const snapRz = Math.round(r.mesh.rotation.z / Math.PI) * Math.PI;
+                        r.mesh.rotation.x = snapRx;
+                        r.mesh.rotation.z = snapRz;
+
+                        // Final position
+                        const finalLowest = getCoinLowestPointRain(r.mesh, RAIN_COIN_RADIUS, RAIN_TOTAL_THICKNESS);
+                        r.mesh.position.y = GROUND_Y + finalLowest;
+
+                        // Keep it on ground for a bit then remove
+                        setTimeout(() => {
+                            scene.remove(r.mesh);
+                            const idx = rainCoins.indexOf(r);
+                            if (idx > -1) rainCoins.splice(idx, 1);
+                        }, 3000 + Math.random() * 2000);
+                    }
+                }
+
+                // Remove if fallen too far (safety check)
+                if (r.mesh.position.y < -10) {
+                    scene.remove(r.mesh);
+                    rainCoins.splice(i, 1);
+                }
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
         }
 
-        function spawnRainBurst() {
-            const toSpawn = Math.max(10, Math.floor(activeRainCount / 2));
-            for (let i = 0; i < toSpawn; i++) createRainCoin();
-        }
-
-        rainButton.addEventListener('click', spawnRainBurst);
+        animate();
     </script>
 </body>
 </html>
