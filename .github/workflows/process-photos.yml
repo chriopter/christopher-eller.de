@@ -72,7 +72,7 @@ jobs:
           git push
       
       - name: Trigger Hugo workflow
-        uses: peter-evans/repository-dispatch@v3
+        uses: peter-evans/repository-dispatch@v4
         with:
           event-type: hugo-autopilot-build
           client-payload: '{}'
