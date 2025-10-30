@@ -48,7 +48,7 @@ Rein gar nichts ist in dieser „Energiewende" wahr geworden - nur das, worum es
 ## Zukunft
 
 Es bleiben zwei Szenarien:\
-A) Massive fortschreitende Deindustrialisierung und Wohlstandsabbau durch steigende Energiekosten, später Knappheit bei Beibehaltung massiver Fossilverbrennerei - und vielleicht auch mal Stromausfall im Krankenhaus an Weihnachten.\
+A) Massive fortschreitende Deindustrialisierung und Wohlstandsabbau durch steigende Energiekosten, später Knappheit bei Beibehaltung massiver Fossilverbrennerei durch Gasbackups - oder vielleicht mit weniger Backup auch mal Stromausfall im Krankenhaus an Weihnachten.\
 B) Das alles in die Tonne zu werfen und dogmenfrei jede (saubere) Energieform zu nutzen, die wir in die Finger bekommen.
 
 ## Die unheilige Allianz
